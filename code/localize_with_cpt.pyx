@@ -161,21 +161,19 @@ cdef class CPTLocalizer:
 		
 		# first, compute Gaussian errors for different angles
 		cdef np.ndarray[double, ndim=3] sigmas_inverse = np.zeros([self.angle_N, 3, 3], np.double)
-		# errors
-		cdef double e_x, e_y, e_theta    # errors
 		cdef double s_theta, s_x, s_y    # source pos in world coordinates
 		cdef double t_theta, t_x, t_y    # target pos in world coordinates
 		cdef int t_theta_i, t_x_y, t_y_i # target pos in cell coordinates
 		cdef np.ndarray[double, ndim=2] T, sigma
 		cdef int i, j, k
+		# compute the error and add half a cell
+		cdef double e_x = self.eps_x * d_t + 0.5
+		cdef double e_y = self.eps_y * d_t + 0.5
+		cdef double e_theta = self.eps_theta + self.half_theta_step
 		for i in range(self.angle_N):
 			s_theta = self._thetaC2W(i)
 			t_theta = s_theta + d_theta
 			T = _rot_mat2(t_theta)
-			# compute the error and add half a cell
-			e_x = self.eps_x * d_t + 0.5
-			e_y = self.eps_y * d_t + 0.5
-			e_theta = self.eps_theta + self.half_theta_step
 			sigma = np.zeros([3,3], np.double)
 			sigma[0:2,0:2] = T.dot([[e_x, 0],[0, e_y]]).dot(np.transpose(T))
 			sigma[2,2] = e_theta
@@ -193,11 +191,11 @@ cdef class CPTLocalizer:
 			t_theta_i = self._thetaW2C(t_theta)
 			for j in range(self.ground_map.shape[0]):
 				s_x = self._xC2W(j)
-				t_x = s_x + d_x
+				t_x = s_x + d_x # FIXME; maybe wrong
 				t_x_i = self._xW2C(t_x)
 				for k in range(self.ground_map.shape[1]):
 					s_y = self._yC2W(k)
-					t_y = s_y + d_y
+					t_y = s_y + d_y # FIXME; maybe wrong
 					t_y_i = self._yW2C(t_y)
 					pass
 			
