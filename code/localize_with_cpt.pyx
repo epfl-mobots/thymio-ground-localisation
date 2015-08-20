@@ -88,6 +88,7 @@ cdef class CPTLocalizer:
 		assert ground_map.dtype == np.double
 		
 		# copy parameters
+		assert angle_N != 0
 		self.angle_N = angle_N
 		self.max_prob_error = max_prob_error
 		
@@ -162,7 +163,8 @@ cdef class CPTLocalizer:
 		np.asarray(self.PX).fill(0.5)
 	
 	# main methods
-	
+	@cython.boundscheck(False) # turn off bounds-checking for entire function
+	@cython.cdivision(True) # turn off division-by-zero checking
 	def apply_obs(self, bint is_left_black, bint is_right_black):
 		""" Update the latent space with observation """
 		
@@ -180,6 +182,11 @@ cdef class CPTLocalizer:
 		self.PX /= self.PX.sum()
 		# FIXME: time it and maybe do not do it always
 	
+	
+	@cython.boundscheck(False) # turn off bounds-checking for entire function
+	@cython.cdivision(True) # turn off division-by-zero checking
+	@cython.wraparound(False) # turn off wrap-around checking
+	@cython.nonecheck(False) # turn off 
 	def apply_command(self, double d_t, double d_x, double d_y, double d_theta):
 		""" Apply a command for a displacement of d_x,d_y (in local frame) and a rotation of d_theta, during a time d_t """
 		
@@ -192,11 +199,21 @@ cdef class CPTLocalizer:
 		cdef double d_x_r, d_y_r         # rotated d_x and d_y in function of theta in world coordinates
 		cdef int d_theta_i, d_x_r_i, d_y_r_i     # rotated d_x and d_y in function of theta in cell coordinates
 		cdef double d_theta_d, d_x_r_d, d_y_r_d  # diff between d_x/y_r and d_x/y_r_i
-		cdef np.ndarray[double, ndim=2] T, sigma #, sigma_inverse # cov. motion model
+		cdef np.ndarray[double, ndim=2] T, sigma # cov. motion model
+		
+		# assertion and copy some values for optimisation
+		assert self.ground_map is not None
+		assert self.PX is not None
+		assert self.ground_map.shape[0] == self.PX.shape[1]
+		assert self.ground_map.shape[1] == self.PX.shape[2]
+		cdef int w = self.ground_map.shape[0]
+		cdef int h = self.ground_map.shape[1]
+		cdef int angle_N = self.angle_N
 		
 		# compute the error and add half a cell
 		cdef double e_x = self.eps_x * d_t + 0.5
 		cdef double e_y = self.eps_y * d_t + 0.5
+		cdef np.ndarray[double, ndim=2] e_xy = np.array([[e_x, 0], [0, e_y]])
 		cdef double e_theta = self.eps_theta + self.half_theta_step
 		
 		# compute how many steps around we have to compute to have less than 1 % of error in transfering probability mass
@@ -207,12 +224,14 @@ cdef class CPTLocalizer:
 		cdef double e_i
 		#print 'e_theta', e_theta
 		#print 'e_theta_max', e_theta_max 
-		for i in range(1, self.angle_N/2):
+		for i in range(1, angle_N/2):
 			e_i = e_theta_dist.pdf(self._dthetaC2W(i))
 			if e_i < self.max_prob_error * e_theta_max:
 				break
-		cdef np.ndarray[double, ndim=1] e_theta_p = np.empty(i*2+1, np.double)
 		cdef int d_theta_range = i
+		cdef int d_theta_shape = i*2 + 1
+		cdef np.ndarray[double, ndim=1] e_theta_p = np.empty(d_theta_shape, np.double)
+		
 		# for x,y
 		cdef object e_xy_dist = norm(0, max(e_x, e_y))
 		cdef double e_xy_max = e_xy_dist.pdf(0)
@@ -220,8 +239,9 @@ cdef class CPTLocalizer:
 			e_i = e_xy_dist.pdf(self._dxyC2W(i))
 			if e_i < self.max_prob_error * e_xy_max:
 				break
-		cdef np.ndarray[double, ndim=2] e_xy_p = np.empty([i*2+1, i*2+1], np.double)
 		cdef int d_xy_range = i
+		cdef int d_xy_shape = i*2 + 1 
+		cdef np.ndarray[double, ndim=2] e_xy_p = np.empty([d_xy_shape, d_xy_shape], np.double)
 		
 		# pre-compute values for fast lookup in inner loop for theta
 		d_theta_i = self._dthetaW2C(d_theta)
@@ -233,14 +253,17 @@ cdef class CPTLocalizer:
 		#print e_theta_p
 		#print d_theta_i, d_theta_d
 		
+		# view to remove some safety checks in the inner-most loop
+		cdef np.ndarray[double, ndim=3] PX_view = np.asarray(self.PX)
 		# temporary storage for probability mass
 		cdef np.ndarray[double, ndim=3] PX_new = np.zeros(np.asarray(self.PX).shape, np.double)
 		
-		# mass probability transfer loops, first iterate on theta
-		for i in range(self.angle_N):
-			# rotation matrix for theta
+		# mass probability transfer loops, first iterate on theta on source cells
+		for i in range(angle_N):
+			# change in angle
 			s_theta = self._thetaC2W(i)
 			t_theta = s_theta + d_theta
+			# rotation matrix for theta
 			T = _rot_mat2(t_theta)
 			
 			# compute displacement for this theta
@@ -255,7 +278,7 @@ cdef class CPTLocalizer:
 			#print d_x_r_d, d_y_r_d
 			
 			# compute covariance
-			sigma = T.dot(np.array([[e_x, 0],[0, e_y]])).dot(T.transpose())
+			sigma = T.dot(e_xy).dot(T.transpose())
 			
 			# then pre-compute arrays for fast lookup in inner loop for x,y
 			mu = np.array([d_x_r_d, d_y_r_d])
@@ -269,21 +292,21 @@ cdef class CPTLocalizer:
 			#print e_xy_p
 			#scipy.misc.imsave('/tmp/toto/e_xy_p-'+str(i)+'.png', e_xy_p)
 			
-			# outer loops for x,y
-			for j in range(self.ground_map.shape[0]):
-				for k in range(self.ground_map.shape[1]):
-					# inner loops for transfering from cell s_ to cells around t_
-					for d_i in range(e_theta_p.shape[0]):
+			# outer loops for x,y iterating on source cells
+			for j in range(w):
+				for k in range(h):
+					# inner loops iterating on target cells
+					for d_i in range(d_theta_shape):
 						u_theta_i = i + d_theta_i + d_i - d_theta_range
-						for d_j in range(e_xy_p.shape[0]):
+						for d_j in range(d_xy_shape):
 							u_x_i = j + d_x_r_i + d_j - d_xy_range
-							if u_x_i >= 0 and u_x_i < self.ground_map.shape[0]:
-								for d_k in range(e_xy_p.shape[1]):
+							if u_x_i >= 0 and u_x_i < w:
+								for d_k in range(d_xy_shape):
 									u_y_i = k + d_y_r_i + d_k - d_xy_range
-									if u_y_i >= 0 and u_y_i < self.ground_map.shape[1]:
-										u_theta_i = (u_theta_i + self.angle_N) % self.angle_N
+									if u_y_i >= 0 and u_y_i < h:
+										u_theta_i = (u_theta_i + angle_N) % angle_N
 										# copy probability mass
-										PX_new[u_theta_i, u_x_i, u_y_i] += self.PX[i, j, k] * e_theta_p[d_i] * e_xy_p[d_j, d_k]
+										PX_new[u_theta_i, u_x_i, u_y_i] += PX_view[i, j, k] * e_theta_p[d_i] * e_xy_p[d_j, d_k]
 			
 		# copy back probability mass
 		self.PX = PX_new

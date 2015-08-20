@@ -14,6 +14,6 @@ if __name__ == '__main__':
 	prob_correct = 0.95
 	localizer = localize_with_cpt.CPTLocalizer(ground_map, angle_N, prob_correct, 0.01)
 	localizer.dump_obs_model('/tmp/toto/obs')
-	for i in range(10):
+	for i in range(100):
 		print i
 		localizer.apply_command(0.1, 0.0, 0.0, 0.1)
