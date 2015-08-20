@@ -1,0 +1,25 @@
+Notes about transformations
+---------------------------
+
+at time 0: x_0, y_0, theta_0
+at time 1: x_1, y_1, theta_1
+
+We use homogeneous coordinate, so (x,y) is represented by (x,y,1)
+
+      | cos(theta_0), -sin(theta_0), x_0 |
+T_0 = | sin(theta_0),  cos(theta_0), y_0 |
+      | 0,             0,            1   |
+
+T_0 is the transformation taking a point in local frame at time 0 at transforming to global frame at time 0, as thought be the Thymio
+T_1 is the transformation taking a point in local frame at time 1 at transforming to global frame at time 1, as thought be the Thymio
+
+What do we want for as input for localisation?
+
+T_l is  the transformation taking a point in Thymio local frame at time 1 transforming to Thymio local frame at time 0 ?
+From WP [1]: the effect of applying first A and then B to a vector x is given by: (BA)* x
+
+A = T_1, B = inv(T_0)
+T_l = inv(T_0) * T_1
+
+
+[1] https://en.wikipedia.org/wiki/Transformation_matrix
