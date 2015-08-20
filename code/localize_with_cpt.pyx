@@ -67,7 +67,6 @@ cdef class CPTLocalizer:
 	cdef double eps_x
 	cdef double eps_y
 	cdef double eps_theta
-	cdef double half_theta_step
 	
 	# map
 	cdef double[:,:] ground_map
@@ -95,7 +94,6 @@ cdef class CPTLocalizer:
 		self.eps_x = 1.
 		self.eps_y = 1.
 		self.eps_theta = 0.2087
-		self.half_theta_step = math.radians(180. / angle_N)
 		self.ground_map = ground_map
 		
 		# create the arrays
@@ -211,10 +209,10 @@ cdef class CPTLocalizer:
 		cdef int angle_N = self.angle_N
 		
 		# compute the error and add half a cell
-		cdef double e_x = self.eps_x * d_t + 0.5
-		cdef double e_y = self.eps_y * d_t + 0.5
+		cdef double e_x = self.eps_x * d_t + self._dxyC2W(1) / 2.
+		cdef double e_y = self.eps_y * d_t + self._dxyC2W(1) / 2.
 		cdef np.ndarray[double, ndim=2] e_xy = np.array([[e_x, 0], [0, e_y]])
-		cdef double e_theta = self.eps_theta + self.half_theta_step
+		cdef double e_theta = self.eps_theta + self._dthetaC2W(1) / 2.
 		
 		# compute how many steps around we have to compute to have less than 1 % of error in transfering probability mass
 		# and allocate arrays for fast lookup
