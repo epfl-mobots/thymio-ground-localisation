@@ -10,8 +10,10 @@ import localize_with_cpt
 
 if __name__ == '__main__':
 	ground_map = np.random.choice([0.,1.], [50,50])
-	angle_N = 12
+	angle_N = 16
 	prob_correct = 0.95
-	localizer = localize_with_cpt.CPTLocalizer(ground_map, angle_N, prob_correct)
+	localizer = localize_with_cpt.CPTLocalizer(ground_map, angle_N, prob_correct, 0.01)
 	localizer.dump_obs_model('/tmp/toto/obs')
-	localizer.apply_command(0.1, 0.2, 0.2, 0.1)
+	for i in range(10):
+		print i
+		localizer.apply_command(0.1, 0.0, 0.0, 0.1)
