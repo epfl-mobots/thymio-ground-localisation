@@ -157,8 +157,7 @@ cdef class CPTLocalizer:
 						self.obs_right_white[i,j,k] = 0.5
 		
 		# initialize PX
-		self.PX = np.empty(shape, np.double)
-		np.asarray(self.PX).fill(0.5)
+		self.PX = np.ones(shape, np.double) / float(np.prod(shape))
 	
 	# main methods
 	@cython.boundscheck(False) # turn off bounds-checking for entire function
