@@ -19,7 +19,7 @@ cdef double _1pi = 1. / math.pi
 
 # support functions
 
-cdef np.ndarray[double, ndim=2] _rot_mat2(double angle):
+cpdef np.ndarray[double, ndim=2] rot_mat2(double angle):
 	""" Create a 2D rotation matrix for angle """
 	return np.array([[np.cos(angle), -np.sin(angle)],
 	                 [np.sin(angle),  np.cos(angle)]])
@@ -80,7 +80,6 @@ cdef class CPTLocalizer:
 	# probability distribution for latent space
 	cdef double[:,:,:] PX
 	
-	
 	# constructor
 	
 	def __init__(self, np.ndarray[double, ndim=2] ground_map, int angle_N, double prob_correct, double max_prob_error):
@@ -112,8 +111,8 @@ cdef class CPTLocalizer:
 		cdef double theta
 		cdef int i, j, k
 		for i in range(angle_N):
-			theta = self._thetaC2W(i)
-			R = _rot_mat2(theta)
+			theta = self.thetaC2W(i)
+			R = rot_mat2(theta)
 			shifts_left[i,:] = R.dot([7.2, 1.1])
 			shifts_right[i,:] = R.dot([7.2, -1.1])
 		
@@ -129,11 +128,13 @@ cdef class CPTLocalizer:
 		for i in range(angle_N):
 			for j in range(ground_map.shape[0]):
 				for k in range(ground_map.shape[1]):
-					c_x = self._xyC2W(j)
-					c_y = self._xyC2W(k)
+					c_x = self.xyC2W(j)
+					c_y = self.xyC2W(k)
+					# WARNING: value to color encoding is unusual:
+					# black is 1, white is 0
 					# left sensor
-					x = self._xyW2C(shifts_left[i,0] + c_x)
-					y = self._xyW2C(shifts_left[i,1] + c_y)
+					x = self.xyW2C(shifts_left[i,0] + c_x)
+					y = self.xyW2C(shifts_left[i,1] + c_y)
 					if _is_in_bound_int(x,y,w,h):
 						if ground_map[x,y] == 1.:
 							self.obs_left_black[i,j,k] = prob_correct
@@ -145,8 +146,8 @@ cdef class CPTLocalizer:
 						self.obs_left_black[i,j,k] = 0.5
 						self.obs_left_white[i,j,k] = 0.5
 					# right sensor
-					x = self._xyW2C(shifts_right[i,0] + c_x)
-					y = self._xyW2C(shifts_right[i,1] + c_y)
+					x = self.xyW2C(shifts_right[i,0] + c_x)
+					y = self.xyW2C(shifts_right[i,1] + c_y)
 					if _is_in_bound_int(x,y,w,h):
 						if ground_map[x,y] == 1.:
 							self.obs_right_black[i,j,k] = prob_correct
@@ -215,10 +216,10 @@ cdef class CPTLocalizer:
 		cdef int angle_N = self.angle_N
 		
 		# compute the error and add half a cell
-		cdef double e_x = self.eps_x * d_t + self._dxyC2W(1) / 2.
-		cdef double e_y = self.eps_y * d_t + self._dxyC2W(1) / 2.
+		cdef double e_x = self.eps_x * d_t + self.dxyC2W(1) / 2.
+		cdef double e_y = self.eps_y * d_t + self.dxyC2W(1) / 2.
 		cdef np.ndarray[double, ndim=2] e_xy = np.array([[e_x, 0], [0, e_y]])
-		cdef double e_theta = self.eps_theta + self._dthetaC2W(1) / 2.
+		cdef double e_theta = self.eps_theta + self.dthetaC2W(1) / 2.
 		
 		# compute how many steps around we have to compute to have less than 1 % of error in transfering probability mass
 		# and allocate arrays for fast lookup
@@ -229,7 +230,7 @@ cdef class CPTLocalizer:
 		#print 'e_theta', e_theta
 		#print 'e_theta_max', e_theta_max 
 		for i in range(1, angle_N/2):
-			e_i = e_theta_dist.pdf(self._dthetaC2W(i))
+			e_i = e_theta_dist.pdf(self.dthetaC2W(i))
 			if e_i < self.max_prob_error * e_theta_max:
 				break
 		cdef int d_theta_range = i
@@ -240,7 +241,7 @@ cdef class CPTLocalizer:
 		cdef object e_xy_dist = norm(0, max(e_x, e_y))
 		cdef double e_xy_max = e_xy_dist.pdf(0)
 		for i in range(1, self.ground_map.shape[0]/2):
-			e_i = e_xy_dist.pdf(self._dxyC2W(i))
+			e_i = e_xy_dist.pdf(self.dxyC2W(i))
 			if e_i < self.max_prob_error * e_xy_max:
 				break
 		cdef int d_xy_range = i
@@ -248,11 +249,11 @@ cdef class CPTLocalizer:
 		cdef np.ndarray[double, ndim=2] e_xy_p = np.empty([d_xy_shape, d_xy_shape], np.double)
 		
 		# pre-compute values for fast lookup in inner loop for theta
-		d_theta_i = self._dthetaW2C(d_theta)
-		d_theta_d = d_theta - self._dthetaC2W(d_theta_i)
+		d_theta_i = self.dthetaW2C(d_theta)
+		d_theta_d = d_theta - self.dthetaC2W(d_theta_i)
 		e_theta_dist = norm(d_theta_d, e_theta)
 		for i in range(e_theta_p.shape[0]):
-			e_theta_p[i] = e_theta_dist.pdf(self._dthetaC2W(i - e_theta_p.shape[0]/2))
+			e_theta_p[i] = e_theta_dist.pdf(self.dthetaC2W(i - e_theta_p.shape[0]/2))
 		e_theta_p /= e_theta_p.sum()
 		#print e_theta_p
 		#print d_theta_i, d_theta_d
@@ -265,17 +266,17 @@ cdef class CPTLocalizer:
 		# mass probability transfer loops, first iterate on theta on source cells
 		for i in range(angle_N):
 			# change in angle
-			s_theta = self._thetaC2W(i)
+			s_theta = self.thetaC2W(i)
 			t_theta = s_theta + d_theta
 			# rotation matrix for theta
-			T = _rot_mat2(t_theta)
+			T = rot_mat2(t_theta)
 			
 			# compute displacement for this theta
 			d_x_r, d_y_r = T.dot([d_x, d_y])
-			d_x_r_i = self._dxyW2C(d_x_r)
-			d_y_r_i = self._dxyW2C(d_y_r)
-			d_x_r_d = d_x_r - self._dxyW2C(d_x_r_i)
-			d_y_r_d = d_y_r - self._dxyW2C(d_y_r_i)
+			d_x_r_i = self.dxyW2C(d_x_r)
+			d_y_r_i = self.dxyW2C(d_y_r)
+			d_x_r_d = d_x_r - self.dxyW2C(d_x_r_i)
+			d_y_r_d = d_y_r - self.dxyW2C(d_y_r_i)
 			#print ''
 			#print d_x_r, d_y_r
 			#print d_x_r_i, d_y_r_i
@@ -289,8 +290,8 @@ cdef class CPTLocalizer:
 			#print 'mu', mu
 			for j in range(e_xy_p.shape[0]):
 				for k in range(e_xy_p.shape[1]):
-					t_x = self._dxyC2W(j - e_xy_p.shape[0]/2)
-					t_y = self._dxyC2W(k - e_xy_p.shape[1]/2)
+					t_x = self.dxyC2W(j - e_xy_p.shape[0]/2)
+					t_y = self.dxyC2W(k - e_xy_p.shape[1]/2)
 					e_xy_p[j,k] = _norm_pdf_multivariate(np.array([t_x, t_y]), mu , sigma)
 			e_xy_p /= e_xy_p.sum()
 			#print e_xy_p
@@ -327,42 +328,49 @@ cdef class CPTLocalizer:
 			scipy.misc.imsave(base_filename+'-'+str(i)+'-right_black.png', self.obs_right_black[i])
 			scipy.misc.imsave(base_filename+'-'+str(i)+'-right_white.png', self.obs_right_white[i])
 	
-	def dump_PX(self, str base_filename):
+	def dump_PX(self, str base_filename, int x = -1, int y = -1):
 		""" Write images of latent space """
 		cdef int i
+		cdef np.ndarray[double, ndim=3] zeros = np.zeros([self.PX.shape[1], self.PX.shape[2], 1], np.double)
 		for i in range(self.angle_N):
-			scipy.misc.imsave(base_filename+'-'+str(i)+'.png', self.PX[i])
+			PX_xy = np.asarray(self.PX)[i,:,:,np.newaxis]
+			PX_xy_rgb = np.concatenate((PX_xy, zeros, zeros), axis = 2)
+			if x >= 0 and y >= 0:
+				PX_xy_rgb[x,y,1] = PX_xy_rgb[x,y,0]
+				PX_xy_rgb[x,y,2] = PX_xy_rgb[x,y,0]
+			scipy.misc.imsave(base_filename+'-'+str(i)+'.png', PX_xy_rgb)
+			#scipy.misc.imsave(base_filename+'-'+str(i)+'.png', self.PX[i])
 	
-	# support functions
+	# support methods
 	
-	cdef double _thetaC2W(self, int angle):
+	cpdef double thetaC2W(self, int angle):
 		""" Transform an angle in cell coordinates into an angle in radian """
 		return ((angle+0.5) * 2. * _pi) / self.angle_N
 
-	cdef int _thetaW2C(self, double angle):
+	cpdef int thetaW2C(self, double angle):
 		""" Transform an angle in radian into an angle in cell coordinates """
 		return int(floor((angle * self.angle_N) / (2. * _pi)))
 	
-	cdef double _dthetaC2W(self, int dangle):
+	cpdef double dthetaC2W(self, int dangle):
 		""" Transform an angle difference in cell coordinates into a difference in radian """
 		return ((dangle) * 2. * _pi) / self.angle_N
 	
-	cdef int _dthetaW2C(self, double dangle):
+	cpdef int dthetaW2C(self, double dangle):
 		""" Transform an angle difference in radian into a difference in cell coordinates """
 		return int(round((dangle * self.angle_N) / (2. * _pi)))
 	
-	cdef double _xyC2W(self, int pos):
+	cpdef double xyC2W(self, int pos):
 		""" Transform an x or y coordinate in cell coordinates into world coordinates """
 		return pos+0.5
 		
-	cdef int _xyW2C(self, double pos):
+	cpdef int xyW2C(self, double pos):
 		""" Transform an x or y coordinate in world coordinates into cell coordinates """
 		return int(floor(pos))
 		
-	cdef double _dxyC2W(self, int dpos):
+	cpdef double dxyC2W(self, int dpos):
 		""" Transform an x or y difference in cell coordinates into a difference in world coordinates """
 		return float(dpos)
 		
-	cdef int _dxyW2C(self, double dpos):
+	cpdef int dxyW2C(self, double dpos):
 		""" Transform an x or y difference in world coordinates into a difference in cell coordinates """
 		return int(round(dpos))
