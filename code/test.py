@@ -14,7 +14,7 @@ def sensors_from_pos(x, y, theta):
 	return R.dot([7.2, 1.1]) + [x,y], R.dot([7.2, -1.1]) + [x,y]
 
 if __name__ == '__main__':
-	ground_map = np.random.choice([0.,1.], [50,50])
+	ground_map = np.kron(np.random.choice([0.,1.], [20,20]), np.ones((3,3)))
 	angle_N = 16
 	prob_correct = 0.95
 	localizer = localize_with_cpt.CPTLocalizer(ground_map, angle_N, prob_correct, 0.01)
@@ -29,9 +29,10 @@ if __name__ == '__main__':
 	#localizer.dump_PX('/tmp/toto/PX-2')
 	
 	theta = 0
-	y = 25
-	delta_x = 2
+	y = 30
+	delta_x = 1.
 	for i, x in enumerate(np.arange(5, 35, delta_x)):
+		print x,y
 		# observation
 		# get sensor values from gt
 		lpos, rpos = sensors_from_pos(x, y, theta)

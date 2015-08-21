@@ -216,10 +216,14 @@ cdef class CPTLocalizer:
 		cdef int angle_N = self.angle_N
 		
 		# compute the error and add half a cell
-		cdef double e_x = self.eps_x * d_t + self.dxyC2W(1) / 2.
-		cdef double e_y = self.eps_y * d_t + self.dxyC2W(1) / 2.
+		#cdef double e_x = self.eps_x * d_t + self.dxyC2W(1) / 2.
+		#cdef double e_y = self.eps_y * d_t + self.dxyC2W(1) / 2.
+		#cdef np.ndarray[double, ndim=2] e_xy = np.array([[e_x, 0], [0, e_y]])
+		#cdef double e_theta = self.eps_theta + self.dthetaC2W(1) / 2.
+		cdef double e_x = self.dxyC2W(1) / 2.
+		cdef double e_y = self.dxyC2W(1) / 2.
 		cdef np.ndarray[double, ndim=2] e_xy = np.array([[e_x, 0], [0, e_y]])
-		cdef double e_theta = self.eps_theta + self.dthetaC2W(1) / 2.
+		cdef double e_theta = self.dthetaC2W(1) / 2.
 		
 		# compute how many steps around we have to compute to have less than 1 % of error in transfering probability mass
 		# and allocate arrays for fast lookup
@@ -330,16 +334,23 @@ cdef class CPTLocalizer:
 	
 	def dump_PX(self, str base_filename, int x = -1, int y = -1):
 		""" Write images of latent space """
-		cdef int i
-		cdef np.ndarray[double, ndim=3] zeros = np.zeros([self.PX.shape[1], self.PX.shape[2], 1], np.double)
-		for i in range(self.angle_N):
-			PX_xy = np.asarray(self.PX)[i,:,:,np.newaxis]
-			PX_xy_rgb = np.concatenate((PX_xy, zeros, zeros), axis = 2)
+		
+		# dump image in RGB
+		def write_image(np.ndarray[double, ndim=2] array_2D, str filename):
+			cdef np.ndarray[double, ndim=3] zeros = np.zeros([self.PX.shape[1], self.PX.shape[2], 1], np.double)
+			array_rgb = np.concatenate((array_2D[:,:,np.newaxis], zeros, zeros), axis = 2)
 			if x >= 0 and y >= 0:
-				PX_xy_rgb[x,y,1] = PX_xy_rgb[x,y,0]
-				PX_xy_rgb[x,y,2] = PX_xy_rgb[x,y,0]
-			scipy.misc.imsave(base_filename+'-'+str(i)+'.png', PX_xy_rgb)
-			#scipy.misc.imsave(base_filename+'-'+str(i)+'.png', self.PX[i])
+				array_rgb[x,y,1] = array_rgb[x,y,0]
+				array_rgb[x,y,2] = array_rgb[x,y,0]
+			scipy.misc.imsave(filename, array_rgb)
+		
+		# for every angle
+		cdef int i
+		for i in range(self.angle_N):
+			write_image(np.asarray(self.PX[i]), base_filename+'-'+str(i)+'.png')
+			
+		# and the sum
+		write_image(np.asarray(self.PX).sum(axis=0), base_filename+'-sum.png')
 	
 	# support methods
 	
