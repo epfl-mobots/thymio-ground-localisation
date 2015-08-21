@@ -80,7 +80,9 @@ cdef class CPTLocalizer:
 	# probability distribution for latent space
 	cdef double[:,:,:] PX
 	
+	
 	# constructor
+	
 	def __init__(self, np.ndarray[double, ndim=2] ground_map, int angle_N, double prob_correct, double max_prob_error):
 		""" Fill the tables obs_left/right_black/white of the same resolution as the ground_map and an angle discretization angle_N """
 		
@@ -159,24 +161,29 @@ cdef class CPTLocalizer:
 		# initialize PX
 		self.PX = np.ones(shape, np.double) / float(np.prod(shape))
 	
+	
 	# main methods
+	
 	@cython.boundscheck(False) # turn off bounds-checking for entire function
 	@cython.cdivision(True) # turn off division-by-zero checking
 	def apply_obs(self, bint is_left_black, bint is_right_black):
 		""" Update the latent space with observation """
 		
+		# create a view on the array to perform numpy operations such as *= or /=
+		cdef np.ndarray[double, ndim=3] PX_view = np.asarray(self.PX)
+		
 		# update PX
 		if is_left_black:
-			self.PX = np.asarray(self.PX) * self.obs_left_black
+			PX_view *= self.obs_left_black
 		else:
-			self.PX = np.asarray(self.PX) * self.obs_left_white
+			PX_view *= self.obs_left_white
 		if is_right_black:
-			self.PX = np.asarray(self.PX) * self.obs_right_black
+			PX_view *= self.obs_right_black
 		else:
-			self.PX = np.asarray(self.PX) * self.obs_right_white
+			PX_view *= self.obs_right_white
 		
 		# renormalize PX
-		self.PX /= self.PX.sum()
+		PX_view /= PX_view.sum()
 		# FIXME: time it and maybe do not do it always
 	
 	
@@ -307,7 +314,8 @@ cdef class CPTLocalizer:
 			
 		# copy back probability mass
 		self.PX = PX_new
-		
+	
+	
 	# debug methods
 	
 	def dump_obs_model(self, str base_filename):
@@ -318,6 +326,12 @@ cdef class CPTLocalizer:
 			scipy.misc.imsave(base_filename+'-'+str(i)+'-left_white.png', self.obs_left_white[i])
 			scipy.misc.imsave(base_filename+'-'+str(i)+'-right_black.png', self.obs_right_black[i])
 			scipy.misc.imsave(base_filename+'-'+str(i)+'-right_white.png', self.obs_right_white[i])
+	
+	def dump_PX(self, str base_filename):
+		""" Write images of latent space """
+		cdef int i
+		for i in range(self.angle_N):
+			scipy.misc.imsave(base_filename+'-'+str(i)+'.png', self.PX[i])
 	
 	# support functions
 	
