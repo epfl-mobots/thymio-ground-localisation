@@ -23,3 +23,17 @@ T_l = inv(T_0) * T_1
 
 
 [1] https://en.wikipedia.org/wiki/Transformation_matrix
+
+
+
+Notes about motion model error
+------------------------------
+
+There are some notes about that:
+
+http://www.mrpt.org/tutorials/programming/odometry-and-motion-models/probabilistic_motion_models/#2_Gaussian_probabilistic_motion_model
+
+From Thrun, Fox & Burgard
+
+\sigma_trans = a_1 * |trans| + a_2 * |rot|
+\sigma_rot = a_3 * |trans| + a_4 * |rot|

@@ -8,7 +8,7 @@ import math
 import scipy.misc
 from scipy.stats import norm
 #import scipy.stats.multivariate_normal as mv_norm
-from libc.math cimport floor
+from libc.math cimport floor, sqrt
 cimport numpy as np
 cimport cython
 
@@ -64,9 +64,10 @@ cdef class CPTLocalizer:
 	cdef double max_prob_error
 	
 	# fixed/computed parameters
-	cdef double eps_x
-	cdef double eps_y
-	cdef double eps_theta
+	cdef double alpha_theta_to_xy
+	cdef double alpha_xy_to_xy
+	cdef double alpha_theta_to_theta
+	cdef double alpha_xy_to_theta
 	
 	# map
 	cdef double[:,:] ground_map
@@ -91,10 +92,10 @@ cdef class CPTLocalizer:
 		assert angle_N != 0
 		self.angle_N = angle_N
 		self.max_prob_error = max_prob_error
-		
-		self.eps_x = 1.
-		self.eps_y = 1.
-		self.eps_theta = 0.2087
+		self.alpha_theta_to_xy = 0.1
+		self.alpha_xy_to_xy = 0.1
+		self.alpha_theta_to_theta = 0.1
+		self.alpha_xy_to_theta = 0.05
 		self.ground_map = ground_map
 		
 		# create the arrays
@@ -115,10 +116,6 @@ cdef class CPTLocalizer:
 			R = rot_mat2(theta)
 			shifts_left[i,:] = R.dot([7.2, 1.1])
 			shifts_right[i,:] = R.dot([7.2, -1.1])
-		
-		# DEBUG
-		#print 'shifts_left = ', shifts_left
-		#print 'shifts_right = ', shifts_right
 		
 		# fill the cells
 		cdef int x, y, w, h
@@ -215,15 +212,13 @@ cdef class CPTLocalizer:
 		cdef int h = self.ground_map.shape[1]
 		cdef int angle_N = self.angle_N
 		
-		# compute the error and add half a cell
-		#cdef double e_x = self.eps_x * d_t + self.dxyC2W(1) / 2.
-		#cdef double e_y = self.eps_y * d_t + self.dxyC2W(1) / 2.
-		#cdef np.ndarray[double, ndim=2] e_xy = np.array([[e_x, 0], [0, e_y]])
-		#cdef double e_theta = self.eps_theta + self.dthetaC2W(1) / 2.
-		cdef double e_x = self.dxyC2W(1) / 2.
-		cdef double e_y = self.dxyC2W(1) / 2.
-		cdef np.ndarray[double, ndim=2] e_xy = np.array([[e_x, 0], [0, e_y]])
-		cdef double e_theta = self.dthetaC2W(1) / 2.
+		# error model for motion, inspired from 
+		# http://www.mrpt.org/tutorials/programming/odometry-and-motion-models/probabilistic_motion_models/
+		# sum of factors from translation (x,y), rotation (theta), and half a cell (for sampling issues)
+		cdef double norm_xy = sqrt(d_x*d_x + d_y*d_y)
+		cdef double e_theta = self.alpha_xy_to_theta * norm_xy + self.alpha_theta_to_theta * d_theta + self.dthetaC2W(1) / 2.
+		cdef double e_xy = self.alpha_xy_to_xy * norm_xy + self.alpha_theta_to_xy * d_theta + self.dxyC2W(1) / 2.
+		cdef np.ndarray[double, ndim=2] e_xy_mat = np.array([[e_xy, 0], [0, e_xy]])
 		
 		# compute how many steps around we have to compute to have less than 1 % of error in transfering probability mass
 		# and allocate arrays for fast lookup
@@ -242,7 +237,7 @@ cdef class CPTLocalizer:
 		cdef np.ndarray[double, ndim=1] e_theta_p = np.empty(d_theta_shape, np.double)
 		
 		# for x,y
-		cdef object e_xy_dist = norm(0, max(e_x, e_y))
+		cdef object e_xy_dist = norm(0, e_xy)
 		cdef double e_xy_max = e_xy_dist.pdf(0)
 		for i in range(1, self.ground_map.shape[0]/2):
 			e_i = e_xy_dist.pdf(self.dxyC2W(i))
@@ -287,7 +282,7 @@ cdef class CPTLocalizer:
 			#print d_x_r_d, d_y_r_d
 			
 			# compute covariance
-			sigma = T.dot(e_xy).dot(T.transpose())
+			sigma = T.dot(e_xy_mat).dot(T.transpose())
 			
 			# then pre-compute arrays for fast lookup in inner loop for x,y
 			mu = np.array([d_x_r_d, d_y_r_d])

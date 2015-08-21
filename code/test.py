@@ -43,8 +43,8 @@ if __name__ == '__main__':
 		rval = ground_map[localizer.xyW2C(rpos[0]), localizer.xyW2C(rpos[1])]
 		#print lval, rval
 		localizer.apply_obs(lval > 0.5, rval > 0.5)
-		localizer.dump_PX('/tmp/toto/PX-'+str(i)+'-A_obs', localizer.xyW2C(x), localizer.xyW2C(y))
+		localizer.dump_PX('/tmp/toto/PX-{:0>4d}-A_obs'.format(i), localizer.xyW2C(x), localizer.xyW2C(y))
 		# movement
 		localizer.apply_command(1.0, delta_x, 0.0, 0.0)
-		localizer.dump_PX('/tmp/toto/PX-'+str(i)+'-B_mvt', localizer.xyW2C(x), localizer.xyW2C(y))
+		localizer.dump_PX('/tmp/toto/PX-{:0>4d}-B_mvt'.format(i), localizer.xyW2C(x), localizer.xyW2C(y))
 		
