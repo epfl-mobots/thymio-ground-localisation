@@ -315,6 +315,12 @@ cdef class CPTLocalizer:
 		# copy back probability mass
 		self.PX = PX_new
 	
+	def estimate_state(self):
+		""" return a (x,y,theta) numpy array representing the estimated state """
+		
+		theta_i, x_i, y_i = np.unravel_index(np.asarray(self.PX).argmax(), (<object>self.PX).shape)
+		return np.array([self.xyC2W(x_i), self.xyC2W(y_i), self.thetaC2W(theta_i)])
+	
 	
 	# debug methods
 	
