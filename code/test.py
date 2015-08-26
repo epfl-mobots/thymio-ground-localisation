@@ -13,17 +13,28 @@ import localize_with_cpt
 from localize_with_cpt import rot_mat2
 import math
 
+# support functions
+
 def sensors_from_pos(x, y, theta):
 	R = rot_mat2(theta)
 	return R.dot([7.2, 1.1]) + [x,y], R.dot([7.2, -1.1]) + [x,y]
-	
+
+def normalize_angle(alpha):
+	while alpha > math.pi:
+		alpha -= 2 * math.pi
+	while alpha < -math.pi:
+		alpha += 2 * math.pi
+	return alpha
+
+# main test function
+
 def test_command_sequence(ground_map, localizer, sequence):
 	""" Evaluate a sequence of positions (x,y,theta) """
 	
 	# initialise position
-	t, x, y, theta = sequence.next()
+	x, y, theta = sequence.next()
 	
-	for i, (n_t, n_x, n_y, n_theta) in enumerate(sequence):
+	for i, (n_x, n_y, n_theta) in enumerate(sequence):
 		# observation
 		# get sensor values from gt
 		lpos, rpos = sensors_from_pos(x, y, theta)
@@ -33,17 +44,29 @@ def test_command_sequence(ground_map, localizer, sequence):
 		localizer.apply_obs(lval > 0.5, rval > 0.5)
 		#localizer.dump_PX('/tmp/toto/PX-{:0>4d}-A_obs'.format(i), localizer.xyW2C(x), localizer.xyW2C(y))
 		# compare observation with ground truth before movement
-		print '{} after obs: {}'.format(i, np.linalg.norm(localizer.estimate_state()[0:2]-(x,y)))
+		estimated_state = localizer.estimate_state()
+		print '{} after obs - x,y dist: {}, theta dist: {}, log ratio P: {}'.format( \
+			i, \
+			np.linalg.norm(estimated_state[0:2]-(x,y)), \
+			math.degrees(normalize_angle(estimated_state[2]-theta)), \
+			localizer.estimate_logratio(x, y, theta) \
+		)
 		
 		# compute movement
-		d_t, d_theta = n_t - t, n_theta - theta
+		d_theta = n_theta - theta
 		d_x, d_y = rot_mat2(-theta).dot([n_x-x, n_y-y])
 		# do movement
-		t, x, y, theta =  n_t, n_x, n_y, n_theta
-		localizer.apply_command(d_t, d_x, d_y, d_theta)
+		x, y, theta =  n_x, n_y, n_theta
+		localizer.apply_command(d_x, d_y, d_theta)
 		#localizer.dump_PX('/tmp/toto/PX-{:0>4d}-B_mvt'.format(i), localizer.xyW2C(x), localizer.xyW2C(y))
 		# compare observation with ground truth after movement
-		print '{} after mvt: {}'.format(i, np.linalg.norm(localizer.estimate_state()[0:2]-(x,y)))
+		estimated_state = localizer.estimate_state()
+		print '{} after mvt - x,y dist: {}, theta dist: {}, log ratio P: {}'.format( \
+			i, \
+			np.linalg.norm(estimated_state[0:2]-(x,y)), \
+			math.degrees(normalize_angle(estimated_state[2]-theta)), \
+			localizer.estimate_logratio(x, y, theta) \
+		)
 
 
 if __name__ == '__main__':
@@ -52,26 +75,21 @@ if __name__ == '__main__':
 
 	def traj_linear_on_x(x_start, x_end, delta_x, y, d_t):
 		""" generator for linear trajectory on x """
-		t = 0
 		for x in np.arange(x_start, x_end, delta_x):
-			yield t, x, y, 0.
-			t += d_t
+			yield x, y, 0.
 	
 	def traj_linear_on_y(y_start, y_end, delta_y, x, d_t):
 		""" generator for linear trajectory on x """
-		t = 0
 		for y in np.arange(y_start, y_end, delta_y):
-			yield t, x, y, math.pi/2
-			t += d_t
+			yield x, y, math.pi/2
 	
 	def traj_circle(x_center, y_center, radius, d_alpha, d_t):
 		""" generator for circular trajectory """
-		t = 0
 		for alpha in np.arange(0, 2 * math.pi, d_alpha):
 			x = x_center + math.cos(alpha) * radius
 			y = y_center + math.sin(alpha) * radius
-			yield t, x, y, alpha + math.pi/2
-			t += d_t
+			yield x, y, alpha + math.pi/2
+	
 	
 	# collection of generators
 	generators = [

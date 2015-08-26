@@ -8,7 +8,7 @@ import math
 import scipy.misc
 from scipy.stats import norm
 #import scipy.stats.multivariate_normal as mv_norm
-from libc.math cimport floor, sqrt
+from libc.math cimport floor, sqrt, log
 cimport numpy as np
 cimport cython
 
@@ -189,8 +189,8 @@ cdef class CPTLocalizer:
 	@cython.cdivision(True) # turn off division-by-zero checking
 	@cython.wraparound(False) # turn off wrap-around checking
 	@cython.nonecheck(False) # turn off 
-	def apply_command(self, double d_t, double d_x, double d_y, double d_theta):
-		""" Apply a command for a displacement of d_x,d_y (in local frame) and a rotation of d_theta, during a time d_t """
+	def apply_command(self, double d_x, double d_y, double d_theta):
+		""" Apply a command for a displacement of d_x,d_y (in local frame) and a rotation of d_theta """
 		
 		# variables 
 		cdef int i, j, k                 # outer loops indices
@@ -321,6 +321,13 @@ cdef class CPTLocalizer:
 		theta_i, x_i, y_i = np.unravel_index(np.asarray(self.PX).argmax(), (<object>self.PX).shape)
 		return np.array([self.xyC2W(x_i), self.xyC2W(y_i), self.thetaC2W(theta_i)])
 	
+	def estimate_logratio(self, double x, double y, double theta):
+		""" return the log ratio between the probability at estimate and at given location (x,y,theta).
+		No bound check is performed on input """
+		log_estimate = log(np.asarray(self.PX).max())
+		log_query = log(self.PX[self.thetaW2C(theta), self.xyW2C(x), self.xyW2C(y)])
+		return log_estimate - log_query
+		
 	
 	# debug methods
 	
@@ -361,7 +368,7 @@ cdef class CPTLocalizer:
 
 	cpdef int thetaW2C(self, double angle):
 		""" Transform an angle in radian into an angle in cell coordinates """
-		return int(floor((angle * self.angle_N) / (2. * _pi)))
+		return int(floor((angle * self.angle_N) / (2. * _pi))) % self.angle_N
 	
 	cpdef double dthetaC2W(self, int dangle):
 		""" Transform an angle difference in cell coordinates into a difference in radian """
