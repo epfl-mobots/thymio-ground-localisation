@@ -3,14 +3,16 @@
 # kate: replace-tabs off; indent-width 4; indent-mode normal
 # vim: ts=4:sw=4:noexpandtab
 
+import pyximport; pyximport.install()
 import numpy as np
 import math
 import scipy.misc
 from scipy.stats import norm
-#import scipy.stats.multivariate_normal as mv_norm
 from libc.math cimport floor, sqrt, log
 cimport numpy as np
 cimport cython
+import localize_common
+cimport localize_common
 
 # some useful constants in local scope
 
@@ -57,7 +59,7 @@ def _norm_pdf_multivariate(x, mu, sigma):
 
 # main class
 
-cdef class CPTLocalizer:
+cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 
 	# user parameters
 	cdef int angle_N
@@ -68,9 +70,6 @@ cdef class CPTLocalizer:
 	cdef double alpha_xy_to_xy
 	cdef double alpha_theta_to_theta
 	cdef double alpha_xy_to_theta
-	
-	# map
-	cdef double[:,:] ground_map
 	
 	# observation model structures
 	cdef double[:,:,:] obs_left_black
@@ -86,7 +85,7 @@ cdef class CPTLocalizer:
 	def __init__(self, np.ndarray[double, ndim=2] ground_map, int angle_N, double prob_correct, double max_prob_error):
 		""" Fill the tables obs_left/right_black/white of the same resolution as the ground_map and an angle discretization angle_N """
 		
-		assert ground_map.dtype == np.double
+		super(CPTLocalizer, self).__init__(ground_map)
 		
 		# copy parameters
 		assert angle_N != 0
@@ -96,7 +95,6 @@ cdef class CPTLocalizer:
 		self.alpha_xy_to_xy = 0.1
 		self.alpha_theta_to_theta = 0.1
 		self.alpha_xy_to_theta = 0.05
-		self.ground_map = ground_map
 		
 		# create the arrays
 		cdef shape = [angle_N, ground_map.shape[0], ground_map.shape[1]]
@@ -276,10 +274,6 @@ cdef class CPTLocalizer:
 			d_y_r_i = self.dxyW2C(d_y_r)
 			d_x_r_d = d_x_r - self.dxyW2C(d_x_r_i)
 			d_y_r_d = d_y_r - self.dxyW2C(d_y_r_i)
-			#print ''
-			#print d_x_r, d_y_r
-			#print d_x_r_i, d_y_r_i
-			#print d_x_r_d, d_y_r_d
 			
 			# compute covariance
 			sigma = T.dot(e_xy_mat).dot(T.transpose())
@@ -377,19 +371,4 @@ cdef class CPTLocalizer:
 	cpdef int dthetaW2C(self, double dangle):
 		""" Transform an angle difference in radian into a difference in cell coordinates """
 		return int(round((dangle * self.angle_N) / (2. * _pi)))
-	
-	cpdef double xyC2W(self, int pos):
-		""" Transform an x or y coordinate in cell coordinates into world coordinates """
-		return pos+0.5
-		
-	cpdef int xyW2C(self, double pos):
-		""" Transform an x or y coordinate in world coordinates into cell coordinates """
-		return int(floor(pos))
-		
-	cpdef double dxyC2W(self, int dpos):
-		""" Transform an x or y difference in cell coordinates into a difference in world coordinates """
-		return float(dpos)
-		
-	cpdef int dxyW2C(self, double dpos):
-		""" Transform an x or y difference in world coordinates into a difference in cell coordinates """
-		return int(round(dpos))
+

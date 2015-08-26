@@ -7,8 +7,8 @@
 # note: encode videos with
 #       mencoder mf://PX-*-B_mvt-sum.png -ovc lavc -o sum.mp4
 
-import numpy as np
 import pyximport; pyximport.install()
+import numpy as np
 import localize_with_cpt
 from localize_with_cpt import rot_mat2
 import math
