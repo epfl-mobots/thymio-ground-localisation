@@ -52,8 +52,7 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 	cdef double alpha_xy_to_theta
 	
 	# particles
-	cdef double[:,:] particles
-	cdef double[:] weights
+	cdef double[:,:] particles # 2D array of particles_count x (x,y,theta)
 	
 	def __init__(self, np.ndarray[double, ndim=2] ground_map, int particles_count, double prob_correct):
 		""" Create the localizer with the ground map and some parameters """
