@@ -29,7 +29,7 @@ if __name__ == '__main__':
 	gt = np.loadtxt(os.path.join(sys.argv[1], 'gt.txt'))
 	gt[:,0:2] -= gt[0,0:2]
 	gt_xy_aligned = rot_mat2(-gt[0,2]).dot(gt[:,0:2].transpose())
-	plt.plot(gt_xy_aligned[0,0:steps_to_show], gt_xy_aligned[1,0:steps_to_show])
+	plt.plot(gt_xy_aligned[0,0:steps_to_show], gt_xy_aligned[1,0:steps_to_show], label='ground truth')
 	
 	# for odom
 	odom_xy = np.loadtxt(os.path.join(sys.argv[1], 'odom_pose.txt'))
@@ -37,7 +37,9 @@ if __name__ == '__main__':
 	odom_quat = np.loadtxt(os.path.join(sys.argv[1], 'odom_quaternion.txt'))
 	odom_theta = np.arcsin(odom_quat[:,0]) * 2.
 	odom_xy_aligned = rot_mat2(-odom_theta[0]).dot(odom_xy.transpose())
-	plt.plot(odom_xy_aligned[0,0:steps_to_show], odom_xy_aligned[1,0:steps_to_show])
+	plt.plot(odom_xy_aligned[0,0:steps_to_show], odom_xy_aligned[1,0:steps_to_show], label='odometry')
 	
+	# add legend and show plot
+	plt.legend()
 	plt.show()
 	
