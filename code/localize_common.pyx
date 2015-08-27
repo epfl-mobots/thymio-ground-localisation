@@ -9,6 +9,13 @@ from libc.math cimport floor
 cimport numpy as np
 cimport cython
 
+# support functions
+
+cpdef np.ndarray[double, ndim=2] rot_mat2(double angle):
+	""" Create a 2D rotation matrix for angle """
+	return np.array([[np.cos(angle), -np.sin(angle)],
+	                 [np.sin(angle),  np.cos(angle)]])
+
 # main class
 
 cdef class AbstractLocalizer:
@@ -22,6 +29,20 @@ cdef class AbstractLocalizer:
 		self.ground_map = ground_map
 	
 	# support methods
+	
+	cpdef bint is_in_bound_cell(self, int x, int y):
+		""" Return whether a given position x,y (as int) is within the bounds of a 2D array """
+		if x >= 0 and y >= 0 and x < self.ground_map.shape[0] and y < self.ground_map.shape[1]:
+			return True
+		else:
+			return False
+
+	cpdef bint is_in_bound(self, double[:] pos):
+		""" Check whether a given position is within the bounds of a 2D array """
+		assert pos.shape[0] == 2
+		cdef int x = self.xyW2C(pos[0])
+		cdef int y = self.xyW2C(pos[1])
+		return self.is_in_bound_cell(x,y)
 	
 	cpdef double xyC2W(self, int pos):
 		""" Transform an x or y coordinate in cell coordinates into world coordinates """

@@ -7,6 +7,10 @@ import numpy as np
 cimport numpy as np
 cimport cython
 
+# support functions
+
+cpdef np.ndarray[double, ndim=2] rot_mat2(double angle)
+
 # main class
 
 cdef class AbstractLocalizer:
@@ -15,6 +19,8 @@ cdef class AbstractLocalizer:
 	cdef double[:,:] ground_map
 	
 	# support methods
+	cpdef bint is_in_bound_cell(self, int x, int y)
+	cpdef bint is_in_bound(self, double[:] pos)
 	cpdef double xyC2W(self, int pos)
 	cpdef int xyW2C(self, double pos)
 	cpdef double dxyC2W(self, int dpos)

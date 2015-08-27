@@ -13,6 +13,7 @@ cimport numpy as np
 cimport cython
 import localize_common
 cimport localize_common
+from localize_common import rot_mat2
 
 # some useful constants in local scope
 
@@ -20,25 +21,6 @@ cdef double _pi = math.pi
 cdef double _1pi = 1. / math.pi
 
 # support functions
-
-cpdef np.ndarray[double, ndim=2] rot_mat2(double angle):
-	""" Create a 2D rotation matrix for angle """
-	return np.array([[np.cos(angle), -np.sin(angle)],
-	                 [np.sin(angle),  np.cos(angle)]])
-
-cdef bint _is_in_bound_int(int x, int y, int w, int h):
-	""" Return whether a given position x,y (as int) is within the bounds of a 2D array """
-	if x >= 0 and y >= 0 and x < w and y < h:
-		return True
-	else:
-		return False
-
-cdef bint _is_in_bound(double[:] pos, int w, int h):
-	""" Check whether a given position is within the bounds of a 2D array """
-	assert pos.shape[0] == 2
-	cdef int x = int(floor(pos[0]))
-	cdef int y = int(floor(pos[1]))
-	return _is_in_bound_int(x,y,w,h)
 
 # taken from http://stackoverflow.com/questions/11615664/multivariate-normal-density-in-python
 def _norm_pdf_multivariate(x, mu, sigma):
@@ -116,8 +98,7 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 			shifts_right[i,:] = R.dot([7.2, -1.1])
 		
 		# fill the cells
-		cdef int x, y, w, h
-		w, h = ground_map.shape[0], ground_map.shape[1]
+		cdef int x, y
 		cdef double prob_wrong = 1.0 - prob_correct
 		cdef double c_x, c_y
 		for i in range(angle_N):
@@ -130,7 +111,7 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 					# left sensor
 					x = self.xyW2C(shifts_left[i,0] + c_x)
 					y = self.xyW2C(shifts_left[i,1] + c_y)
-					if _is_in_bound_int(x,y,w,h):
+					if self.is_in_bound_cell(x,y):
 						if ground_map[x,y] == 1.:
 							self.obs_left_black[i,j,k] = prob_correct
 							self.obs_left_white[i,j,k] = prob_wrong
@@ -143,7 +124,7 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 					# right sensor
 					x = self.xyW2C(shifts_right[i,0] + c_x)
 					y = self.xyW2C(shifts_right[i,1] + c_y)
-					if _is_in_bound_int(x,y,w,h):
+					if self.is_in_bound_cell(x,y):
 						if ground_map[x,y] == 1.:
 							self.obs_right_black[i,j,k] = prob_correct
 							self.obs_right_white[i,j,k] = prob_wrong

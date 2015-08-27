@@ -10,8 +10,10 @@
 import pyximport; pyximport.install()
 import numpy as np
 import localize_with_cpt
+#import localize_with_montecarlo
 from localize_with_cpt import rot_mat2
 import math
+from termcolor import colored
 
 # support functions
 
@@ -27,6 +29,20 @@ def normalize_angle(alpha):
 	return alpha
 
 # main test function
+
+def dump_error(localizer, i, text, gt_x, gt_y, gt_theta):
+	estimated_state = localizer.estimate_state()
+	dist_xy = np.linalg.norm(estimated_state[0:2]-(gt_x,gt_y))
+	dist_theta = math.degrees(normalize_angle(estimated_state[2]-gt_theta))
+	logratio_P = localizer.estimate_logratio(gt_x, gt_y, gt_theta)
+	if abs(dist_xy) < math.sqrt(2) and abs(dist_theta) < 15:
+		color = 'green'
+	elif abs(dist_xy) < math.sqrt(2)*2 and abs(dist_theta) < 30:
+		color = 'yellow'
+	else:
+		color = 'red'
+	print colored('{} {} - x,y dist: {}, theta dist: {}, log ratio P: {}'.format(i, text, dist_xy, dist_theta, logratio_P), color)
+	
 
 def test_command_sequence(ground_map, localizer, sequence):
 	""" Evaluate a sequence of positions (x,y,theta) """
@@ -44,13 +60,7 @@ def test_command_sequence(ground_map, localizer, sequence):
 		localizer.apply_obs(lval > 0.5, rval > 0.5)
 		#localizer.dump_PX('/tmp/toto/PX-{:0>4d}-A_obs'.format(i), localizer.xyW2C(x), localizer.xyW2C(y))
 		# compare observation with ground truth before movement
-		estimated_state = localizer.estimate_state()
-		print '{} after obs - x,y dist: {}, theta dist: {}, log ratio P: {}'.format( \
-			i, \
-			np.linalg.norm(estimated_state[0:2]-(x,y)), \
-			math.degrees(normalize_angle(estimated_state[2]-theta)), \
-			localizer.estimate_logratio(x, y, theta) \
-		)
+		dump_error(localizer, i, "after obs", x, y, theta)
 		
 		# compute movement
 		d_theta = n_theta - theta
@@ -60,13 +70,7 @@ def test_command_sequence(ground_map, localizer, sequence):
 		localizer.apply_command(d_x, d_y, d_theta)
 		#localizer.dump_PX('/tmp/toto/PX-{:0>4d}-B_mvt'.format(i), localizer.xyW2C(x), localizer.xyW2C(y))
 		# compare observation with ground truth after movement
-		estimated_state = localizer.estimate_state()
-		print '{} after mvt - x,y dist: {}, theta dist: {}, log ratio P: {}'.format( \
-			i, \
-			np.linalg.norm(estimated_state[0:2]-(x,y)), \
-			math.degrees(normalize_angle(estimated_state[2]-theta)), \
-			localizer.estimate_logratio(x, y, theta) \
-		)
+		dump_error(localizer, i, "after mvt", x, y, theta)
 
 
 if __name__ == '__main__':
@@ -109,6 +113,7 @@ if __name__ == '__main__':
 		angle_N = 16
 		prob_correct = 0.95
 		localizer = localize_with_cpt.CPTLocalizer(ground_map, angle_N, prob_correct, 0.01)
+		#localizer = localize_with_montecarlo.MCLocalizer(ground_map, 100, 0.01)
 		
 		# run test
 		print title
