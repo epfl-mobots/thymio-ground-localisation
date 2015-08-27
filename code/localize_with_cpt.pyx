@@ -315,16 +315,22 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 			scipy.misc.imsave(base_filename+'-'+str(i)+'-right_black.png', self.obs_right_black[i])
 			scipy.misc.imsave(base_filename+'-'+str(i)+'-right_white.png', self.obs_right_white[i])
 	
-	def dump_PX(self, str base_filename, int x = -1, int y = -1):
+	def dump_PX(self, str base_filename, float x = -1, float y = -1):
 		""" Write images of latent space """
 		
 		# dump image in RGB
 		def write_image(np.ndarray[double, ndim=2] array_2D, str filename):
 			cdef np.ndarray[double, ndim=3] zeros = np.zeros([self.PX.shape[1], self.PX.shape[2], 1], np.double)
 			array_rgb = np.concatenate((array_2D[:,:,np.newaxis], zeros, zeros), axis = 2)
-			if x >= 0 and y >= 0:
-				array_rgb[x,y,1] = array_rgb[x,y,0]
-				array_rgb[x,y,2] = array_rgb[x,y,0]
+			cdef int i_x = self.xyW2C(x)
+			cdef int i_y = self.xyW2C(y)
+			if self.is_in_bound_cell(i_x, i_y):
+				#array_rgb[i_x,i_y,1] = array_rgb[i_x,i_y,0]
+				#array_rgb[i_x,i_y,2] = array_rgb[i_x,i_y,0]
+				max_value = array_2D.max()
+				array_rgb[i_x,i_y,:] = [0,max_value,max_value]
+			else:
+				print 'WARNING: ground-truth position {},{} is outside map bounds'.format(x,y)
 			scipy.misc.imsave(filename, array_rgb)
 		
 		# for every angle

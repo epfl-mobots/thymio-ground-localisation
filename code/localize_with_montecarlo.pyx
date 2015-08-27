@@ -144,4 +144,11 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 	def estimate_logratio(self, double x, double y, double theta):
 		# TODO
 		return 0
+	
+	# debug methods
+	
+	def dump_PX(self, str base_filename, float x = -1, float y = -1):
+		""" Write particles to an image """
+		
+		pass
 		
