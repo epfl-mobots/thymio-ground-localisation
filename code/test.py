@@ -10,10 +10,12 @@
 import pyximport; pyximport.install()
 import numpy as np
 import localize_with_cpt
-#import localize_with_montecarlo
+import localize_with_montecarlo
 from localize_with_cpt import rot_mat2
 import math
 from termcolor import colored
+import argparse
+import sys
 
 # support functions
 
@@ -104,16 +106,27 @@ if __name__ == '__main__':
 		("traj circle", traj_circle(30, 30, 20, math.radians(360/120), 1))
 	]
 	
+	# command line parsing
+	parser = argparse.ArgumentParser(description='Test program for Thymio localization')
+	parser.add_argument('--ml_angle_count', type=int, help='Use Markov localization with a discretized angle of angle_count')
+	parser.add_argument('--mcl_particles_count', type=int, help='Use Monte Carlo localization with a particles_count particles')
+	parser.add_argument('--prob_correct', type=float, default=0.95, help='probability when seeing a correct ground color')
+	parser.add_argument('--max_prob_error', type=float, default=0.01, help='max. error ratio with mode value when spilling over probability in Markov localisation')
+	args = parser.parse_args()
+	
 	# ground map, constant
 	ground_map = np.kron(np.random.choice([0.,1.], [20,20]), np.ones((3,3)))
 	
 	for title, generator in generators:
 	
 		# build localizer
-		angle_N = 16
-		prob_correct = 0.95
-		localizer = localize_with_cpt.CPTLocalizer(ground_map, angle_N, prob_correct, 0.01)
-		#localizer = localize_with_montecarlo.MCLocalizer(ground_map, 100, 0.01)
+		if args.ml_angle_count:
+			localizer = localize_with_cpt.CPTLocalizer(ground_map, args.ml_angle_count, args.prob_correct, args.max_prob_error)
+		elif args.mcl_particles_count:
+			localizer = localize_with_montecarlo.MCLocalizer(ground_map, args.mcl_particles_count, args.prob_correct)
+		else:
+			print 'You must give either one of --ml_angle_count or --mcl_particles_count argument to this program'
+			sys.exit(1)
 		
 		# run test
 		print title
