@@ -147,7 +147,7 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 
 	# debug methods
 
-	def dump_PX(self, str base_filename, float x = -1, float y = -1):
+	def dump_PX(self, str base_filename, float gt_x = -1, float gt_y = -1, float gt_theta = -1):
 		""" Write particles to an image """
 		fig = Figure((3,3), tight_layout=True)
 		canvas = FigureCanvas(fig)
@@ -157,4 +157,7 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 
 		for (x, y, theta) in self.particles:
 			ax.arrow(x, y, math.cos(theta), math.sin(theta), head_width=0.8, head_length=1, fc='k', ec='k', alpha=0.3)
+
+		ax.arrow(gt_x, gt_y, math.cos(gt_theta)*2, math.sin(gt_theta)*2, head_width=1, head_length=1.2, fc='blue', ec='blue')
+
 		canvas.print_figure(base_filename+'.png', dpi=300)

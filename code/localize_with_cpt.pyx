@@ -332,7 +332,7 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 			scipy.misc.imsave(base_filename+'-'+str(i)+'-right_black.png', self.obs_right_black[i])
 			scipy.misc.imsave(base_filename+'-'+str(i)+'-right_white.png', self.obs_right_white[i])
 
-	def dump_PX(self, str base_filename, float x = -1, float y = -1):
+	def dump_PX(self, str base_filename, float x = -1, float y = -1, float theta = -1):
 		""" Write images of latent space """
 
 		# dump image in RGB
