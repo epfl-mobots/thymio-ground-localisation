@@ -34,7 +34,13 @@ def _norm_pdf_multivariate(x, mu, sigma):
 		norm_const = 1.0/ ( math.pow((2*_pi),float(size)/2) * math.pow(det,1.0/2) )
 		x_mu = np.matrix(x - mu)
 		inv = np.linalg.inv(sigma)
-		result = math.pow(math.e, -0.5 * (x_mu * inv * x_mu.T))
+		try:
+			result = math.pow(math.e, -0.5 * (x_mu * inv * x_mu.T))
+		except ArithmeticError as e:
+			print 'Error computing Gaussian with following parameters'
+			print 'x_mu', x_mu
+			print 'inv_sigma', inv
+			raise e
 		return norm_const * result
 	else:
 		raise NameError("The dimensions of the input don't match")
@@ -195,9 +201,13 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 		# http://www.mrpt.org/tutorials/programming/odometry-and-motion-models/probabilistic_motion_models/
 		# sum of factors from translation (x,y), rotation (theta), and half a cell (for sampling issues)
 		cdef double norm_xy = sqrt(d_x*d_x + d_y*d_y)
-		cdef double e_theta = self.alpha_xy_to_theta * norm_xy + self.alpha_theta_to_theta * d_theta + self.dthetaC2W(1) / 2.
-		cdef double e_xy = self.alpha_xy_to_xy * norm_xy + self.alpha_theta_to_xy * d_theta + self.dxyC2W(1) / 2.
+		cdef double e_theta = self.alpha_xy_to_theta * norm_xy + self.alpha_theta_to_theta * math.fabs(d_theta) + self.dthetaC2W(1) / 2.
+		assert e_theta > 0, e_theta
+		cdef double e_xy = self.alpha_xy_to_xy * norm_xy + self.alpha_theta_to_xy * math.fabs(d_theta) + self.dxyC2W(1) / 2.
+		assert e_xy > 0, e_xy
 		cdef np.ndarray[double, ndim=2] e_xy_mat = np.array([[e_xy, 0], [0, e_xy]])
+		
+		# special case if e_xy is huge, robot is most likely lost
 		
 		# compute how many steps around we have to compute to have less than 1 % of error in transfering probability mass
 		# and allocate arrays for fast lookup

@@ -19,25 +19,6 @@ from localize_common import rot_mat2
 
 cdef double _pi = math.pi
 
-# helper functions
-
-# from http://eli.thegreenplace.net/2010/01/22/weighted-random-generation-in-python
-class WeightedRandomGenerator(object):
-	def __init__(self, weights):
-		self.totals = []
-		running_total = 0
-
-		for w in weights:
-			running_total += w
-			self.totals.append(running_total)
-
-	def next(self):
-		rnd = random.random() * self.totals[-1]
-		return bisect.bisect_right(self.totals, rnd)
-
-	def __iter__(self):
-		return self
-
 # main class
 
 cdef class MCLocalizer(localize_common.AbstractLocalizer):
@@ -99,13 +80,13 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 				# black is 1, white is 0
 				# left sensor
 
-				if self.ground_map[self.xyW2C(left_sensor_pos[0]), self.xyW2C(left_sensor_pos[1])] == is_left_black:
+				if (self.ground_map[self.xyW2C(left_sensor_pos[0]), self.xyW2C(left_sensor_pos[1])] == 1) == is_left_black:
 					left_weight = self.prob_correct
 				else:
 					left_weight = 1.0 - self.prob_correct
 				# right sensor
 
-				if self.ground_map[self.xyW2C(right_sensor_pos[0]), self.xyW2C(right_sensor_pos[1])] == is_right_black:
+				if (self.ground_map[self.xyW2C(right_sensor_pos[0]), self.xyW2C(right_sensor_pos[1])] == 1) == is_right_black:
 					right_weight = self.prob_correct
 				else:
 					right_weight = 1.0 - self.prob_correct
@@ -114,12 +95,10 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 
 		# resample
 		assert weights.sum() > 0.
-		cdef np.ndarray[double, ndim=2] new_particles = np.empty(np.asarray(self.particles).shape)
-		for i, particle_index in zip(range(particles_count), WeightedRandomGenerator(weights)):
-			#print i, particle_index
-			new_particles[i] = self.particles[particle_index]
-		self.particles = new_particles
-
+		weights /= weights.sum()
+		cdef np.ndarray[double, ndim=2] particles_view = np.asarray(self.particles)
+		particles_view = particles_view[np.random.choice(particles_count, particles_count, p=weights)]
+		
 	def apply_command(self, d_x, d_y, d_theta):
 		""" Apply command to each particle """
 
@@ -128,8 +107,10 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 
 		# error model, same as with CPT, but without added half cell
 		cdef double norm_xy = sqrt(d_x*d_x + d_y*d_y)
-		cdef double e_theta = self.alpha_xy_to_theta * norm_xy + self.alpha_theta_to_theta * d_theta
-		cdef double e_xy = self.alpha_xy_to_xy * norm_xy + self.alpha_theta_to_xy * d_theta
+		cdef double e_theta = self.alpha_xy_to_theta * norm_xy + self.alpha_theta_to_theta * math.fabs(d_theta)
+		assert e_theta > 0, e_theta
+		cdef double e_xy = self.alpha_xy_to_xy * norm_xy + self.alpha_theta_to_xy * math.fabs(d_theta)
+		assert e_xy > 0, e_xy
 
 		# apply command and sampled noise to each particle
 		for i, (x, y, theta) in enumerate(self.particles):
