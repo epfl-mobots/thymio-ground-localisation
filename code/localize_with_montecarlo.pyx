@@ -148,6 +148,6 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 		ax.set_ylim([0, self.ground_map.shape[1]])
 		
 		for (x, y, theta) in self.particles:
-			ax.arrow(x, y, math.cos(theta), math.sin(theta), head_width=0.8, head_length=1, fc='k', ec='k')
+			ax.arrow(x, y, math.cos(theta), math.sin(theta), head_width=0.8, head_length=1, fc='k', ec='k', alpha=0.3)
 		
 		canvas.print_figure(base_filename+'.png', dpi=300)
