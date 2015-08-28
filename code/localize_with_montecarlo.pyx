@@ -8,7 +8,7 @@ import numpy as np
 import math
 import bisect
 import random
-from libc.math cimport floor, sqrt, log
+from libc.math cimport floor, sqrt, log, atan2, sin, cos
 cimport numpy as np
 cimport cython
 import localize_common
@@ -137,9 +137,17 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 			self.particles[i,2] += d_theta + np.random.normal(0, e_theta)
 
 	def estimate_state(self):
-		# return a random particle
-		cdef int i = random.randint(0, self.particles.shape[0]-1)
-		return np.array(self.particles[i])
+		# return the mean of the distribution
+		sins = [sin(theta) for theta in self.particles[:,2]]
+		coss = [cos(theta) for theta in self.particles[:,2]]
+		s_sins = sum(sins)
+		s_coss = sum(coss)
+		theta_m = atan2(s_sins, s_coss)
+		x_m, y_m = np.mean(self.particles[:,0:2], 0)
+		return np.array([x_m, y_m, theta_m])
+		## return a random particle
+		#cdef int i = random.randint(0, self.particles.shape[0]-1)
+		#return np.array(self.particles[i])
 
 	def estimate_logratio(self, double x, double y, double theta):
 		# TODO
