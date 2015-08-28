@@ -72,7 +72,7 @@ def test_command_sequence(ground_map, localizer, sequence):
 		# apply observation
 		localizer.apply_obs(lval > 0.5, rval > 0.5)
 		if args.debug_dump:
-			localizer.dump_PX(os.path.join(args.debug_dump, 'PX-{:0>4d}-A_obs'.format(i)), x, y)
+			localizer.dump_PX(os.path.join(args.debug_dump, 'PX-{:0>4d}-A_obs'.format(i)), x, y, theta)
 		# compare observation with ground truth before movement
 		dump_error(localizer, i, "after obs", x, y, theta)
 		
@@ -83,7 +83,7 @@ def test_command_sequence(ground_map, localizer, sequence):
 		x, y, theta =  n_x, n_y, n_theta
 		localizer.apply_command(d_x, d_y, d_theta)
 		if args.debug_dump:
-			localizer.dump_PX(os.path.join(args.debug_dump, 'PX-{:0>4d}-B_mvt'.format(i)), x, y)
+			localizer.dump_PX(os.path.join(args.debug_dump, 'PX-{:0>4d}-B_mvt'.format(i)), x, y, theta)
 		# compare observation with ground truth after movement
 		dump_error(localizer, i, "after mvt", x, y, theta)
 
@@ -171,6 +171,8 @@ def eval_data(args):
 			o_odom_x, o_odom_y, o_odom_theta = odom_x, odom_y, odom_theta
 			o_gt_x, o_gt_y, o_gt_theta = gt_x, gt_y, gt_theta
 			continue
+			
+		# TODO: add handling of skip_frames
 		
 		# else compute movement
 		# odom
@@ -186,14 +188,14 @@ def eval_data(args):
 		localizer.apply_command(odom_d_x, odom_d_y, odom_d_theta)
 		dump_error(localizer, i, "after mvt", gt_x, gt_y, gt_theta)
 		if args.debug_dump:
-			localizer.dump_PX(os.path.join(args.debug_dump, 'PX-{:0>4d}-A_mvt'.format(i)), gt_x, gt_y)
+			localizer.dump_PX(os.path.join(args.debug_dump, 'PX-{:0>4d}-A_mvt'.format(i)), gt_x, gt_y, gt_theta)
 			print '  d_odom (local frame): ', odom_d_x, odom_d_y, odom_d_theta
 			print '  d_gt (local frame):   ', gt_d_x, gt_d_y, gt_d_theta
 		
 		# apply observation
 		localizer.apply_obs(sensor_left, sensor_right)
 		if args.debug_dump:
-			localizer.dump_PX(os.path.join(args.debug_dump, 'PX-{:0>4d}-B_obs'.format(i)), gt_x, gt_y)
+			localizer.dump_PX(os.path.join(args.debug_dump, 'PX-{:0>4d}-B_obs'.format(i)), gt_x, gt_y, gt_theta)
 
 
 if __name__ == '__main__':
@@ -208,6 +210,7 @@ if __name__ == '__main__':
 	parser.add_argument('--eval_data', type=str, help='eval data from directory given as parameter')
 	parser.add_argument('--debug_dump', type=str, help='directory where to dump debug information (default: do not dump)')
 	parser.add_argument('--skip_start_frames', type=int, help='optionally, some frames to skip at the beginning of the data file', default=0)
+	parser.add_argument('--skip_frames', type=int, help='optionally, some frames to skip when processing the data file', default=0)
 	args = parser.parse_args()
 	
 	if args.self_test:
