@@ -99,13 +99,13 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 				# black is 1, white is 0
 				# left sensor
 
-				if self.ground_map[self.xyW2C(left_sensor_pos[0]), self.xyW2C(left_sensor_pos[1])] == is_left_black:
+				if (self.ground_map[self.xyW2C(left_sensor_pos[0]), self.xyW2C(left_sensor_pos[1])] == 1) == is_left_black:
 					left_weight = self.prob_correct
 				else:
 					left_weight = 1.0 - self.prob_correct
 				# right sensor
 
-				if self.ground_map[self.xyW2C(right_sensor_pos[0]), self.xyW2C(right_sensor_pos[1])] == is_right_black:
+				if (self.ground_map[self.xyW2C(right_sensor_pos[0]), self.xyW2C(right_sensor_pos[1])] == 1) == is_right_black:
 					right_weight = self.prob_correct
 				else:
 					right_weight = 1.0 - self.prob_correct
