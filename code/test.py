@@ -34,7 +34,7 @@ def normalize_angle(alpha):
 
 def create_localizer(ground_map, args):
 	if args.ml_angle_count:
-		return localize_with_cpt.CPTLocalizer(ground_map, args.ml_angle_count, args.prob_correct, args.max_prob_error)
+		return localize_with_cpt.CPTLocalizer(ground_map, args.ml_angle_count, args.prob_correct, args.max_prob_error, args.prob_uniform)
 	elif args.mcl_particles_count:
 		return localize_with_montecarlo.MCLocalizer(ground_map, args.mcl_particles_count, args.prob_correct)
 	else:
@@ -59,10 +59,10 @@ def dump_error(localizer, i, text, gt_x, gt_y, gt_theta):
 
 def test_command_sequence(ground_map, localizer, sequence):
 	""" Evaluate a sequence of positions (x,y,theta) """
-	
+
 	# initialise position
 	x, y, theta = sequence.next()
-	
+
 	for i, (n_x, n_y, n_theta) in enumerate(sequence):
 		# observation
 		# get sensor values from gt
@@ -75,7 +75,7 @@ def test_command_sequence(ground_map, localizer, sequence):
 			localizer.dump_PX(os.path.join(args.debug_dump, 'PX-{:0>4d}-A_obs'.format(i)), x, y)
 		# compare observation with ground truth before movement
 		dump_error(localizer, i, "after obs", x, y, theta)
-		
+
 		# compute movement
 		d_theta = n_theta - theta
 		d_x, d_y = rot_mat2(-theta).dot([n_x-x, n_y-y])
@@ -90,26 +90,26 @@ def test_command_sequence(ground_map, localizer, sequence):
 
 def self_test(args):
 	""" Self tests """
-	
+
 	# trajectory generators
 
 	def traj_linear_on_x(x_start, x_end, delta_x, y, d_t):
 		""" generator for linear trajectory on x """
 		for x in np.arange(x_start, x_end, delta_x):
 			yield x, y, 0.
-	
+
 	def traj_linear_on_y(y_start, y_end, delta_y, x, d_t):
 		""" generator for linear trajectory on x """
 		for y in np.arange(y_start, y_end, delta_y):
 			yield x, y, math.pi/2
-	
+
 	def traj_circle(x_center, y_center, radius, d_alpha, d_t):
 		""" generator for circular trajectory """
 		for alpha in np.arange(0, 2 * math.pi, d_alpha):
 			x = x_center + math.cos(alpha) * radius
 			y = y_center + math.sin(alpha) * radius
 			yield x, y, alpha + math.pi/2
-	
+
 	# collection of generators
 	generators = [
 		("traj linear on x, y centered", traj_linear_on_x(5, 45, 1, 30, 1)),
@@ -118,12 +118,12 @@ def self_test(args):
 		("traj linear on y, x centered", traj_linear_on_y(5, 45, 1, 30, 1)),
 		("traj circle", traj_circle(30, 30, 20, math.radians(360/120), 1))
 	]
-	
+
 	# ground map, constant
 	ground_map = np.kron(np.random.choice([0.,1.], [20,20]), np.ones((3,3)))
-	
+
 	for title, generator in generators:
-	
+
 		# run test
 		print title
 		test_command_sequence(ground_map, create_localizer(ground_map, args), generator)
@@ -134,10 +134,10 @@ def eval_data(args):
 	# load image as ground map and convert to range 0.0:1.0
 	ground_map = scipy.misc.imread(os.path.join(args.eval_data, 'map.png')).astype(float)
 	ground_map /= ground_map.max()
-	
+
 	# build localizer
 	localizer = create_localizer(ground_map, args)
-	
+
 	frame_skip_counter = args.skip_start_frames
 	o_odom_x, o_odom_y, o_odom_theta = None, None, None
 	o_gt_x, o_gt_y, o_gt_theta = None, None, None
@@ -160,18 +160,18 @@ def eval_data(args):
 		sensor_left = float(sensor_left_line.strip()) > 350
 		sensor_right = float(sensor_right_line.strip()) > 350
 		#print sensor_left, sensor_right
-		
+
 		# optionally skip frames
 		if frame_skip_counter > 0:
 			frame_skip_counter -= 1
 			continue
-		
+
 		# if first line, just store first data for local frame computation
 		if not o_odom_x:
 			o_odom_x, o_odom_y, o_odom_theta = odom_x, odom_y, odom_theta
 			o_gt_x, o_gt_y, o_gt_theta = gt_x, gt_y, gt_theta
 			continue
-		
+
 		# else compute movement
 		# odom
 		odom_d_theta = odom_theta - o_odom_theta
@@ -180,8 +180,8 @@ def eval_data(args):
 		# ground truth
 		gt_d_theta = gt_theta - o_gt_theta
 		gt_d_x, gt_d_y = rot_mat2(-o_gt_theta).dot([gt_x-o_gt_x, gt_y-o_gt_y])
-		o_gt_x, o_gt_y, o_gt_theta = gt_x, gt_y, gt_theta 
-		
+		o_gt_x, o_gt_y, o_gt_theta = gt_x, gt_y, gt_theta
+
 		# do movement
 		localizer.apply_command(odom_d_x, odom_d_y, odom_d_theta)
 		dump_error(localizer, i, "after mvt", gt_x, gt_y, gt_theta)
@@ -189,7 +189,7 @@ def eval_data(args):
 			localizer.dump_PX(os.path.join(args.debug_dump, 'PX-{:0>4d}-A_mvt'.format(i)), gt_x, gt_y)
 			print '  d_odom (local frame): ', odom_d_x, odom_d_y, odom_d_theta
 			print '  d_gt (local frame):   ', gt_d_x, gt_d_y, gt_d_theta
-		
+
 		# apply observation
 		localizer.apply_obs(sensor_left, sensor_right)
 		if args.debug_dump:
@@ -197,7 +197,7 @@ def eval_data(args):
 
 
 if __name__ == '__main__':
-	
+
 	# command line parsing
 	parser = argparse.ArgumentParser(description='Test program for Thymio localization')
 	parser.add_argument('--ml_angle_count', type=int, help='Use Markov localization with a discretized angle of angle_count')
@@ -208,8 +208,9 @@ if __name__ == '__main__':
 	parser.add_argument('--eval_data', type=str, help='eval data from directory given as parameter')
 	parser.add_argument('--debug_dump', type=str, help='directory where to dump debug information (default: do not dump)')
 	parser.add_argument('--skip_start_frames', type=int, help='optionally, some frames to skip at the beginning of the data file', default=0)
+	parser.add_argument('--prob_uniform', type=float, default=0.05, help='uniform probability added to fight depletion')
 	args = parser.parse_args()
-	
+
 	if args.self_test:
 		self_test(args)
 	elif args.eval_data:

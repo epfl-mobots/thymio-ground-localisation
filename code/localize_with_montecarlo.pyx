@@ -27,6 +27,7 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 
 	# user parameters
 	cdef double prob_correct
+	cdef double prob_uniform
 
 	# fixed/computed parameters
 	cdef double alpha_theta_to_xy
@@ -65,6 +66,8 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 		cdef int particles_count = self.particles.shape[0]
 		cdef np.ndarray[double, ndim=1] weights = np.empty([particles_count])
 
+		# matching particles
+		nb_ok = 0
 		# apply observation to every particle
 		for i, (x, y, theta) in enumerate(self.particles):
 
@@ -94,6 +97,12 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 					right_weight = 1.0 - self.prob_correct
 				# compute weight
 				weights[i] = left_weight * right_weight
+			# update matching particles
+			if weights[i] > 0.5:
+				nb_ok += 1
+
+		# ratio matching particles
+		print "Proportion of matching particles:", 1.*nb_ok/len(weights)
 
 		# resample
 		assert weights.sum() > 0.
@@ -140,14 +149,12 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 
 	def dump_PX(self, str base_filename, float x = -1, float y = -1):
 		""" Write particles to an image """
-		
 		fig = Figure((3,3), tight_layout=True)
 		canvas = FigureCanvas(fig)
 		ax = fig.gca()
 		ax.set_xlim([0, self.ground_map.shape[0]])
 		ax.set_ylim([0, self.ground_map.shape[1]])
-		
+
 		for (x, y, theta) in self.particles:
 			ax.arrow(x, y, math.cos(theta), math.sin(theta), head_width=0.8, head_length=1, fc='k', ec='k', alpha=0.3)
-		
 		canvas.print_figure(base_filename+'.png', dpi=300)
