@@ -5,7 +5,7 @@
 # vim: ts=4:sw=4:noexpandtab
 
 # note: encode videos with
-#       mencoder mf://PX-*-B_mvt-sum.png -ovc lavc -o sum.mp4
+#       mencoder mf://PX-*-B_*-sum.png -ovc lavc -o sum.mp4
 
 import pyximport; pyximport.install()
 import numpy as np
