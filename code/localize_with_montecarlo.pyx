@@ -27,7 +27,7 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 
 	# user parameters
 	cdef double prob_correct
-	cdef double prob_uniform
+	cdef int N_uniform
 
 	# fixed/computed parameters
 	cdef double alpha_theta_to_xy
@@ -38,13 +38,14 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 	# particles
 	cdef double[:,:] particles # 2D array of particles_count x (x,y,theta)
 
-	def __init__(self, np.ndarray[double, ndim=2] ground_map, int particles_count, double prob_correct):
+	def __init__(self, np.ndarray[double, ndim=2] ground_map, int particles_count, double prob_correct, double prob_uniform):
 		""" Create the localizer with the ground map and some parameters """
 
 		super(MCLocalizer, self).__init__(ground_map)
 
 		# setup parameters
 		self.prob_correct = prob_correct
+		self.N_uniform = int(prob_uniform*particles_count)
 		self.alpha_theta_to_xy = 0.1
 		self.alpha_xy_to_xy = 0.1
 		self.alpha_theta_to_theta = 0.1
@@ -64,6 +65,8 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 		cdef double left_weight, right_weight
 		cdef int x_i, y_i, particle_index
 		cdef int particles_count = self.particles.shape[0]
+		cdef int resample_count = particles_count - self.N_uniform
+		cdef int uniform_count = self.N_uniform
 		cdef np.ndarray[double, ndim=1] weights = np.empty([particles_count])
 
 		# matching particles
@@ -108,7 +111,19 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 		assert weights.sum() > 0.
 		weights /= weights.sum()
 		cdef np.ndarray[double, ndim=2] particles_view = np.asarray(self.particles)
-		self.particles = particles_view[np.random.choice(particles_count, particles_count, p=weights)]
+		cdef np.ndarray[double, ndim=2] resampled = particles_view[np.random.choice(particles_count, resample_count, p=weights)]
+		cdef np.ndarray[double, ndim=2] new_particles = np.random.uniform(0,1,[uniform_count, 3]) * [self.ground_map.shape[0], self.ground_map.shape[1], _pi*2]
+		# FIXME I don't know why that doesn't work so I copy manually -_-
+		#self.particles[:resample_count] = resampled
+		#self.particles[resample_count:] = new_particles
+		for i, p in enumerate(resampled):
+			for j, v in enumerate(p):
+				self.particles[i,j] = v
+		for i, p in enumerate(new_particles):
+			for j, v in enumerate(p):
+				self.particles[i+resample_count,j] = v
+		# end FIXME
+
 
 	def apply_command(self, d_x, d_y, d_theta):
 		""" Apply command to each particle """

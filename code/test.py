@@ -36,7 +36,7 @@ def create_localizer(ground_map, args):
 	if args.ml_angle_count:
 		return localize_with_cpt.CPTLocalizer(ground_map, args.ml_angle_count, args.prob_correct, args.max_prob_error, args.prob_uniform)
 	elif args.mcl_particles_count:
-		return localize_with_montecarlo.MCLocalizer(ground_map, args.mcl_particles_count, args.prob_correct)
+		return localize_with_montecarlo.MCLocalizer(ground_map, args.mcl_particles_count, args.prob_correct, args.prob_uniform)
 	else:
 		print 'You must give either one of --ml_angle_count or --mcl_particles_count argument to this program'
 		sys.exit(1)
