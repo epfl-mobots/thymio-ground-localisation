@@ -97,8 +97,8 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 		assert weights.sum() > 0.
 		weights /= weights.sum()
 		cdef np.ndarray[double, ndim=2] particles_view = np.asarray(self.particles)
-		particles_view = particles_view[np.random.choice(particles_count, particles_count, p=weights)]
-		
+		self.particles = particles_view[np.random.choice(particles_count, particles_count, p=weights)]
+
 	def apply_command(self, d_x, d_y, d_theta):
 		""" Apply command to each particle """
 
