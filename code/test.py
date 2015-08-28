@@ -154,7 +154,8 @@ def eval_data(args):
 		#print 'gt', gt_x, gt_y, gt_theta
 		odom_x, odom_y = map(float, odom_pos_line.split())
 		odom_x *= 100; odom_y *= 100
-		odom_theta = math.asin(float(odom_quat_line.split()[0])) * 2.
+		z, w = map(float, odom_quat_line.split())
+		odom_theta = np.arcsin(z) * 2. * np.sign(w)
 		#print odom_x, odom_y, odom_theta
 		sensor_left = float(sensor_left_line.strip()) > 350
 		sensor_right = float(sensor_right_line.strip()) > 350

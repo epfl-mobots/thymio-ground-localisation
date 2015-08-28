@@ -17,9 +17,9 @@ def rot_mat2(angle):
 
 def normalize_angle(alpha):
 	while alpha > math.pi:
-		alpha -= 2 * math.pi
+		alpha -= 2. * math.pi
 	while alpha < -math.pi:
-		alpha += 2 * math.pi
+		alpha += 2. * math.pi
 	return alpha
 
 if __name__ == '__main__':
@@ -48,7 +48,8 @@ if __name__ == '__main__':
 		#print 'gt', gt_x, gt_y, gt_theta
 		odom_x, odom_y = map(float, odom_pos_line.split())
 		odom_x *= 100; odom_y *= 100
-		odom_theta = math.asin(float(odom_quat_line.split()[0])) * 2.
+		z, w = map(float, odom_quat_line.split())
+		odom_theta = np.arcsin(z) * 2. * np.sign(w)
 		
 		# if first line, just store first data for local frame computation
 		if not o_odom_x:
