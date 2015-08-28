@@ -35,7 +35,7 @@ if __name__ == '__main__':
 	odom_xy = np.loadtxt(os.path.join(sys.argv[1], 'odom_pose.txt'))
 	odom_xy -= odom_xy[0,0:2]
 	odom_quat = np.loadtxt(os.path.join(sys.argv[1], 'odom_quaternion.txt'))
-	odom_theta = np.arcsin(odom_quat[:,0]) * 2.
+	odom_theta = np.arcsin(odom_quat[:,0]) * 2. * np.sign(odom_quat[:,1])
 	odom_xy_aligned = rot_mat2(-odom_theta[0]).dot(odom_xy.transpose())
 	plt.plot(odom_xy_aligned[0,0:steps_to_show], odom_xy_aligned[1,0:steps_to_show], label='odometry')
 	
