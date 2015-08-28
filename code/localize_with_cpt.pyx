@@ -3,14 +3,17 @@
 # kate: replace-tabs off; indent-width 4; indent-mode normal
 # vim: ts=4:sw=4:noexpandtab
 
+import pyximport; pyximport.install()
 import numpy as np
 import math
 import scipy.misc
 from scipy.stats import norm
-#import scipy.stats.multivariate_normal as mv_norm
-from libc.math cimport floor, sqrt
+from libc.math cimport floor, sqrt, log
 cimport numpy as np
 cimport cython
+import localize_common
+cimport localize_common
+from localize_common import rot_mat2
 
 # some useful constants in local scope
 
@@ -18,25 +21,6 @@ cdef double _pi = math.pi
 cdef double _1pi = 1. / math.pi
 
 # support functions
-
-cpdef np.ndarray[double, ndim=2] rot_mat2(double angle):
-	""" Create a 2D rotation matrix for angle """
-	return np.array([[np.cos(angle), -np.sin(angle)],
-	                 [np.sin(angle),  np.cos(angle)]])
-
-cdef bint _is_in_bound_int(int x, int y, int w, int h):
-	""" Return whether a given position x,y (as int) is within the bounds of a 2D array """
-	if x >= 0 and y >= 0 and x < w and y < h:
-		return True
-	else:
-		return False
-
-cdef bint _is_in_bound(double[:] pos, int w, int h):
-	""" Check whether a given position is within the bounds of a 2D array """
-	assert pos.shape[0] == 2
-	cdef int x = int(floor(pos[0]))
-	cdef int y = int(floor(pos[1]))
-	return _is_in_bound_int(x,y,w,h)
 
 # taken from http://stackoverflow.com/questions/11615664/multivariate-normal-density-in-python
 def _norm_pdf_multivariate(x, mu, sigma):
@@ -57,7 +41,7 @@ def _norm_pdf_multivariate(x, mu, sigma):
 
 # main class
 
-cdef class CPTLocalizer:
+cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 
 	# user parameters
 	cdef int angle_N
@@ -68,9 +52,6 @@ cdef class CPTLocalizer:
 	cdef double alpha_xy_to_xy
 	cdef double alpha_theta_to_theta
 	cdef double alpha_xy_to_theta
-	
-	# map
-	cdef double[:,:] ground_map
 	
 	# observation model structures
 	cdef double[:,:,:] obs_left_black
@@ -86,7 +67,7 @@ cdef class CPTLocalizer:
 	def __init__(self, np.ndarray[double, ndim=2] ground_map, int angle_N, double prob_correct, double max_prob_error):
 		""" Fill the tables obs_left/right_black/white of the same resolution as the ground_map and an angle discretization angle_N """
 		
-		assert ground_map.dtype == np.double
+		super(CPTLocalizer, self).__init__(ground_map)
 		
 		# copy parameters
 		assert angle_N != 0
@@ -96,7 +77,6 @@ cdef class CPTLocalizer:
 		self.alpha_xy_to_xy = 0.1
 		self.alpha_theta_to_theta = 0.1
 		self.alpha_xy_to_theta = 0.05
-		self.ground_map = ground_map
 		
 		# create the arrays
 		cdef shape = [angle_N, ground_map.shape[0], ground_map.shape[1]]
@@ -118,8 +98,7 @@ cdef class CPTLocalizer:
 			shifts_right[i,:] = R.dot([7.2, -1.1])
 		
 		# fill the cells
-		cdef int x, y, w, h
-		w, h = ground_map.shape[0], ground_map.shape[1]
+		cdef int x, y
 		cdef double prob_wrong = 1.0 - prob_correct
 		cdef double c_x, c_y
 		for i in range(angle_N):
@@ -132,7 +111,7 @@ cdef class CPTLocalizer:
 					# left sensor
 					x = self.xyW2C(shifts_left[i,0] + c_x)
 					y = self.xyW2C(shifts_left[i,1] + c_y)
-					if _is_in_bound_int(x,y,w,h):
+					if self.is_in_bound_cell(x,y):
 						if ground_map[x,y] == 1.:
 							self.obs_left_black[i,j,k] = prob_correct
 							self.obs_left_white[i,j,k] = prob_wrong
@@ -145,7 +124,7 @@ cdef class CPTLocalizer:
 					# right sensor
 					x = self.xyW2C(shifts_right[i,0] + c_x)
 					y = self.xyW2C(shifts_right[i,1] + c_y)
-					if _is_in_bound_int(x,y,w,h):
+					if self.is_in_bound_cell(x,y):
 						if ground_map[x,y] == 1.:
 							self.obs_right_black[i,j,k] = prob_correct
 							self.obs_right_white[i,j,k] = prob_wrong
@@ -189,8 +168,8 @@ cdef class CPTLocalizer:
 	@cython.cdivision(True) # turn off division-by-zero checking
 	@cython.wraparound(False) # turn off wrap-around checking
 	@cython.nonecheck(False) # turn off 
-	def apply_command(self, double d_t, double d_x, double d_y, double d_theta):
-		""" Apply a command for a displacement of d_x,d_y (in local frame) and a rotation of d_theta, during a time d_t """
+	def apply_command(self, double d_x, double d_y, double d_theta):
+		""" Apply a command for a displacement of d_x,d_y (in local frame) and a rotation of d_theta """
 		
 		# variables 
 		cdef int i, j, k                 # outer loops indices
@@ -276,10 +255,6 @@ cdef class CPTLocalizer:
 			d_y_r_i = self.dxyW2C(d_y_r)
 			d_x_r_d = d_x_r - self.dxyW2C(d_x_r_i)
 			d_y_r_d = d_y_r - self.dxyW2C(d_y_r_i)
-			#print ''
-			#print d_x_r, d_y_r
-			#print d_x_r_i, d_y_r_i
-			#print d_x_r_d, d_y_r_d
 			
 			# compute covariance
 			sigma = T.dot(e_xy_mat).dot(T.transpose())
@@ -315,6 +290,19 @@ cdef class CPTLocalizer:
 		# copy back probability mass
 		self.PX = PX_new
 	
+	def estimate_state(self):
+		""" return a (x,y,theta) numpy array representing the estimated state """
+		
+		theta_i, x_i, y_i = np.unravel_index(np.asarray(self.PX).argmax(), (<object>self.PX).shape)
+		return np.array([self.xyC2W(x_i), self.xyC2W(y_i), self.thetaC2W(theta_i)])
+	
+	def estimate_logratio(self, double x, double y, double theta):
+		""" return the log ratio between the probability at estimate and at given location (x,y,theta).
+		No bound check is performed on input """
+		log_estimate = log(np.asarray(self.PX).max())
+		log_query = log(self.PX[self.thetaW2C(theta), self.xyW2C(x), self.xyW2C(y)])
+		return log_estimate - log_query
+		
 	
 	# debug methods
 	
@@ -327,16 +315,22 @@ cdef class CPTLocalizer:
 			scipy.misc.imsave(base_filename+'-'+str(i)+'-right_black.png', self.obs_right_black[i])
 			scipy.misc.imsave(base_filename+'-'+str(i)+'-right_white.png', self.obs_right_white[i])
 	
-	def dump_PX(self, str base_filename, int x = -1, int y = -1):
+	def dump_PX(self, str base_filename, float x = -1, float y = -1):
 		""" Write images of latent space """
 		
 		# dump image in RGB
 		def write_image(np.ndarray[double, ndim=2] array_2D, str filename):
 			cdef np.ndarray[double, ndim=3] zeros = np.zeros([self.PX.shape[1], self.PX.shape[2], 1], np.double)
 			array_rgb = np.concatenate((array_2D[:,:,np.newaxis], zeros, zeros), axis = 2)
-			if x >= 0 and y >= 0:
-				array_rgb[x,y,1] = array_rgb[x,y,0]
-				array_rgb[x,y,2] = array_rgb[x,y,0]
+			cdef int i_x = self.xyW2C(x)
+			cdef int i_y = self.xyW2C(y)
+			if self.is_in_bound_cell(i_x, i_y):
+				#array_rgb[i_x,i_y,1] = array_rgb[i_x,i_y,0]
+				#array_rgb[i_x,i_y,2] = array_rgb[i_x,i_y,0]
+				max_value = array_2D.max()
+				array_rgb[i_x,i_y,:] = [0,max_value,max_value]
+			else:
+				print 'WARNING: ground-truth position {},{} is outside map bounds'.format(x,y)
 			scipy.misc.imsave(filename, array_rgb)
 		
 		# for every angle
@@ -355,7 +349,7 @@ cdef class CPTLocalizer:
 
 	cpdef int thetaW2C(self, double angle):
 		""" Transform an angle in radian into an angle in cell coordinates """
-		return int(floor((angle * self.angle_N) / (2. * _pi)))
+		return int(floor((angle * self.angle_N) / (2. * _pi))) % self.angle_N
 	
 	cpdef double dthetaC2W(self, int dangle):
 		""" Transform an angle difference in cell coordinates into a difference in radian """
@@ -364,19 +358,4 @@ cdef class CPTLocalizer:
 	cpdef int dthetaW2C(self, double dangle):
 		""" Transform an angle difference in radian into a difference in cell coordinates """
 		return int(round((dangle * self.angle_N) / (2. * _pi)))
-	
-	cpdef double xyC2W(self, int pos):
-		""" Transform an x or y coordinate in cell coordinates into world coordinates """
-		return pos+0.5
-		
-	cpdef int xyW2C(self, double pos):
-		""" Transform an x or y coordinate in world coordinates into cell coordinates """
-		return int(floor(pos))
-		
-	cpdef double dxyC2W(self, int dpos):
-		""" Transform an x or y difference in cell coordinates into a difference in world coordinates """
-		return float(dpos)
-		
-	cpdef int dxyW2C(self, double dpos):
-		""" Transform an x or y difference in world coordinates into a difference in cell coordinates """
-		return int(round(dpos))
+

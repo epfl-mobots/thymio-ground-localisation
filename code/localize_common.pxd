@@ -1,0 +1,27 @@
+# -*- coding: utf-8 -*-
+# cython: profile=False
+# kate: replace-tabs off; indent-width 4; indent-mode normal
+# vim: ts=4:sw=4:noexpandtab
+
+import numpy as np
+cimport numpy as np
+cimport cython
+
+# support functions
+
+cpdef np.ndarray[double, ndim=2] rot_mat2(double angle)
+
+# main class
+
+cdef class AbstractLocalizer:
+
+	# map
+	cdef double[:,:] ground_map
+	
+	# support methods
+	cpdef bint is_in_bound_cell(self, int x, int y)
+	cpdef bint is_in_bound(self, double[:] pos)
+	cpdef double xyC2W(self, int pos)
+	cpdef int xyW2C(self, double pos)
+	cpdef double dxyC2W(self, int dpos)
+	cpdef int dxyW2C(self, double dpos)
