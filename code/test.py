@@ -41,7 +41,7 @@ def create_localizer(ground_map, args):
 		print 'You must give either one of --ml_angle_count or --mcl_particles_count argument to this program'
 		sys.exit(1)
 
-def dump_error(localizer, i, text, gt_x, gt_y, gt_theta):
+def dump_error(localizer, i, text, gt_x, gt_y, gt_theta, performance_log = None):
 	estimated_state = localizer.estimate_state()
 	dist_xy = np.linalg.norm(estimated_state[0:2]-(gt_x,gt_y))
 	dist_theta = math.degrees(normalize_angle(estimated_state[2]-gt_theta))
@@ -53,6 +53,18 @@ def dump_error(localizer, i, text, gt_x, gt_y, gt_theta):
 	else:
 		color = 'red'
 	print colored('{} {} - x,y dist: {}, theta dist: {}, log ratio P: {}'.format(i, text, dist_xy, dist_theta, logratio_P), color)
+	if performance_log:
+		performance_log.write('{} {} {} {} {} {} {} {} {}\n'.format(\
+			gt_x, \
+			gt_y, \
+			gt_theta, \
+			estimated_state[0], \
+			estimated_state[1], \
+			estimated_state[2], \
+			dist_xy, \
+			dist_theta, \
+			logratio_P
+		))
 
 
 # main test function
@@ -138,6 +150,12 @@ def eval_data(args):
 	# build localizer
 	localizer = create_localizer(ground_map, args)
 
+	# if given, opens performance log
+	if args.performance_log:
+		performance_log = open(args.performance_log, 'w')
+	else:
+		performance_log = None
+
 	frame_skip_counter = args.skip_start_frames
 	o_odom_x, o_odom_y, o_odom_theta = None, None, None
 	o_gt_x, o_gt_y, o_gt_theta = None, None, None
@@ -186,7 +204,7 @@ def eval_data(args):
 
 		# do movement
 		localizer.apply_command(odom_d_x, odom_d_y, odom_d_theta)
-		dump_error(localizer, i, "after mvt", gt_x, gt_y, gt_theta)
+		dump_error(localizer, i, "after mvt", gt_x, gt_y, gt_theta, performance_log)
 		if args.debug_dump:
 			localizer.dump_PX(os.path.join(args.debug_dump, 'PX-{:0>4d}-A_mvt'.format(i)), gt_x, gt_y, gt_theta)
 			print '  d_odom (local frame): ', odom_d_x, odom_d_y, odom_d_theta
@@ -196,6 +214,10 @@ def eval_data(args):
 		localizer.apply_obs(sensor_left, sensor_right)
 		if args.debug_dump:
 			localizer.dump_PX(os.path.join(args.debug_dump, 'PX-{:0>4d}-B_obs'.format(i)), gt_x, gt_y, gt_theta)
+
+	# close log file
+	if performance_log:
+		performance_log.close()
 
 
 if __name__ == '__main__':
@@ -212,8 +234,10 @@ if __name__ == '__main__':
 	parser.add_argument('--alpha_xy', type=float, default=0.11, help='relative linear error in motion model (default: 0.11)')
 	parser.add_argument('--alpha_theta', type=float, default=0.17, help='relative angular error in motion model (default: 0.17)')
 	parser.add_argument('--debug_dump', type=str, help='directory where to dump debug information (default: do not dump)')
+	parser.add_argument('--performance_log', type=str, help='filename in which to write performance log (default: do not write log)')
 	parser.add_argument('--skip_start_frames', type=int, default=0, help='optionally, some frames to skip at the beginning of the data file (default: 0)')
 	parser.add_argument('--skip_frames', type=int, default=0, help='optionally, some frames to skip when processing the data file (default: 0)')
+
 	args = parser.parse_args()
 
 	if args.self_test:
