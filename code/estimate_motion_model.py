@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # cython: profile=False
-# kate: replace-tabs off; indent-width 4; indent-mode normal
+# kate: replace-tabs off; indent-width 4; indent-mode normal; remove-trailing-spaces all;
 # vim: ts=4:sw=4:noexpandtab
 
 import numpy as np
@@ -58,13 +58,13 @@ gt_d_xs, gt_d_ys, gt_d_thetas = [], [], []
 
 def load_data(data_dirs):
 	""" Load deltas x/y/theta for odom/ground-truth from all given data directories """
-	
+
 	for data_dir in data_dirs:
-	
+
 		# temporary variables
 		o_odom_x, o_odom_y, o_odom_theta = None, None, None
 		o_gt_x, o_gt_y, o_gt_theta = None, None, None
-		
+
 		# load all lines
 		for i, (gt_line, odom_pos_line, odom_quat_line) in enumerate(zip(\
 			open(os.path.join(data_dir, 'gt.txt')), \
@@ -77,13 +77,13 @@ def load_data(data_dirs):
 			odom_x *= 100; odom_y *= 100
 			z, w = map(float, odom_quat_line.split())
 			odom_theta = np.arcsin(z) * 2. * np.sign(w)
-			
+
 			# if first line, just store first data for local frame computation
 			if not o_odom_x:
 				o_odom_x, o_odom_y, o_odom_theta = odom_x, odom_y, odom_theta
 				o_gt_x, o_gt_y, o_gt_theta = gt_x, gt_y, gt_theta
 				continue
-			
+
 			# else compute movement
 			# odom
 			odom_d_theta = odom_theta - o_odom_theta
@@ -98,12 +98,12 @@ def load_data(data_dirs):
 			gt_d_xs.append(gt_d_x)
 			gt_d_ys.append(gt_d_y)
 			gt_d_thetas.append(gt_d_theta)
-			o_gt_x, o_gt_y, o_gt_theta = gt_x, gt_y, gt_theta 
+			o_gt_x, o_gt_y, o_gt_theta = gt_x, gt_y, gt_theta
 
 
 def compute_log_likelihood(params, grad):
 	""" Sums the log-likelihood of the Gaussian error for all deltas """
-	
+
 	# parameters to test
 	#alpha_theta_to_xy = params[0]
 	#alpha_xy_to_xy = params[1]
@@ -112,22 +112,22 @@ def compute_log_likelihood(params, grad):
 	alpha_xy_to_xy = params[0]
 	alpha_theta_to_theta = params[1]
 	prob_uniform = params[2]
-	
+
 	print 'alpha_xy_to_xy:', alpha_xy_to_xy
 	print 'alpha_theta_to_theta:', alpha_theta_to_theta
 	print 'prob_uniform:', prob_uniform
-	
+
 	# probability of kidnapping
 	prob_gaussian = 1. - prob_uniform
 	theta_add_uniform = prob_uniform / (2. * math.pi)
 	xy_add_uniform = prob_uniform / (150. * 150.)
-	
+
 	# temporary variables
 	X = np.empty([2])
 	sigma = np.zeros([2,2])
-	
+
 	log_likelihood = 0.
-	
+
 	# for every time steps
 	for odom_d_x, odom_d_y, odom_d_theta, gt_d_x, gt_d_y, gt_d_theta in zip(\
 		odom_d_xs, \
@@ -143,15 +143,15 @@ def compute_log_likelihood(params, grad):
 		e_theta = alpha_theta_to_theta * math.fabs(odom_d_theta) + math.radians(0.1)
 		#e_xy = alpha_xy_to_xy * norm_xy + alpha_theta_to_xy * math.fabs(odom_d_theta) + 0.01
 		e_xy = alpha_xy_to_xy * norm_xy + 0.001
-		
+
 		# evaluate likelihood for this observation
-		
+
 		# theta
 		dd_theta = normalize_angle(gt_d_theta - odom_d_theta)
 		lh_theta = scipy.stats.norm.pdf(dd_theta, scale=e_theta)
 		# add both Gaussian and uniform probability to compute likelihood
 		lh_theta = lh_theta * prob_gaussian + theta_add_uniform
-		
+
 		# x,y
 		X[0] = gt_d_x - odom_d_x
 		X[1] = gt_d_y - odom_d_y
@@ -160,13 +160,13 @@ def compute_log_likelihood(params, grad):
 		lh_xy = _norm_pdf_multivariate(X, sigma)
 		# add both Gaussian and uniform probability to compute likelihood
 		lh_xy = lh_xy * prob_gaussian + xy_add_uniform
-		
+
 		# make sure likelihood is non zero
 		assert lh_theta > 0, lh_theta
 		assert lh_xy > 0, lh_xy
 		# sum the log likelihoods
 		log_likelihood += math.log(lh_theta) + math.log(lh_xy)
-	
+
 	print 'log likelihood:', log_likelihood, '\n'
 	return log_likelihood
 
@@ -179,11 +179,11 @@ if __name__ == '__main__':
 		exit(1)
 	else:
 		data_dirs = sys.argv[1:]
-	
+
 	# load data from a list of directories
 	print 'Evaluating likelihood on ' + str(data_dirs)
 	load_data(data_dirs)
-	
+
 	# setup and run global optimisation
 	# Main variants of possible global optimisation algorithms:
 	# GN_DIRECT_L, GN_CRS2_LM, G_MLSL_LDS, GD_STOGO, GN_ISRES, GN_ESCH
@@ -197,4 +197,3 @@ if __name__ == '__main__':
 	print "optimum at ", xopt
 	print "maximum value = ", opt.last_optimum_value()
 	print "result code = ", opt.last_optimize_result()
-	

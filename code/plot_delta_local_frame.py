@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # cython: profile=False
-# kate: replace-tabs off; indent-width 4; indent-mode normal
+# kate: replace-tabs off; indent-width 4; indent-mode normal; remove-trailing-spaces all;
 # vim: ts=4:sw=4:noexpandtab
 
 import numpy as np
@@ -32,12 +32,12 @@ if __name__ == '__main__':
 		steps_to_show = int(sys.argv[2])
 	else:
 		steps_to_show = 1000
-	
+
 	o_odom_x, o_odom_y, o_odom_theta = None, None, None
 	o_gt_x, o_gt_y, o_gt_theta = None, None, None
 	odom_d_xs, odom_d_ys, odom_d_thetas = [], [], []
 	gt_d_xs, gt_d_ys, gt_d_thetas = [], [], []
-	
+
 	for i, (gt_line, odom_pos_line, odom_quat_line) in enumerate(zip(\
 		open(os.path.join(sys.argv[1], 'gt.txt')), \
 		open(os.path.join(sys.argv[1], 'odom_pose.txt')), \
@@ -50,13 +50,13 @@ if __name__ == '__main__':
 		odom_x *= 100; odom_y *= 100
 		z, w = map(float, odom_quat_line.split())
 		odom_theta = np.arcsin(z) * 2. * np.sign(w)
-		
+
 		# if first line, just store first data for local frame computation
 		if not o_odom_x:
 			o_odom_x, o_odom_y, o_odom_theta = odom_x, odom_y, odom_theta
 			o_gt_x, o_gt_y, o_gt_theta = gt_x, gt_y, gt_theta
 			continue
-		
+
 		# else compute movement
 		# odom
 		odom_d_theta = odom_theta - o_odom_theta
@@ -71,23 +71,22 @@ if __name__ == '__main__':
 		gt_d_xs.append(gt_d_x)
 		gt_d_ys.append(gt_d_y)
 		gt_d_thetas.append(gt_d_theta)
-		o_gt_x, o_gt_y, o_gt_theta = gt_x, gt_y, gt_theta 
-	
+		o_gt_x, o_gt_y, o_gt_theta = gt_x, gt_y, gt_theta
+
 	# plot
 	gt_d_thetas = map(normalize_angle, gt_d_thetas)
 	odom_d_thetas = map(normalize_angle, odom_d_thetas)
-	
+
 	# for gt
 	plt.plot(gt_d_xs, label='ground truth - dx')
 	plt.plot(gt_d_ys, label='ground truth - dy')
 	plt.plot(gt_d_thetas, label='ground truth - dtheta')
-	
+
 	# for odom
 	plt.plot(odom_d_xs, label='odometry - dx')
 	plt.plot(odom_d_ys, label='odometry - dy')
 	plt.plot(odom_d_thetas, label='odometry - dtheta')
-	
+
 	# add legend and show plot
 	plt.legend()
 	plt.show()
-	

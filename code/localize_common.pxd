@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # cython: profile=False
-# kate: replace-tabs off; indent-width 4; indent-mode normal
+# kate: replace-tabs off; indent-width 4; indent-mode normal; remove-trailing-spaces all;
 # vim: ts=4:sw=4:noexpandtab
 
 import numpy as np
@@ -17,11 +17,11 @@ cdef class AbstractLocalizer:
 
 	# map
 	cdef double[:,:] ground_map
-	
+
 	# motion model
 	cdef double alpha_xy
 	cdef double alpha_theta
-	
+
 	# support methods
 	cpdef bint is_in_bound_cell(self, int x, int y)
 	cpdef bint is_in_bound(self, double[:] pos)
