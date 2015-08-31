@@ -105,16 +105,23 @@ def compute_log_likelihood(params, grad):
 	""" Sums the log-likelihood of the Gaussian error for all deltas """
 	
 	# parameters to test
-	alpha_theta_to_xy = params[0]
-	alpha_xy_to_xy = params[1]
-	alpha_theta_to_theta = params[2]
-	alpha_xy_to_theta = params[3]
+	#alpha_theta_to_xy = params[0]
+	#alpha_xy_to_xy = params[1]
+	#alpha_theta_to_theta = params[2]
+	#alpha_xy_to_theta = params[3]
+	alpha_xy_to_xy = params[0]
+	alpha_theta_to_theta = params[1]
+	prob_uniform = params[2]
 	
-	print 'alpha_theta_to_xy:', alpha_theta_to_xy
 	print 'alpha_xy_to_xy:', alpha_xy_to_xy
 	print 'alpha_theta_to_theta:', alpha_theta_to_theta
-	print 'alpha_xy_to_theta:', alpha_xy_to_theta
-
+	print 'prob_uniform:', prob_uniform
+	
+	# probability of kidnapping
+	prob_gaussian = 1. - prob_uniform
+	theta_add_uniform = prob_uniform / (2. * math.pi)
+	xy_add_uniform = prob_uniform / (150. * 150.)
+	
 	# temporary variables
 	X = np.empty([2])
 	sigma = np.zeros([2,2])
@@ -132,14 +139,18 @@ def compute_log_likelihood(params, grad):
 	):
 		# compute SD for Gaussian error model
 		norm_xy = math.sqrt(odom_d_x*odom_d_x + odom_d_y*odom_d_y)
-		e_theta = alpha_xy_to_theta * norm_xy + alpha_theta_to_theta * math.fabs(odom_d_theta) + math.radians(0.5)
-		e_xy = alpha_xy_to_xy * norm_xy + alpha_theta_to_xy * math.fabs(odom_d_theta) + 0.01
+		#e_theta = alpha_xy_to_theta * norm_xy + alpha_theta_to_theta * math.fabs(odom_d_theta) + math.radians(0.5)
+		e_theta = alpha_theta_to_theta * math.fabs(odom_d_theta) + math.radians(0.1)
+		#e_xy = alpha_xy_to_xy * norm_xy + alpha_theta_to_xy * math.fabs(odom_d_theta) + 0.01
+		e_xy = alpha_xy_to_xy * norm_xy + 0.001
 		
 		# evaluate likelihood for this observation
 		
 		# theta
 		dd_theta = normalize_angle(gt_d_theta - odom_d_theta)
 		lh_theta = scipy.stats.norm.pdf(dd_theta, scale=e_theta)
+		# add both Gaussian and uniform probability to compute likelihood
+		lh_theta = lh_theta * prob_gaussian + theta_add_uniform
 		
 		# x,y
 		X[0] = gt_d_x - odom_d_x
@@ -147,7 +158,13 @@ def compute_log_likelihood(params, grad):
 		sigma[0,0] = e_xy
 		sigma[1,1] = e_xy
 		lh_xy = _norm_pdf_multivariate(X, sigma)
+		# add both Gaussian and uniform probability to compute likelihood
+		lh_xy = lh_xy * prob_gaussian + xy_add_uniform
 		
+		# make sure likelihood is non zero
+		assert lh_theta > 0, lh_theta
+		assert lh_xy > 0, lh_xy
+		# sum the log likelihoods
 		log_likelihood += math.log(lh_theta) + math.log(lh_xy)
 	
 	print 'log likelihood:', log_likelihood, '\n'
@@ -170,14 +187,14 @@ if __name__ == '__main__':
 	# setup and run global optimisation
 	# Main variants of possible global optimisation algorithms:
 	# GN_DIRECT_L, GN_CRS2_LM, G_MLSL_LDS, GD_STOGO, GN_ISRES, GN_ESCH
-	opt = nlopt.opt(nlopt.GN_DIRECT_L, 4)
-	opt.set_lower_bounds([0.,0.,0.,0.])
-	opt.set_upper_bounds([1.,1.,1.,1.])
+	opt = nlopt.opt(nlopt.GN_DIRECT_L, 3)
+	opt.set_lower_bounds([0., 0., 1e-5])
+	opt.set_upper_bounds([1., 2., 0.5])
 	opt.set_max_objective(compute_log_likelihood)
 	opt.set_xtol_abs(1e-3) # parameters change less than 0.1 %
 	opt.set_ftol_rel(1e-5) # LL changes less than 0.01 %
-	xopt = opt.optimize([0.1, 0.1, 0.1, 0.1])
+	xopt = opt.optimize([0.1, 0.1, 0.01])
 	print "optimum at ", xopt
-	print "minimum value = ", opt.last_optimum_value()
+	print "maximum value = ", opt.last_optimum_value()
 	print "result code = ", opt.last_optimize_result()
 	
