@@ -26,30 +26,6 @@ def normalize_angle(alpha):
 		alpha += 2. * math.pi
 	return alpha
 
-# taken from http://stackoverflow.com/questions/11615664/multivariate-normal-density-in-python
-def _norm_pdf_multivariate(x, sigma):
-	""" multivariate PDF for Gaussian """
-	size = len(x)
-	if (size, size) == sigma.shape:
-		det = np.linalg.det(sigma)
-		if det == 0:
-			raise NameError("The covariance matrix can't be singular")
-
-		norm_const = 1.0/ ( math.pow((2*math.pi),float(size)/2) * math.pow(det,1.0/2) )
-		x_mu = np.matrix(x) # mu is zero
-		inv = np.linalg.inv(sigma)
-		try:
-			result = math.pow(math.e, -0.5 * (x_mu * inv * x_mu.T))
-		except ArithmeticError as e:
-			print 'Error computing Gaussian with following parameters'
-			print 'x_mu', x_mu
-			print 'inv_sigma', inv
-			raise e
-		return norm_const * result
-	else:
-		raise NameError("The dimensions of the input don't match")
-
-
 # main functions
 
 # lists of deltas, to be used within the optimisation function
@@ -106,15 +82,15 @@ def compute_log_likelihood(params, grad):
 
 	# parameters to test
 	#alpha_theta_to_xy = params[0]
-	#alpha_xy_to_xy = params[1]
-	#alpha_theta_to_theta = params[2]
+	#alpha_xy = params[1]
+	#alpha_theta = params[2]
 	#alpha_xy_to_theta = params[3]
-	alpha_xy_to_xy = params[0]
-	alpha_theta_to_theta = params[1]
+	alpha_xy = params[0]
+	alpha_theta = params[1]
 	prob_uniform = params[2]
 
-	print 'alpha_xy_to_xy:', alpha_xy_to_xy
-	print 'alpha_theta_to_theta:', alpha_theta_to_theta
+	print 'alpha_xy:', alpha_xy
+	print 'alpha_theta:', alpha_theta
 	print 'prob_uniform:', prob_uniform
 
 	# probability of kidnapping
@@ -139,10 +115,8 @@ def compute_log_likelihood(params, grad):
 	):
 		# compute SD for Gaussian error model
 		norm_xy = math.sqrt(odom_d_x*odom_d_x + odom_d_y*odom_d_y)
-		#e_theta = alpha_xy_to_theta * norm_xy + alpha_theta_to_theta * math.fabs(odom_d_theta) + math.radians(0.5)
-		e_theta = alpha_theta_to_theta * math.fabs(odom_d_theta) + math.radians(0.1)
-		#e_xy = alpha_xy_to_xy * norm_xy + alpha_theta_to_xy * math.fabs(odom_d_theta) + 0.01
-		e_xy = alpha_xy_to_xy * norm_xy + 0.001
+		e_theta = alpha_theta * math.fabs(odom_d_theta) + math.radians(0.1)
+		e_xy = alpha_xy * norm_xy + 0.001
 
 		# evaluate likelihood for this observation
 
@@ -153,17 +127,15 @@ def compute_log_likelihood(params, grad):
 		lh_theta = lh_theta * prob_gaussian + theta_add_uniform
 
 		# x,y
-		X[0] = gt_d_x - odom_d_x
-		X[1] = gt_d_y - odom_d_y
-		sigma[0,0] = e_xy
-		sigma[1,1] = e_xy
-		lh_xy = _norm_pdf_multivariate(X, sigma)
+		dd_xy = math.sqrt((gt_d_x - odom_d_x)**2 + (gt_d_y - odom_d_y)**2)
+		lh_xy = scipy.stats.norm.pdf(dd_xy, scale=e_xy)
 		# add both Gaussian and uniform probability to compute likelihood
 		lh_xy = lh_xy * prob_gaussian + xy_add_uniform
 
 		# make sure likelihood is non zero
 		assert lh_theta > 0, lh_theta
 		assert lh_xy > 0, lh_xy
+		
 		# sum the log likelihoods
 		log_likelihood += math.log(lh_theta) + math.log(lh_xy)
 
