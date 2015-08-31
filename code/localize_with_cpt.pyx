@@ -271,13 +271,16 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 			sigma = T.dot(e_xy_mat).dot(T.transpose())
 
 			# then pre-compute arrays for fast lookup in inner loop for x,y
-			mu = np.array([d_x_r_d, d_y_r_d])
+			#mu = np.array([d_x_r_d, d_y_r_d])
+			e_x_dist = norm(d_x_r_d, e_xy)
+			e_y_dist = norm(d_y_r_d, e_xy)
 			#print 'mu', mu
 			for j in range(e_xy_p.shape[0]):
 				for k in range(e_xy_p.shape[1]):
 					t_x = self.dxyC2W(j - e_xy_p.shape[0]/2)
 					t_y = self.dxyC2W(k - e_xy_p.shape[1]/2)
-					e_xy_p[j,k] = _norm_pdf_multivariate(np.array([t_x, t_y]), mu , sigma)
+					#e_xy_p[j,k] = _norm_pdf_multivariate(np.array([t_x, t_y]), mu , sigma)
+					e_xy_p[j,k] = e_x_dist.pdf(t_x) * e_y_dist.pdf(t_y)
 			e_xy_p /= e_xy_p.sum()
 			#print e_xy_p
 			#scipy.misc.imsave('/tmp/toto/e_xy_p-'+str(i)+'.png', e_xy_p)
