@@ -25,6 +25,9 @@ def sensors_from_pos(x, y, theta):
 	R = rot_mat2(theta)
 	return R.dot([7.2, 1.1]) + [x,y], R.dot([7.2, -1.1]) + [x,y]
 
+def normalize_sensor(v):
+	return (float(v) - 60.) * 690.
+
 def normalize_angle(alpha):
 	while alpha > math.pi:
 		alpha -= 2 * math.pi
@@ -34,9 +37,9 @@ def normalize_angle(alpha):
 
 def create_localizer(ground_map, args):
 	if args.ml_angle_count:
-		return localize_with_cpt.CPTLocalizer(ground_map, args.ml_angle_count, args.prob_correct, args.max_prob_error, args.prob_uniform, args.alpha_xy, args.alpha_theta)
+		return localize_with_cpt.CPTLocalizer(ground_map, args.ml_angle_count, args.sigma_obs, args.max_prob_error, args.prob_uniform, args.alpha_xy, args.alpha_theta)
 	elif args.mcl_particles_count:
-		return localize_with_montecarlo.MCLocalizer(ground_map, args.mcl_particles_count, args.prob_correct, args.prob_uniform, args.alpha_xy, args.alpha_theta)
+		return localize_with_montecarlo.MCLocalizer(ground_map, args.mcl_particles_count, args.sigma_obs, args.prob_uniform, args.alpha_xy, args.alpha_theta)
 	else:
 		print 'You must give either one of --ml_angle_count or --mcl_particles_count argument to this program'
 		sys.exit(1)
@@ -82,7 +85,7 @@ def test_command_sequence(ground_map, localizer, sequence):
 		lval = ground_map[localizer.xyW2C(lpos[0]), localizer.xyW2C(lpos[1])]
 		rval = ground_map[localizer.xyW2C(rpos[0]), localizer.xyW2C(rpos[1])]
 		# apply observation
-		localizer.apply_obs(lval > 0.5, rval > 0.5)
+		localizer.apply_obs(lval, rval)
 		if args.debug_dump:
 			localizer.dump_PX(os.path.join(args.debug_dump, 'PX-{:0>4d}-A_obs'.format(i)), x, y, theta)
 		# compare observation with ground truth before movement
@@ -179,8 +182,8 @@ def eval_data(args):
 		z, w = map(float, odom_quat_line.split())
 		odom_theta = np.arcsin(z) * 2. * np.sign(w)
 		#print odom_x, odom_y, odom_theta
-		sensor_left = float(sensor_left_line.strip()) > 350
-		sensor_right = float(sensor_right_line.strip()) > 350
+		sensor_left = normalize_sensor(sensor_left_line.strip())
+		sensor_right = normalize_sensor(sensor_right_line.strip())
 		#print sensor_left, sensor_right
 
 		# optionally skip frames
@@ -230,7 +233,7 @@ if __name__ == '__main__':
 	parser.add_argument('--mcl_particles_count', type=int, help='Use Monte Carlo localization with a particles_count particles')
 	parser.add_argument('--self_test', help='run unit-testing style of tests on synthetic data', action='store_true')
 	parser.add_argument('--eval_data', type=str, help='eval data from directory given as parameter')
-	parser.add_argument('--prob_correct', type=float, default=0.95, help='probability when seeing a correct ground color (default: 0.95)')
+	parser.add_argument('--sigma_obs', type=float, default=0.5, help='standard deviation of the observation model for ground color (default: 0.5)')
 	parser.add_argument('--max_prob_error', type=float, default=0.01, help='max. error ratio with mode value when spilling over probability in Markov localisation (default: 0.01)')
 	parser.add_argument('--prob_uniform', type=float, default=0.2, help='uniform probability added to fight depletion and detect kidnapping (default: 0.2)')
 	parser.add_argument('--alpha_xy', type=float, default=0.12, help='relative linear error in motion model (default: 0.12)')

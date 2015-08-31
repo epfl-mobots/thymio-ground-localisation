@@ -8,7 +8,7 @@ import numpy as np
 import math
 import scipy.misc
 from scipy.stats import norm
-from libc.math cimport floor, sqrt, log
+from libc.math cimport floor, sqrt, log, exp
 cimport numpy as np
 cimport cython
 import localize_common
@@ -19,6 +19,7 @@ from localize_common import rot_mat2
 
 cdef double _pi = math.pi
 cdef double _1pi = 1. / math.pi
+cdef double _1sqrt2pi = 1. / sqrt(2. * math.pi)
 
 # support functions
 
@@ -45,6 +46,12 @@ def _norm_pdf_multivariate(x, mu, sigma):
 	else:
 		raise NameError("The dimensions of the input don't match")
 
+@cython.cdivision(True) # turn off division-by-zero checking
+cdef double _norm(double x, double u, double s):
+	cdef double factor = _1sqrt2pi / s
+	cdef double dxus = (x - u) / s
+	return factor * exp(- (dxus * dxus) / 2.)
+
 # main class
 
 cdef class CPTLocalizer(localize_common.AbstractLocalizer):
@@ -57,21 +64,15 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 	# fixed/computed parameters
 	cdef int N
 
-	# observation model structures
-	cdef double[:,:,:] obs_left_black
-	cdef double[:,:,:] obs_left_white
-	cdef double[:,:,:] obs_right_black
-	cdef double[:,:,:] obs_right_white
-
 	# probability distribution for latent space
 	cdef double[:,:,:] PX
 
 	# constructor
 
-	def __init__(self, np.ndarray[double, ndim=2] ground_map, int angle_N, double prob_correct, double max_prob_error, double prob_uniform, double alpha_xy, double alpha_theta):
+	def __init__(self, np.ndarray[double, ndim=2] ground_map, int angle_N, double sigma_obs, double max_prob_error, double prob_uniform, double alpha_xy, double alpha_theta):
 		""" Fill the tables obs_left/right_black/white of the same resolution as the ground_map and an angle discretization angle_N """
 
-		super(CPTLocalizer, self).__init__(ground_map, alpha_xy, alpha_theta)
+		super(CPTLocalizer, self).__init__(ground_map, alpha_xy, alpha_theta, sigma_obs)
 
 		# copy parameters
 		assert angle_N != 0
@@ -80,64 +81,8 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 		self.prob_uniform = prob_uniform
 		self.N = angle_N * ground_map.shape[0] * ground_map.shape[1]
 
-		# create the arrays
-		cdef shape = [angle_N, ground_map.shape[0], ground_map.shape[1]]
-		self.obs_left_black = np.empty(shape, np.double)
-		self.obs_left_white = np.empty(shape, np.double)
-		self.obs_right_black = np.empty(shape, np.double)
-		self.obs_right_white = np.empty(shape, np.double)
-
-		# pre-compute the shift vectors to lookup the map from a given robot position
-		cdef np.ndarray[double, ndim=2] shifts_left = np.empty([angle_N, 2], np.double)
-		cdef np.ndarray[double, ndim=2] shifts_right = np.empty([angle_N, 2], np.double)
-		cdef np.ndarray[double, ndim=2] R
-		cdef double theta
-		cdef int i, j, k
-		for i in range(angle_N):
-			theta = self.thetaC2W(i)
-			R = rot_mat2(theta)
-			shifts_left[i,:] = R.dot([7.2, 1.1])
-			shifts_right[i,:] = R.dot([7.2, -1.1])
-
-		# fill the cells
-		cdef int x, y
-		cdef double prob_wrong = 1.0 - prob_correct
-		cdef double c_x, c_y
-		for i in range(angle_N):
-			for j in range(ground_map.shape[0]):
-				for k in range(ground_map.shape[1]):
-					c_x = self.xyC2W(j)
-					c_y = self.xyC2W(k)
-					# WARNING: value to color encoding is unusual:
-					# black is 1, white is 0
-					# left sensor
-					x = self.xyW2C(shifts_left[i,0] + c_x)
-					y = self.xyW2C(shifts_left[i,1] + c_y)
-					if self.is_in_bound_cell(x,y):
-						if ground_map[x,y] == 1.:
-							self.obs_left_black[i,j,k] = prob_correct
-							self.obs_left_white[i,j,k] = prob_wrong
-						else:
-							self.obs_left_black[i,j,k] = prob_wrong
-							self.obs_left_white[i,j,k] = prob_correct
-					else:
-						self.obs_left_black[i,j,k] = 0.5
-						self.obs_left_white[i,j,k] = 0.5
-					# right sensor
-					x = self.xyW2C(shifts_right[i,0] + c_x)
-					y = self.xyW2C(shifts_right[i,1] + c_y)
-					if self.is_in_bound_cell(x,y):
-						if ground_map[x,y] == 1.:
-							self.obs_right_black[i,j,k] = prob_correct
-							self.obs_right_white[i,j,k] = prob_wrong
-						else:
-							self.obs_right_black[i,j,k] = prob_wrong
-							self.obs_right_white[i,j,k] = prob_correct
-					else:
-						self.obs_right_black[i,j,k] = 0.5
-						self.obs_right_white[i,j,k] = 0.5
-
 		# initialize PX
+		cdef shape = [angle_N, ground_map.shape[0], ground_map.shape[1]]
 		self.PX = np.ones(shape, np.double) / float(np.prod(shape))
 
 
@@ -145,25 +90,54 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 
 	@cython.boundscheck(False) # turn off bounds-checking for entire function
 	@cython.cdivision(True) # turn off division-by-zero checking
-	def apply_obs(self, bint is_left_black, bint is_right_black):
+	def apply_obs(self, double left_color, double right_color):
 		""" Update the latent space with observation """
 
 		# create a view on the array to perform numpy operations such as *= or /=
 		cdef np.ndarray[double, ndim=3] PX_view = np.asarray(self.PX)
 
-		# update PX
-		if is_left_black:
-			PX_view *= self.obs_left_black
-		else:
-			PX_view *= self.obs_left_white
-		if is_right_black:
-			PX_view *= self.obs_right_black
-		else:
-			PX_view *= self.obs_right_white
+		# parameters copy
+		cdef int w = self.ground_map.shape[0]
+		cdef int h = self.ground_map.shape[1]
+		cdef int i, j, k
+		cdef np.ndarray[double, ndim=2] R
+		cdef np.ndarray[double, ndim=1] shift_left, shift_right
+		cdef double c_x, c_y
+		cdef int x_i, y_i
+		cdef double d_obs
+		cdef double sigma = self.sigma_obs
+		cdef double ground_val
+		cdef double lowest_prob_upate = _norm(1., 0., sigma)
 
-		## renormalize PX
-		#PX_view /= PX_view.sum()
-		## FIXME: time it and maybe do not do it always
+		# iterate on all angles
+		for i in range(self.angle_N):
+			# compute deltas
+			R = rot_mat2(self.thetaC2W(i))
+			shift_left = R.dot([7.2, 1.1])
+			shift_right = R.dot([7.2, -1.1])
+			# iterate on all positions
+			for j in range(w):
+				for k in range(h):
+					c_x = self.xyC2W(j)
+					c_y = self.xyC2W(k)
+					# left sensor
+					x_i = self.xyW2C(c_x + shift_left[0])
+					y_i = self.xyW2C(c_y + shift_left[1])
+					if self.is_in_bound_cell(x_i, y_i):
+						# update PX
+						PX_view[i, j, k] *= \
+							_norm(left_color, self.ground_map[x_i, y_i], sigma)
+					else:
+						PX_view[i, j, k] *= lowest_prob_upate
+					# right sensor
+					x_i = self.xyW2C(c_x + shift_right[0])
+					y_i = self.xyW2C(c_y + shift_right[1])
+					if self.is_in_bound_cell(x_i, y_i):
+						# update PX
+						PX_view[i, j, k] *= \
+							_norm(right_color, self.ground_map[x_i, y_i], sigma)
+					else:
+						PX_view[i, j, k] *= lowest_prob_upate
 
 		# adding a bit of uniform and renormalize
 		PX_view *= (1-self.prob_uniform) / PX_view.sum()

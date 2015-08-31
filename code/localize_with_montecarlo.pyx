@@ -8,7 +8,7 @@ import numpy as np
 import math
 import bisect
 import random
-from libc.math cimport floor, sqrt, log, atan2, sin, cos
+from libc.math cimport floor, sqrt, log, atan2, sin, cos, exp
 cimport numpy as np
 cimport cython
 import localize_common
@@ -20,25 +20,30 @@ from matplotlib.figure import Figure
 # some useful constants in local scope
 
 cdef double _pi = math.pi
+cdef double _1sqrt2pi = 1. / sqrt(2. * math.pi)
+
+@cython.cdivision(True) # turn off division-by-zero checking
+cdef double _norm(double x, double u, double s):
+	cdef double factor = _1sqrt2pi / s
+	cdef double dxus = (x - u) / s
+	return factor * exp(- (dxus * dxus) / 2.)
 
 # main class
 
 cdef class MCLocalizer(localize_common.AbstractLocalizer):
 
 	# user parameters
-	cdef double prob_correct
 	cdef int N_uniform
 
 	# particles
 	cdef double[:,:] particles # 2D array of particles_count x (x,y,theta)
 
-	def __init__(self, np.ndarray[double, ndim=2] ground_map, int particles_count, double prob_correct, double prob_uniform, double alpha_xy, double alpha_theta):
+	def __init__(self, np.ndarray[double, ndim=2] ground_map, int particles_count, double sigma_obs, double prob_uniform, double alpha_xy, double alpha_theta):
 		""" Create the localizer with the ground map and some parameters """
 
-		super(MCLocalizer, self).__init__(ground_map, alpha_xy, alpha_theta)
+		super(MCLocalizer, self).__init__(ground_map, alpha_xy, alpha_theta, sigma_obs)
 
 		# setup parameters
-		self.prob_correct = prob_correct
 		self.N_uniform = int(prob_uniform*particles_count)
 
 		# create initial particles filled the whole space
@@ -46,7 +51,7 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 		particles *= [ground_map.shape[0], ground_map.shape[1], _pi*2]
 		self.particles = particles
 
-	def apply_obs(self, is_left_black, is_right_black):
+	def apply_obs(self, double left_color, double right_color):
 		""" Apply observation and resample """
 
 		cdef int i
@@ -54,6 +59,8 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 		cdef np.ndarray[double, ndim=2] R
 		cdef double left_weight, right_weight
 		cdef int x_i, y_i, particle_index
+		cdef double ground_val
+		cdef double sigma = self.sigma_obs
 		cdef int particles_count = self.particles.shape[0]
 		cdef int resample_count = particles_count - self.N_uniform
 		cdef int uniform_count = self.N_uniform
@@ -74,28 +81,24 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 				weights[i] = 0.
 			else:
 				# otherwise, compute weight in function of ground color
-				# WARNING: value to color encoding is unusual:
-				# black is 1, white is 0
+
 				# left sensor
+				ground_val = self.ground_map[self.xyW2C(left_sensor_pos[0]), self.xyW2C(left_sensor_pos[1])]
+				left_weight = _norm(left_color, ground_val, sigma)
 
-				if (self.ground_map[self.xyW2C(left_sensor_pos[0]), self.xyW2C(left_sensor_pos[1])] == 1) == is_left_black:
-					left_weight = self.prob_correct
-				else:
-					left_weight = 1.0 - self.prob_correct
 				# right sensor
+				ground_val = self.ground_map[self.xyW2C(right_sensor_pos[0]), self.xyW2C(right_sensor_pos[1])]
+				right_weight = _norm(right_color, ground_val, sigma)
 
-				if (self.ground_map[self.xyW2C(right_sensor_pos[0]), self.xyW2C(right_sensor_pos[1])] == 1) == is_right_black:
-					right_weight = self.prob_correct
-				else:
-					right_weight = 1.0 - self.prob_correct
 				# compute weight
 				weights[i] = left_weight * right_weight
+
 			# update matching particles
 			if weights[i] > 0.5:
 				nb_ok += 1
 
 		# ratio matching particles
-		print "Proportion of matching particles:", 1.*nb_ok/len(weights)
+		print "  Proportion of matching particles:", 1.*nb_ok/len(weights)
 
 		# resample
 		assert weights.sum() > 0.

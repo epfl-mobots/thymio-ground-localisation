@@ -21,7 +21,7 @@ cpdef np.ndarray[double, ndim=2] rot_mat2(double angle):
 cdef class AbstractLocalizer:
 
 	# constructor
-	def __init__(self, np.ndarray[double, ndim=2] ground_map, double alpha_xy, double alpha_theta):
+	def __init__(self, np.ndarray[double, ndim=2] ground_map, double alpha_xy, double alpha_theta, double sigma_obs):
 
 		assert ground_map.dtype == np.double
 
@@ -29,6 +29,7 @@ cdef class AbstractLocalizer:
 		self.ground_map = ground_map
 		self.alpha_xy = alpha_xy
 		self.alpha_theta = alpha_theta
+		self.sigma_obs = sigma_obs
 
 	# support methods
 
