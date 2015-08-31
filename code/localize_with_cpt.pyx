@@ -55,10 +55,6 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 	cdef double prob_uniform
 
 	# fixed/computed parameters
-	cdef double alpha_theta_to_xy
-	cdef double alpha_xy_to_xy
-	cdef double alpha_theta_to_theta
-	cdef double alpha_xy_to_theta
 	cdef int N
 
 	# observation model structures
@@ -72,19 +68,15 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 
 	# constructor
 
-	def __init__(self, np.ndarray[double, ndim=2] ground_map, int angle_N, double prob_correct, double max_prob_error, double prob_uniform):
+	def __init__(self, np.ndarray[double, ndim=2] ground_map, int angle_N, double prob_correct, double max_prob_error, double prob_uniform, double alpha_xy, double alpha_theta):
 		""" Fill the tables obs_left/right_black/white of the same resolution as the ground_map and an angle discretization angle_N """
 
-		super(CPTLocalizer, self).__init__(ground_map)
+		super(CPTLocalizer, self).__init__(ground_map, alpha_xy, alpha_theta)
 
 		# copy parameters
 		assert angle_N != 0
 		self.angle_N = angle_N
 		self.max_prob_error = max_prob_error
-		self.alpha_theta_to_xy = 0.1
-		self.alpha_xy_to_xy = 0.1
-		self.alpha_theta_to_theta = 0.1
-		self.alpha_xy_to_theta = 0.05
 		self.prob_uniform = prob_uniform
 		self.N = angle_N * ground_map.shape[0] * ground_map.shape[1]
 
@@ -208,9 +200,11 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 		# http://www.mrpt.org/tutorials/programming/odometry-and-motion-models/probabilistic_motion_models/
 		# sum of factors from translation (x,y), rotation (theta), and half a cell (for sampling issues)
 		cdef double norm_xy = sqrt(d_x*d_x + d_y*d_y)
-		cdef double e_theta = self.alpha_xy_to_theta * norm_xy + self.alpha_theta_to_theta * math.fabs(d_theta) + self.dthetaC2W(1) / 2.
+		#cdef double e_theta = self.alpha_xy_to_theta * norm_xy + self.alpha_theta_to_theta * math.fabs(d_theta) + self.dthetaC2W(1) / 2.
+		cdef double e_theta = self.alpha_theta * math.fabs(d_theta) + self.dthetaC2W(1) / 2.
 		assert e_theta > 0, e_theta
-		cdef double e_xy = self.alpha_xy_to_xy * norm_xy + self.alpha_theta_to_xy * math.fabs(d_theta) + self.dxyC2W(1) / 2.
+		#cdef double e_xy = self.alpha_xy_to_xy * norm_xy + self.alpha_theta_to_xy * math.fabs(d_theta) + self.dxyC2W(1) / 2.
+		cdef double e_xy = self.alpha_xy * norm_xy + self.dxyC2W(1) / 2.
 		assert e_xy > 0, e_xy
 		cdef np.ndarray[double, ndim=2] e_xy_mat = np.array([[e_xy, 0], [0, e_xy]])
 

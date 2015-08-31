@@ -18,6 +18,10 @@ cdef class AbstractLocalizer:
 	# map
 	cdef double[:,:] ground_map
 	
+	# motion model
+	cdef double alpha_xy
+	cdef double alpha_theta
+	
 	# support methods
 	cpdef bint is_in_bound_cell(self, int x, int y)
 	cpdef bint is_in_bound(self, double[:] pos)

@@ -34,9 +34,9 @@ def normalize_angle(alpha):
 
 def create_localizer(ground_map, args):
 	if args.ml_angle_count:
-		return localize_with_cpt.CPTLocalizer(ground_map, args.ml_angle_count, args.prob_correct, args.max_prob_error, args.prob_uniform)
+		return localize_with_cpt.CPTLocalizer(ground_map, args.ml_angle_count, args.prob_correct, args.max_prob_error, args.prob_uniform, args.alpha_xy, args.alpha_theta)
 	elif args.mcl_particles_count:
-		return localize_with_montecarlo.MCLocalizer(ground_map, args.mcl_particles_count, args.prob_correct, args.prob_uniform)
+		return localize_with_montecarlo.MCLocalizer(ground_map, args.mcl_particles_count, args.prob_correct, args.prob_uniform, args.alpha_xy, args.alpha_theta)
 	else:
 		print 'You must give either one of --ml_angle_count or --mcl_particles_count argument to this program'
 		sys.exit(1)
@@ -204,14 +204,16 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Test program for Thymio localization')
 	parser.add_argument('--ml_angle_count', type=int, help='Use Markov localization with a discretized angle of angle_count')
 	parser.add_argument('--mcl_particles_count', type=int, help='Use Monte Carlo localization with a particles_count particles')
-	parser.add_argument('--prob_correct', type=float, default=0.95, help='probability when seeing a correct ground color')
-	parser.add_argument('--max_prob_error', type=float, default=0.01, help='max. error ratio with mode value when spilling over probability in Markov localisation')
 	parser.add_argument('--self_test', help='run unit-testing style of tests on synthetic data', action='store_true')
 	parser.add_argument('--eval_data', type=str, help='eval data from directory given as parameter')
+	parser.add_argument('--prob_correct', type=float, default=0.95, help='probability when seeing a correct ground color (default: 0.95)')
+	parser.add_argument('--max_prob_error', type=float, default=0.01, help='max. error ratio with mode value when spilling over probability in Markov localisation (default: 0.01)')
+	parser.add_argument('--prob_uniform', type=float, default=0.04, help='uniform probability added to fight depletion (default: 0.04)')
+	parser.add_argument('--alpha_xy', type=float, default=0.003, help='relative linear error in motion model (default: 0.003)')
+	parser.add_argument('--alpha_theta', type=float, default=0.22, help='relative angular error in motion model (default: 0.22)')
 	parser.add_argument('--debug_dump', type=str, help='directory where to dump debug information (default: do not dump)')
-	parser.add_argument('--skip_start_frames', type=int, help='optionally, some frames to skip at the beginning of the data file', default=0)
-	parser.add_argument('--prob_uniform', type=float, default=0.05, help='uniform probability added to fight depletion')
-	parser.add_argument('--skip_frames', type=int, help='optionally, some frames to skip when processing the data file', default=0)
+	parser.add_argument('--skip_start_frames', type=int, default=0, help='optionally, some frames to skip at the beginning of the data file (default: 0)')
+	parser.add_argument('--skip_frames', type=int, default=0, help='optionally, some frames to skip when processing the data file (default: 0)')
 	args = parser.parse_args()
 
 	if args.self_test:

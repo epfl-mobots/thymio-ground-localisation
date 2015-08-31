@@ -29,27 +29,17 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 	cdef double prob_correct
 	cdef int N_uniform
 
-	# fixed/computed parameters
-	cdef double alpha_theta_to_xy
-	cdef double alpha_xy_to_xy
-	cdef double alpha_theta_to_theta
-	cdef double alpha_xy_to_theta
-
 	# particles
 	cdef double[:,:] particles # 2D array of particles_count x (x,y,theta)
 
-	def __init__(self, np.ndarray[double, ndim=2] ground_map, int particles_count, double prob_correct, double prob_uniform):
+	def __init__(self, np.ndarray[double, ndim=2] ground_map, int particles_count, double prob_correct, double prob_uniform, double alpha_xy, double alpha_theta):
 		""" Create the localizer with the ground map and some parameters """
 
-		super(MCLocalizer, self).__init__(ground_map)
+		super(MCLocalizer, self).__init__(ground_map, alpha_xy, alpha_theta)
 
 		# setup parameters
 		self.prob_correct = prob_correct
 		self.N_uniform = int(prob_uniform*particles_count)
-		self.alpha_theta_to_xy = 0.1
-		self.alpha_xy_to_xy = 0.1
-		self.alpha_theta_to_theta = 0.1
-		self.alpha_xy_to_theta = 0.05
 
 		# create initial particles filled the whole space
 		cdef np.ndarray[double, ndim=2] particles = np.random.uniform(0,1,[particles_count, 3])
@@ -133,9 +123,11 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 
 		# error model, same as with CPT, but without added half cell
 		cdef double norm_xy = sqrt(d_x*d_x + d_y*d_y)
-		cdef double e_theta = self.alpha_xy_to_theta * norm_xy + self.alpha_theta_to_theta * math.fabs(d_theta) + math.radians(0.5)
+		#cdef double e_theta = self.alpha_xy_to_theta * norm_xy + self.alpha_theta_to_theta * math.fabs(d_theta) + math.radians(0.5)
+		cdef double e_theta = self.alpha_theta * math.fabs(d_theta) + math.radians(0.1)
 		assert e_theta > 0, e_theta
-		cdef double e_xy = self.alpha_xy_to_xy * norm_xy + self.alpha_theta_to_xy * math.fabs(d_theta) + 0.01
+		#cdef double e_xy = self.alpha_xy_to_xy * norm_xy + self.alpha_theta_to_xy * math.fabs(d_theta) + 0.01
+		cdef double e_xy = self.alpha_xy * norm_xy + 0.001
 		assert e_xy > 0, e_xy
 
 		# apply command and sampled noise to each particle
