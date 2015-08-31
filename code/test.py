@@ -156,7 +156,7 @@ def eval_data(args):
 	else:
 		performance_log = None
 
-	frame_skip_counter = args.skip_start_frames
+	skip_at_start_counter = args.skip_at_start
 	o_odom_x, o_odom_y, o_odom_theta = None, None, None
 	o_gt_x, o_gt_y, o_gt_theta = None, None, None
 	for i, (gt_line, odom_pos_line, odom_quat_line, sensor_left_line, sensor_right_line) in enumerate(zip(\
@@ -166,6 +166,10 @@ def eval_data(args):
 		open(os.path.join(args.eval_data, 'sensor_left.txt')), \
 		open(os.path.join(args.eval_data, 'sensor_right.txt')) \
 	)):
+		# if skip frames, ignore all but one every skip_steps
+		if args.skip_steps and (i % args.skip_steps) != 0:
+			continue
+
 		#print gt_line, odom_pos_line, odom_quat_line, sensor_left_line, sensor_right_line
 		gt_x, gt_y, gt_theta = map(float, gt_line.split())
 		gt_x *= 100; gt_y *= 100
@@ -180,8 +184,8 @@ def eval_data(args):
 		#print sensor_left, sensor_right
 
 		# optionally skip frames
-		if frame_skip_counter > 0:
-			frame_skip_counter -= 1
+		if skip_at_start_counter > 0:
+			skip_at_start_counter -= 1
 			continue
 
 		# if first line, just store first data for local frame computation
@@ -189,8 +193,6 @@ def eval_data(args):
 			o_odom_x, o_odom_y, o_odom_theta = odom_x, odom_y, odom_theta
 			o_gt_x, o_gt_y, o_gt_theta = gt_x, gt_y, gt_theta
 			continue
-
-		# TODO: add handling of skip_frames
 
 		# else compute movement
 		# odom
@@ -235,8 +237,8 @@ if __name__ == '__main__':
 	parser.add_argument('--alpha_theta', type=float, default=0.17, help='relative angular error in motion model (default: 0.17)')
 	parser.add_argument('--debug_dump', type=str, help='directory where to dump debug information (default: do not dump)')
 	parser.add_argument('--performance_log', type=str, help='filename in which to write performance log (default: do not write log)')
-	parser.add_argument('--skip_start_frames', type=int, default=0, help='optionally, some frames to skip at the beginning of the data file (default: 0)')
-	parser.add_argument('--skip_frames', type=int, default=0, help='optionally, some frames to skip when processing the data file (default: 0)')
+	parser.add_argument('--skip_steps', type=int, default=0, help='optionally, some frames to skip when processing the data file (default: 0)')
+	parser.add_argument('--skip_at_start', type=int, default=0, help='optionally, some frames to skip at the beginning of the data file (default: 0)')
 
 	args = parser.parse_args()
 
