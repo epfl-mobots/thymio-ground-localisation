@@ -26,7 +26,7 @@ def sensors_from_pos(x, y, theta):
 	return R.dot([7.2, 1.1]) + [x,y], R.dot([7.2, -1.1]) + [x,y]
 
 def normalize_sensor(v):
-	return (float(v) - 60.) * 690.
+	return (float(v) - 60.) / 690.
 
 def normalize_angle(alpha):
 	while alpha > math.pi:
