@@ -235,13 +235,13 @@ if __name__ == '__main__':
 	parser.add_argument('--eval_data', type=str, help='eval data from directory given as parameter')
 	parser.add_argument('--sigma_obs', type=float, default=0.5, help='standard deviation of the observation model for ground color (default: 0.5)')
 	parser.add_argument('--max_prob_error', type=float, default=0.01, help='max. error ratio with mode value when spilling over probability in Markov localisation (default: 0.01)')
-	parser.add_argument('--prob_uniform', type=float, default=0.2, help='uniform probability added to fight depletion and detect kidnapping (default: 0.2)')
-	parser.add_argument('--alpha_xy', type=float, default=0.12, help='relative linear error in motion model (default: 0.12)')
-	parser.add_argument('--alpha_theta', type=float, default=0.22, help='relative angular error in motion model (default: 0.22)')
+	parser.add_argument('--prob_uniform', type=float, default=0.0, help='uniform probability added to fight depletion and detect kidnapping (default: 0.0)')
+	parser.add_argument('--alpha_xy', type=float, default=0.1, help='relative linear error in motion model (default: 0.1)')
+	parser.add_argument('--alpha_theta', type=float, default=0.1, help='relative angular error in motion model (default: 0.1)')
 	parser.add_argument('--debug_dump', type=str, help='directory where to dump debug information (default: do not dump)')
 	parser.add_argument('--performance_log', type=str, help='filename in which to write performance log (default: do not write log)')
-	parser.add_argument('--skip_steps', type=int, default=0, help='optionally, some frames to skip when processing the data file (default: 0)')
-	parser.add_argument('--skip_at_start', type=int, default=0, help='optionally, some frames to skip at the beginning of the data file (default: 0)')
+	parser.add_argument('--skip_steps', type=int, default=3, help='only process one step every N when loading the data file (default: 3)')
+	parser.add_argument('--skip_at_start', type=int, default=0, help='optionally, some steps to skip at the beginning of the data file (default: 0)')
 
 	args = parser.parse_args()
 

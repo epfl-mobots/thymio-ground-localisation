@@ -47,6 +47,11 @@ def load_data(data_dirs):
 			open(os.path.join(data_dir, 'odom_pose.txt')), \
 			open(os.path.join(data_dir, 'odom_quaternion.txt')) \
 		)):
+			# only compute deltas once per second
+			if (i % 3) != 0:
+				continue
+
+			# read values
 			gt_x, gt_y, gt_theta = map(float, gt_line.split())
 			gt_x *= 100; gt_y *= 100
 			odom_x, odom_y = map(float, odom_pos_line.split())
@@ -81,13 +86,12 @@ def compute_log_likelihood(params, grad):
 	""" Sums the log-likelihood of the Gaussian error for all deltas """
 
 	# parameters to test
-	#alpha_theta_to_xy = params[0]
-	#alpha_xy = params[1]
-	#alpha_theta = params[2]
-	#alpha_xy_to_theta = params[3]
 	alpha_xy = params[0]
 	alpha_theta = params[1]
 	prob_uniform = params[2]
+	#alpha_xy = 0.1
+	#alpha_theta = 0.1
+	#prob_uniform = 1e-4 # not 0 to avoid numeric problems
 
 	print 'alpha_xy:', alpha_xy
 	print 'alpha_theta:', alpha_theta
@@ -115,8 +119,8 @@ def compute_log_likelihood(params, grad):
 	):
 		# compute SD for Gaussian error model
 		norm_xy = math.sqrt(odom_d_x*odom_d_x + odom_d_y*odom_d_y)
-		e_theta = alpha_theta * math.fabs(odom_d_theta) + math.radians(0.1)
-		e_xy = alpha_xy * norm_xy + 0.001
+		e_theta = alpha_theta * math.fabs(odom_d_theta) + math.radians(0.25)
+		e_xy = alpha_xy * norm_xy + 0.01
 
 		# evaluate likelihood for this observation
 
@@ -135,7 +139,7 @@ def compute_log_likelihood(params, grad):
 		# make sure likelihood is non zero
 		assert lh_theta > 0, lh_theta
 		assert lh_xy > 0, lh_xy
-		
+
 		# sum the log likelihoods
 		log_likelihood += math.log(lh_theta) + math.log(lh_xy)
 
