@@ -144,7 +144,8 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 		PX_view += self.prob_uniform / self.N
 
 	@cython.boundscheck(False) # turn off bounds-checking for entire function
-	@cython.cdivision(True) # turn off division-by-zero checking
+	# we have to keep this check, as if turned off there is some segfault in float to double conversion, I assume it is a bug in Cython's optimiser
+	#@cython.cdivision(True) # turn off division-by-zero checking
 	@cython.wraparound(False) # turn off wrap-around checking
 	@cython.nonecheck(False) # turn off
 	def apply_command(self, double d_x, double d_y, double d_theta):
