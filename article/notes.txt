@@ -37,3 +37,31 @@ From Thrun, Fox & Burgard
 
 \sigma_trans = a_1 * |trans| + a_2 * |rot|
 \sigma_rot = a_3 * |trans| + a_4 * |rot|
+
+
+
+Notes about evaluation
+----------------------
+
+* ML *
+
+Parameters to explore:
+- ml_angle_count: 18, 36, 54, 72
+
+* MCL *
+
+Parameters to explore:
+- number of particles: 5k, 10k, 20k, 50k, 100k, 150k, 200k, 400k
+
+* All *
+
+Data to save:
+- i, x, y, dist xy, dist theta, log ratio P
+
+How often to run filter:
+- 3 Hz
+
+* Runs *
+
+random_1 and random_2, with prob_uniform = 0
+random_long, with prob_uniform = 0.1
