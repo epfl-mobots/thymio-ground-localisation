@@ -126,11 +126,9 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 
 		# error model, same as with CPT, but without added half cell
 		cdef double norm_xy = sqrt(d_x*d_x + d_y*d_y)
-		#cdef double e_theta = self.alpha_xy_to_theta * norm_xy + self.alpha_theta_to_theta * math.fabs(d_theta) + math.radians(0.5)
-		cdef double e_theta = self.alpha_theta * math.fabs(d_theta) + math.radians(0.1)
+		cdef double e_theta = self.alpha_theta * math.fabs(d_theta) + math.radians(0.25)
 		assert e_theta > 0, e_theta
-		#cdef double e_xy = self.alpha_xy_to_xy * norm_xy + self.alpha_theta_to_xy * math.fabs(d_theta) + 0.01
-		cdef double e_xy = self.alpha_xy * norm_xy + 0.001
+		cdef double e_xy = self.alpha_xy * norm_xy + 0.01
 		assert e_xy > 0, e_xy
 
 		# apply command and sampled noise to each particle
