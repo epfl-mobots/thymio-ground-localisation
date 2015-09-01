@@ -57,7 +57,8 @@ def dump_error(localizer, i, text, gt_x, gt_y, gt_theta, performance_log = None)
 		color = 'red'
 	print colored('{} {} - x,y dist: {}, theta dist: {}, log ratio P: {}'.format(i, text, dist_xy, dist_theta, logratio_P), color)
 	if performance_log:
-		performance_log.write('{} {} {} {} {} {} {} {} {}\n'.format(\
+		performance_log.write('{} {} {} {} {} {} {} {} {} {}\n'.format(\
+			i, \
 			gt_x, \
 			gt_y, \
 			gt_theta, \
