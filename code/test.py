@@ -18,6 +18,7 @@ import argparse
 import sys
 import os.path
 import scipy.misc
+import time
 
 # support functions
 
@@ -44,7 +45,7 @@ def create_localizer(ground_map, args):
 		print 'You must give either one of --ml_angle_count or --mcl_particles_count argument to this program'
 		sys.exit(1)
 
-def dump_error(localizer, i, text, gt_x, gt_y, gt_theta, performance_log = None):
+def dump_error(localizer, i, duration, text, gt_x, gt_y, gt_theta, performance_log = None):
 	estimated_state = localizer.estimate_state()
 	dist_xy = np.linalg.norm(estimated_state[0:2]-(gt_x,gt_y))
 	dist_theta = math.degrees(normalize_angle(estimated_state[2]-gt_theta))
@@ -55,10 +56,11 @@ def dump_error(localizer, i, text, gt_x, gt_y, gt_theta, performance_log = None)
 		color = 'yellow'
 	else:
 		color = 'red'
-	print colored('{} {} - x,y dist: {}, theta dist: {}, log ratio P: {}'.format(i, text, dist_xy, dist_theta, logratio_P), color)
+	print colored('{} {} - x,y dist: {}, theta dist: {}, log ratio P: {}, duration: {} [s]'.format(i, text, dist_xy, dist_theta, logratio_P, duration), color)
 	if performance_log:
-		performance_log.write('{} {} {} {} {} {} {} {} {} {}\n'.format(\
+		performance_log.write('{} {} {} {} {} {} {} {} {} {} {}\n'.format(\
 			i, \
+			duration, \
 			gt_x, \
 			gt_y, \
 			gt_theta, \
@@ -86,22 +88,26 @@ def test_command_sequence(ground_map, localizer, sequence):
 		lval = ground_map[localizer.xyW2C(lpos[0]), localizer.xyW2C(lpos[1])]
 		rval = ground_map[localizer.xyW2C(rpos[0]), localizer.xyW2C(rpos[1])]
 		# apply observation
+		start_time = time.time()
 		localizer.apply_obs(lval, rval)
+		duration = time.time() - start_time
 		if args.debug_dump:
 			localizer.dump_PX(os.path.join(args.debug_dump, 'PX-{:0>4d}-A_obs'.format(i)), x, y, theta)
 		# compare observation with ground truth before movement
-		dump_error(localizer, i, "after obs", x, y, theta)
+		dump_error(localizer, i, duration, "after obs", x, y, theta)
 
 		# compute movement
 		d_theta = n_theta - theta
 		d_x, d_y = rot_mat2(-theta).dot([n_x-x, n_y-y])
 		# do movement
 		x, y, theta =  n_x, n_y, n_theta
+		start_time = time.time()
 		localizer.apply_command(d_x, d_y, d_theta)
+		duration = time.time() - start_time
 		if args.debug_dump:
 			localizer.dump_PX(os.path.join(args.debug_dump, 'PX-{:0>4d}-B_mvt'.format(i)), x, y, theta)
 		# compare observation with ground truth after movement
-		dump_error(localizer, i, "after mvt", x, y, theta)
+		dump_error(localizer, i, duration, "after mvt", x, y, theta)
 
 
 def self_test(args):
@@ -208,9 +214,11 @@ def eval_data(args):
 		gt_d_x, gt_d_y = rot_mat2(-o_gt_theta).dot([gt_x-o_gt_x, gt_y-o_gt_y])
 		o_gt_x, o_gt_y, o_gt_theta = gt_x, gt_y, gt_theta
 
+		# start time
+		start_time = time.time()
+
 		# do movement
 		localizer.apply_command(odom_d_x, odom_d_y, odom_d_theta)
-		dump_error(localizer, i, "after mvt", gt_x, gt_y, gt_theta, performance_log)
 		if args.debug_dump:
 			localizer.dump_PX(os.path.join(args.debug_dump, 'PX-{:0>4d}-A_mvt'.format(i)), gt_x, gt_y, gt_theta)
 			print '  d_odom (local frame): ', odom_d_x, odom_d_y, odom_d_theta
@@ -220,6 +228,12 @@ def eval_data(args):
 		localizer.apply_obs(sensor_left, sensor_right)
 		if args.debug_dump:
 			localizer.dump_PX(os.path.join(args.debug_dump, 'PX-{:0>4d}-B_obs'.format(i)), gt_x, gt_y, gt_theta)
+
+		# end time
+		duration = time.time() - start_time
+
+		# dump error
+		dump_error(localizer, i, duration, "after mvt+obs", gt_x, gt_y, gt_theta, performance_log)
 
 	# close log file
 	if performance_log:
