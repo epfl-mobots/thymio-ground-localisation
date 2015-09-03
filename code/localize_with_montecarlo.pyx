@@ -188,8 +188,8 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 		cdef double xy_lim = 1.5
 
 		# RANSAC to find best index
-		cdef int iterations_count = 200
-		cdef int tests_count = 200
+		cdef int iterations_count = 500
+		cdef int tests_count = 500
 		cdef int index, o_index, best_index = -1
 		cdef int support, best_support = 0
 		cdef double x, y, theta
