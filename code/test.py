@@ -154,7 +154,10 @@ def self_test(args):
 
 def eval_data(args):
 	# load image as ground map and convert to range 0.0:1.0
-	ground_map = scipy.misc.imread(os.path.join(args.eval_data, 'map.png')).astype(float)
+	if args.custom_map:
+		ground_map = scipy.misc.imread(args.custom_map).astype(float)
+	else:
+		ground_map = scipy.misc.imread(os.path.join(args.eval_data, 'map.png')).astype(float)
 	ground_map /= ground_map.max()
 
 	# build localizer
@@ -255,6 +258,7 @@ if __name__ == '__main__':
 	parser.add_argument('--alpha_theta', type=float, default=0.1, help='relative angular error in motion model (default: 0.1)')
 	parser.add_argument('--debug_dump', type=str, help='directory where to dump debug information (default: do not dump)')
 	parser.add_argument('--performance_log', type=str, help='filename in which to write performance log (default: do not write log)')
+	parser.add_argument('--custom_map', type=str, help='use a custom map (default: use map.png in data directory)')
 	parser.add_argument('--skip_steps', type=int, default=3, help='only process one step every N when loading the data file (default: 3)')
 	parser.add_argument('--skip_at_start', type=int, default=0, help='optionally, some steps to skip at the beginning of the data file (default: 0)')
 
