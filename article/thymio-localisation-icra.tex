@@ -48,19 +48,23 @@ Why localisation is useful for cheap robot in educational context, why it is not
 
 \section{Related work}
 
-Thymio and Aseba~\cite{magnenat2012arso, aseba2011tmech, riedo2013arso}.
+Markov and Monte Carlo Localization, why not SLAM?
 
-To read, sort, cite, and say something about relevant papers
+Localization techniques for cheap mobile robots.
 
 \section{Material}
 
 \subsection{Thymio robot}
 
-\subsection{Ground pattern}
+Thymio and Aseba~\cite{magnenat2012arso, aseba2011tmech, riedo2013arso}.
 
-\subsection{Model}
+\subsection{Map}
 
-\subsubsection{Variables}
+\subsection{Data acquisition}
+
+\section{Model}
+
+\subsection{Variables}
 
 The model uses the following variables:
 \begin{itemize}
@@ -72,7 +76,7 @@ The observation consists of two sensors located at the bottom of the robot, meas
 The odometry consists of the left and right wheel speeds.
 \end{itemize}
 
-\subsubsection{Joint probability}
+\subsection{Joint probability}
 
 The joint probability is:
 \begin{equation}
@@ -82,7 +86,7 @@ The joint probability is:
 \end{split}
 \end{equation}
 
-\subsubsection{Question}
+\subsection{Question}
 
 We want to estimate the pose $X_t$ at time $t$ knowing the observations $Z_{1:t}$ and the commands $U_{1:t}$, using a recursive filter:
 \begin{equation}
@@ -95,11 +99,11 @@ We want to estimate the pose $X_t$ at time $t$ knowing the observations $Z_{1:t}
 \end{equation}
 %This is a recursive filter to estimate $X_t$ using the previous estimation $X_{t-1}$, the odometry $U_t$ and the observation $Z_t$.
 
+\subsection{Distributions}
+
 \subsection{Markov implementation}
 
 \subsection{Monte Carlo implementation}
-
-\section{Method}
 
 \subsection{Theoretical analysis}
 % TODO place at correct place
