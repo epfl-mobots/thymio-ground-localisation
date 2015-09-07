@@ -172,6 +172,7 @@ def eval_data(args):
 	skip_at_start_counter = args.skip_at_start
 	o_odom_x, o_odom_y, o_odom_theta = None, None, None
 	o_gt_x, o_gt_y, o_gt_theta = None, None, None
+	processed_counter = 0
 	for i, (gt_line, odom_pos_line, odom_quat_line, sensor_left_line, sensor_right_line) in enumerate(zip(\
 		open(os.path.join(args.eval_data, 'gt.txt')), \
 		open(os.path.join(args.eval_data, 'odom_pose.txt')), \
@@ -200,6 +201,13 @@ def eval_data(args):
 		if skip_at_start_counter > 0:
 			skip_at_start_counter -= 1
 			continue
+
+		# if requested to stop after a certain duration
+		if args.duration:
+			if processed_counter > args.duration:
+				break
+			else:
+				processed_counter += 1
 
 		# if first line, just store first data for local frame computation
 		if not o_odom_x:
@@ -260,7 +268,9 @@ if __name__ == '__main__':
 	parser.add_argument('--performance_log', type=str, help='filename in which to write performance log (default: do not write log)')
 	parser.add_argument('--custom_map', type=str, help='use a custom map (default: use map.png in data directory)')
 	parser.add_argument('--skip_steps', type=int, default=3, help='only process one step every N when loading the data file (default: 3)')
-	parser.add_argument('--skip_at_start', type=int, default=0, help='optionally, some steps to skip at the beginning of the data file (default: 0)')
+	parser.add_argument('--skip_at_start', type=int, default=0, help='optionally, some steps to skip at the beginning of the data file (multiplied by --skip_steps) (default: 0)')
+	parser.add_argument('--duration', type=int, help='optionally, process only a certain number of steps (multiplied by --skip_steps) (default: use until the end)')
+
 
 	args = parser.parse_args()
 
