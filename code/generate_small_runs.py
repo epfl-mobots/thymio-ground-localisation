@@ -18,7 +18,9 @@ if __name__ == '__main__':
 		for run in runs:
 			for ml_param in ml_params:
 				command = './test.py --eval_data ../data/{} --ml_angle_count {} --performance_log ../result/small_runs/{}_ml_{}_{} --skip_at_start {} --duration 30'.format(run, ml_param, run, ml_param, i, i)
-				print command
+				print 'Executing:', command
+				os.system(command)
 			for mcl_param in mcl_params:
 				command = './test.py --eval_data ../data/{} --ml_angle_count {} --performance_log ../result/small_runs/{}_mcl_{}k_{} --skip_at_start {} --duration 30'.format(run, mcl_param*1000, run, mcl_param, i, i)
-				print command
+				print 'Executing:', command
+				os.system(command)
