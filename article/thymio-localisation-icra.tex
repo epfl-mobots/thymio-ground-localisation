@@ -78,12 +78,12 @@ When dead-reckoning is provided, such as on the Thymio~II, it builds on approxim
 % A notable exception is the BeeBot, which uses proper dead-reckoning as its only sensor.
 % But this robot can only follow pre-programmed trajectories, it is not able to react to external events.
 
-The combined lack of long-range sensors and quality dead-reckoning prevents these robots to perform state of the art localization algorithms, such as simulataneous localization and mapping.
+The combined lack of long-range sensors and quality dead-reckoning prevents these robots from using state of the art localization algorithms, such as simulataneous localization and mapping.
 This limits their educational use, in particular for the study of geometry, physics, and engineering; but also the building of advanced behaviours, such as several robots playing a staged story in a shared space.
 
 This paper solves this problem.
 We provide an obsolute positioning system using only approximate dead-reckoning and inexpensive infrared sensors measuring ground lightness.
-Our solution is built on a recursive Bayesian filter, of which we propose both dense and sampling-based implementations.
+Our solution builds on a recursive Bayesian filter, of which we propose both a dense and a sampling-based implementation.
 We evaluate these using the Thymio~II mobile robot on a known black and white pseudo-random pattern, with ground truth provided by a Vicon tracking system.
 In addition, we provide a theoretical contribution predicting the traveled distance necessary to localize the robot.
 Finally, we show how users can draw their own ground images and use these to localise the robot.
