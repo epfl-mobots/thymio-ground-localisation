@@ -165,10 +165,10 @@ if __name__ == '__main__':
 	elif args.small_runs:
 		# small runs
 		small_runs_results = {'random_1': ['small_runs/random_1_0', 'small_runs/random_1_20', 'small_runs/random_1_40', 'small_runs/random_1_60', 'small_runs/random_1_80'], 'random_2': ['small_runs/random_2_0', 'small_runs/random_2_20', 'small_runs/random_2_40', 'small_runs/random_2_60', 'small_runs/random_2_80']}
-		draw_plot('ml', ['random_1', 'random_2'], [18, 36, 54, 72], True, 'ml-small_runs_random_12-xy.pdf', 40, custom_results = small_runs_results)
-		draw_plot('ml', ['random_1', 'random_2'], [18, 36, 54, 72], False, 'ml-small_runs_random_12-theta.pdf', 40, custom_results = small_runs_results)
-		draw_plot('mcl', ['random_1', 'random_2'], ['50k', '100k', '200k', '400k'], True, 'mcl-small_runs_random_12-xy.pdf', 45, custom_results = small_runs_results)
-		draw_plot('mcl', ['random_1', 'random_2'], ['50k', '100k', '200k', '400k'], False, 'mcl-small_runs_random_12-theta.pdf', 45, custom_results = small_runs_results)
+		draw_plot('ml', ['random_1', 'random_2'], [18, 36, 54, 72], True, 'ml-small_runs_random_12-xy.pdf', 77, custom_results = small_runs_results)
+		draw_plot('ml', ['random_1', 'random_2'], [18, 36, 54, 72], False, 'ml-small_runs_random_12-theta.pdf', 77, custom_results = small_runs_results)
+		draw_plot('mcl', ['random_1', 'random_2'], ['50k', '100k', '200k', '400k'], True, 'mcl-small_runs_random_12-xy.pdf', 77, custom_results = small_runs_results)
+		draw_plot('mcl', ['random_1', 'random_2'], ['50k', '100k', '200k', '400k'], False, 'mcl-small_runs_random_12-theta.pdf', 77, custom_results = small_runs_results)
 
 	else:
 		parser.print_help()
