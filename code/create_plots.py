@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import prettyplotlib as ppl
 #plt.style.use('ggplot')
 import os.path
+import argparse
 
 
 result_base_dir = '../result'
@@ -22,67 +23,105 @@ plot_params = {'font.size' : 8,
 		  'legend.fontsize': 8,
 		  'legend.frameon': True }
 
-colors = ['#2c7bb6', '#abd9e9', '#fdae61', '#d7191c']
+#colors = ['#2c7bb6', '#abd9e9', '#fdae61', '#d7191c']
+colors = ['#2cb67b', '#2c7bb6', '#fdae61', '#d7191c']
 
-width_in = 3.6
+default_width_in = 3.6
 aspect_ratio = 4./2.
-height_in = width_in / aspect_ratio
+default_height_in = default_width_in / aspect_ratio
 
 
-def draw_plot(algo, runs, params, showDistNotAngle, name):
+def draw_plot(algo, runs, params, show_dist_not_angle, name, path_length, **kwargs):
 
+	# setup parameters
 	plt.rcParams.update(plot_params)
 
-	# load and average all given runs
+	# create figure
+	if 'width_in' in kwargs:
+		width_in = kwargs['width_in']
+	else:
+		width_in = default_width_in
+	if 'height_in' in kwargs:
+		height_in = kwargs['height_in']
+	else:
+		height_in = default_height_in
 	fig, ax = plt.subplots(figsize=(width_in, height_in))
+	ax.set_xlim(0, path_length)
 
 	# show dist or angle diff?
-	if showDistNotAngle:
+	if show_dist_not_angle:
 		dataCol = 8
 		ylabel = 'position error [cm]'
-		ax.set_ylim(0, 30)
+		ax.set_ylim(0, 50)
 	else:
 		dataCol = 9
 		ylabel = 'angular error [degrees]'
 		ax.set_ylim(0, 90)
 
-	x_ticks = np.arange(0., 150.)
+	# for every parameter
+	x_ticks = np.arange(0., path_length)
 	for i, param in enumerate(params):
 		y_average_values = np.zeros(shape=x_ticks.shape, dtype=float)
+		y_median_values = []
+		y_average_counter = 0
+
+		# iterate on all runs
 		for run in runs:
 
-			data = np.loadtxt(os.path.join(result_base_dir, '{}_{}_{}'.format(run, algo, param)))
-			gt = np.loadtxt(os.path.join(data_base_dir, run, 'gt.txt'))
+			# check if there are specific result runs
+			if 'custom_results' in kwargs:
+				results = kwargs['custom_results'][run]
+			else:
+				results = [run]
 
-			# get the indices in gt for every line in data
-			indices = data[:,0].astype(int)
+			# iterate on different results run, if any
+			for result in results:
+				result_file = '{}_{}_{}'.format(result, algo, param)
+				data = np.loadtxt(os.path.join(result_base_dir, result_file))
+				gt = np.loadtxt(os.path.join(data_base_dir, run, 'gt.txt'))
 
-			# compute the local change of the sensors position between every line in data
-			# we consider the center between the two centers, which is in (12,0) cm local frame
-			thetas = gt[indices,2]
-			sensor_local_poses = np.vstack((np.cos(thetas) * .12, np.sin(thetas) * .12))
-			deltas_sensor_poses = np.diff(sensor_local_poses, axis=1).transpose()
+				# get the indices in gt for every line in data
+				indices = data[:,0].astype(int)
 
-			# compute the change of the position of the robot's center between every line in data
-			xys = gt[indices,0:2]
-			deltas_xy = np.diff(xys, axis=0)
+				# compute the local change of the sensors position between every line in data
+				# we consider the center between the two centers, which is in (12,0) cm local frame
+				thetas = gt[indices,2]
+				sensor_local_poses = np.vstack((np.cos(thetas) * .12, np.sin(thetas) * .12))
+				deltas_sensor_poses = np.diff(sensor_local_poses, axis=1).transpose()
 
-			# compute the global distances traveled by the sensors between every line in data
-			deltas_dists = np.linalg.norm(deltas_xy + deltas_sensor_poses, axis=1)
+				# compute the change of the position of the robot's center between every line in data
+				xys = gt[indices,0:2]
+				deltas_xy = np.diff(xys, axis=0)
 
-			# sum these distances to get the x axis
-			x_values = np.insert(np.cumsum(deltas_dists), 0, [0.]) * 100.
-			# get the y values directly from data
-			y_values = np.abs(data[:,dataCol])
-			# interpolate to put them in relation with other runs
-			y_average_values += np.interp(x_ticks, x_values, y_values)
+				# compute the global distances traveled by the sensors between every line in data
+				deltas_dists = np.linalg.norm(deltas_xy + deltas_sensor_poses, axis=1)
+
+				# sum these distances to get the x axis
+				cum_dists = np.cumsum(deltas_dists)
+				if cum_dists[-1] * 100. < path_length:
+					print 'WARNING: In', result_file, 'last path point', cum_dists[-1] * 100., 'is before requested path length', path_length
+				x_values = np.insert(cum_dists, 0, [0.]) * 100.
+				# get the y values directly from data
+				y_values = np.abs(data[:,dataCol])
+				# interpolate to put them in relation with other runs
+				y_average_values += np.interp(x_ticks, x_values, y_values)
+				y_median_values.append(np.interp(x_ticks, x_values, y_values))
+				y_average_counter += 1
+
+				ppl.plot(ax, x_values, y_values, color=colors[i], alpha=0.3, marker=',', ls='')
+
+				#print run, result, param, show_dist_not_angle
+				#print x_values, y_values, cum_dists[-1] * 100.
+				#for i, d in zip(indices, x_values):
+				#	print i, d
 
 		# plot
-		y_average_values /= len(runs)
-		ppl.plot(ax, x_ticks, y_average_values, label=str(param), color=colors[i])
+		y_average_values /= y_average_counter
+		y_median_values = np.mean(y_median_values, axis=0)
+		ppl.plot(ax, x_ticks, y_median_values, label=str(param), color=colors[i])
 
 	# add label, legend and show plot
-	plt.xlabel('path length')
+	plt.xlabel('path length [cm]')
 	plt.ylabel(ylabel)
 	ppl.legend(ax)
 	fig.savefig(os.path.join(dest_base_dir, name), bbox_inches='tight', pad_inches=0.02)
@@ -91,20 +130,44 @@ def draw_plot(algo, runs, params, showDistNotAngle, name):
 if __name__ == '__main__':
 	# draw plots
 
-	# ML whole range
-	draw_plot('ml', ['random_1'], [18, 36, 54, 72], True, 'ml-whole_random_1-xy.pdf')
-	draw_plot('ml', ['random_1'], [18, 36, 54, 72], False, 'ml-whole_random_1-theta.pdf')
-	draw_plot('ml', ['random_2'], [18, 36, 54, 72], True, 'ml-whole_random_2-xy.pdf')
-	draw_plot('ml', ['random_2'], [18, 36, 54, 72], False, 'ml-whole_random_2-theta.pdf')
+	parser = argparse.ArgumentParser(description='Generate plots for Thymio localization')
+	parser.add_argument('--whole_range_random12', help='whole range on random_1 and random_2 for ML and MCL', action='store_true')
+	parser.add_argument('--whole_range_random_long', help='whole range on random_long for ML and MCL', action='store_true')
+	parser.add_argument('--small_runs', help='small runs on random_1 and random_2 for ML and MCL', action='store_true')
 
-	# MCL whole range
-	draw_plot('mcl', ['random_1'], ['50k', '100k', '200k', '400k'], True, 'mcl-whole_random_1-xy.pdf')
-	draw_plot('mcl', ['random_1'], ['50k', '100k', '200k', '400k'], False, 'mcl-whole_random_1-theta.pdf')
-	draw_plot('mcl', ['random_2'], ['50k', '100k', '200k', '400k'], True, 'mcl-whole_random_2-xy.pdf')
-	draw_plot('mcl', ['random_2'], ['50k', '100k', '200k', '400k'], False, 'mcl-whole_random_2-theta.pdf')
+	args = parser.parse_args()
 
-	#draw_plot('mcl', ['random_1', 'random_2'], ['50k', '100k', '200k', '400k'], True)
-	#draw_plot('mcl', ['random_1', 'random_2'], ['50k', '100k', '200k', '400k'], False)
-	#draw_plot('ml', ['random_1', 'random_2'], [18, 36, 54, 72], True)
-	#draw_plot('ml', ['random_1', 'random_2'], [18, 36, 54, 72], False)
+	if args.whole_range_random12:
+		# random1 and random2, whole range
+		whole_range_length = 180
 
+		# ML
+		draw_plot('ml', ['random_1'], [18, 36, 54, 72], True, 'ml-whole_random_1-xy.pdf', whole_range_length)
+		draw_plot('ml', ['random_1'], [18, 36, 54, 72], False, 'ml-whole_random_1-theta.pdf', whole_range_length)
+		draw_plot('ml', ['random_2'], [18, 36, 54, 72], True, 'ml-whole_random_2-xy.pdf', whole_range_length)
+		draw_plot('ml', ['random_2'], [18, 36, 54, 72], False, 'ml-whole_random_2-theta.pdf', whole_range_length)
+
+		# MCL
+		mcl_results = {'random_1': [ 'multiple_mcl/random_1_0', 'multiple_mcl/random_1_1', 'multiple_mcl/random_1_2', 'multiple_mcl/random_1_3', 'multiple_mcl/random_1_4', 'multiple_mcl/random_1_5' ], 'random_2': [ 'multiple_mcl/random_2_0', 'multiple_mcl/random_2_1', 'multiple_mcl/random_2_2', 'multiple_mcl/random_2_3', 'multiple_mcl/random_2_4', 'multiple_mcl/random_2_5' ]}
+		draw_plot('mcl', ['random_1'], ['50k', '100k', '200k', '400k'], True, 'mcl-whole_random_1-xy.pdf', whole_range_length, custom_results = mcl_results)
+		draw_plot('mcl', ['random_1'], ['50k', '100k', '200k', '400k'], False, 'mcl-whole_random_1-theta.pdf', whole_range_length, custom_results = mcl_results)
+		draw_plot('mcl', ['random_2'], ['50k', '100k', '200k', '400k'], True, 'mcl-whole_random_2-xy.pdf', whole_range_length, custom_results = mcl_results)
+		draw_plot('mcl', ['random_2'], ['50k', '100k', '200k', '400k'], False, 'mcl-whole_random_2-theta.pdf', whole_range_length, custom_results = mcl_results)
+
+	elif args.whole_range_random_long:
+		# random_long, ML and MCL whole range
+		draw_plot('ml', ['random_long'], [18, 36, 54, 72], True, 'ml-whole_random_long-xy.pdf', 1400.)
+		draw_plot('ml', ['random_long'], [18, 36, 54, 72], False, 'ml-whole_random_long-theta.pdf', 1400.)
+		draw_plot('mcl', ['random_long'], ['50k', '100k', '200k', '400k'], True, 'mcl-whole_random_long-xy.pdf', 1400.)
+		draw_plot('mcl', ['random_long'], ['50k', '100k', '200k', '400k'], False, 'mcl-whole_random_long-theta.pdf', 1400.)
+
+	elif args.small_runs:
+		# small runs
+		small_runs_results = {'random_1': ['small_runs/random_1_0', 'small_runs/random_1_20', 'small_runs/random_1_40', 'small_runs/random_1_60', 'small_runs/random_1_80'], 'random_2': ['small_runs/random_2_0', 'small_runs/random_2_20', 'small_runs/random_2_40', 'small_runs/random_2_60', 'small_runs/random_2_80']}
+		draw_plot('ml', ['random_1', 'random_2'], [18, 36, 54, 72], True, 'ml-small_runs_random_12-xy.pdf', 40, custom_results = small_runs_results)
+		draw_plot('ml', ['random_1', 'random_2'], [18, 36, 54, 72], False, 'ml-small_runs_random_12-theta.pdf', 40, custom_results = small_runs_results)
+		draw_plot('mcl', ['random_1', 'random_2'], ['50k', '100k', '200k', '400k'], True, 'mcl-small_runs_random_12-xy.pdf', 45, custom_results = small_runs_results)
+		draw_plot('mcl', ['random_1', 'random_2'], ['50k', '100k', '200k', '400k'], False, 'mcl-small_runs_random_12-theta.pdf', 45, custom_results = small_runs_results)
+
+	else:
+		parser.print_help()
