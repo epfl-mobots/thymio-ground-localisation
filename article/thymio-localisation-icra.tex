@@ -62,11 +62,31 @@ Lorem ipsum...
 
 \section{Introduction}
 
-Why localisation is useful for cheap robot in educational context, why it is not trivial?
+Driven by consumer products, electronics, motor and battery technologies have made tremendous progress in the last decades.
+They are now available widely at a price making affordable mobile robots a reality.
+This opens many new opportunities, in particular in the educational context.
+Robots have been shown to be effective in supporting the teaching of knowledge such as mathematics, physics, computer science and engineering; and of skills such as problem solving and the scientific method~\cite{benitti2012explorin}.
 
-Highlight challenges
+Programmable platforms such as the LEGO Mindstorms, in the 300-400\,\$ price range, have been successfully used in classrooms worldwide, especially to teach engineering.
+Yet, despite its high price tag, this platform has little perception capabilities; its longest-range sensor being a single ultrasound unit.
+Cheaper products such as the Thymio~II (120\,\$) and Dash \& Dot (160\,\$) even lack such a long-range perception capability, and only provide local infrared sensors.
+These are limited to sensing distances up to 15\,cm and measuring the grayscale intensity of a close object or the ground.
+These products also lack a camera, because processing image would require extended memory and processing resources, which would increase their price significantly.
+Therefore, all affordable educational robots (in the 100\,\$ range) lack long-range sensing capabilities.
+In addition, dead-reckoning on these platforms is bad to non-existant, as proper wheel encoders are too expensive.
+When dead-reckoning is provided, such as on the Thymio~II, it builds on approximate methods such as BackEMF. % TODO: find reference
+% A notable exception is the BeeBot, which uses proper dead-reckoning as its only sensor.
+% But this robot can only follow pre-programmed trajectories, it is not able to react to external events.
 
+The combined lack of long-range sensors and quality dead-reckoning prevents these robots to perform state of the art localization algorithms, such as simulataneous localization and mapping.
+This limits their educational use, in particular for the study of geometry, physics, and engineering; but also the building of advanced behaviours, such as several robots playing a staged story in a shared space.
 
+This paper solves this problem.
+We provide an obsolute positioning system using only approximate dead-reckoning and inexpensive infrared sensors measuring ground lightness.
+Our solution is built on a recursive Bayesian filter, of which we propose both dense and sampling-based implementations.
+We evaluate these using the Thymio~II mobile robot on a known black and white pseudo-random pattern, with ground truth provided by a Vicon tracking system.
+In addition, we provide a theoretical contribution predicting the traveled distance necessary to localize the robot.
+Finally, we show how users can draw their own ground images and use these to localise the robot.
 
 \section{Related work}
 
@@ -102,12 +122,12 @@ The odometry consists of the left and right wheel speeds.
 
 The following constants are parameters of the model:
 \begin{itemize}
-\item $\alpha_\mathrm{xy}$ the std. dev. of the motion model in translation
-\item $\alpha_\theta$ the std. dev. of the motion model in rotation
-\item $p_\mathrm{uniform}$ ratio of uniform probabilty added at observation time to represent kidnapping
-\item $\sigma_{obs}$ the std. dev. of the grayscale intensity in the observation model
+\item $\alpha_\mathrm{xy}$ the std. dev. of the motion model in translation,
+\item $\alpha_\theta$ the std. dev. of the motion model in rotation,
+\item $p_\mathrm{uniform}$ ratio of uniform probabilty added at observation time to represent kidnapping,
+\item $\sigma_\mathrm{obs}$ the std. dev. of the grayscale intensity in the observation model.
 \end{itemize}
-The first three constants are found using maximum likelyhood (see \sect{mle}), the last one is selected based on the knowledge of the sensor.
+The first three constants are found using maximum likelihood estimation (see \sect{mle}), the last one is selected based on the knowledge of the sensor.
 
 \subsection{Joint probability}
 
@@ -326,7 +346,7 @@ This paper provides several contributions to the state of the art of localizatio
 \item a predictive model allowing designers to select and place sensors to achieve a desired localization performance;
 \item a process to let end-users create and provide their own environments, such as drawings made by children.
 \end{itemize}
-Together, these allow absolute positioning of educational mobile robots in the 100 Euro price range.
+Together, these allow absolute positioning of educational mobile robots in the 100 EUR price range.
 This opens many educational opportunities, such as the study of geometry, puzzles based on the physical space, and staging the creation of stories in the context of language education.
 These new possibilities are key elements for robots to answer the need for embodied computational thinking education.
 
