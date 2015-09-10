@@ -52,7 +52,7 @@ def draw_plot(algo, runs, params, show_dist_not_angle, name, path_length, **kwar
 	if show_dist_not_angle:
 		dataCol = 8
 		ylabel = 'position error [cm]'
-		ax.set_ylim(0, 30)
+		ax.set_ylim(0, 50)
 	else:
 		dataCol = 9
 		ylabel = 'angular error [degrees]'
@@ -112,6 +112,8 @@ def draw_plot(algo, runs, params, show_dist_not_angle, name, path_length, **kwar
 
 				#print run, result, param, show_dist_not_angle
 				#print x_values, y_values, cum_dists[-1] * 100.
+				#for i, d in zip(indices, x_values):
+				#	print i, d
 
 		# plot
 		y_average_values /= y_average_counter
