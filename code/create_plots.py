@@ -7,7 +7,7 @@
 import os
 import numpy as np
 import matplotlib
-matplotlib.use("PDF") # do this before pylab so you don'tget the default back end.
+matplotlib.use("PDF") # do this before pylab so you don't get the default back end.
 import matplotlib.pyplot as plt
 import prettyplotlib as ppl
 #plt.style.use('ggplot')
@@ -148,7 +148,7 @@ if __name__ == '__main__':
 		draw_plot('ml', ['random_2'], [18, 36, 54, 72], False, 'ml-whole_random_2-theta.pdf', whole_range_length)
 
 		# MCL
-		mcl_results = {'random_1': [ 'multiple_mcl/random_1_0', 'multiple_mcl/random_1_1', 'multiple_mcl/random_1_2', 'multiple_mcl/random_1_3', 'multiple_mcl/random_1_4', 'multiple_mcl/random_1_5' ], 'random_2': [ 'multiple_mcl/random_2_0', 'multiple_mcl/random_2_1', 'multiple_mcl/random_2_2', 'multiple_mcl/random_2_3', 'multiple_mcl/random_2_4', 'multiple_mcl/random_2_5' ]}
+		mcl_results = {'random_1': [ 'multiple_mcl/random_1_0', 'multiple_mcl/random_1_1', 'multiple_mcl/random_1_2', 'multiple_mcl/random_1_3', 'multiple_mcl/random_1_4', 'multiple_mcl/random_1_5', 'multiple_mcl/random_1_6', 'multiple_mcl/random_1_7', 'multiple_mcl/random_1_8', 'multiple_mcl/random_1_9'], 'random_2': [ 'multiple_mcl/random_2_0', 'multiple_mcl/random_2_1', 'multiple_mcl/random_2_2', 'multiple_mcl/random_2_3', 'multiple_mcl/random_2_4', 'multiple_mcl/random_2_5', 'multiple_mcl/random_2_6', 'multiple_mcl/random_2_7', 'multiple_mcl/random_2_8', 'multiple_mcl/random_2_9']}
 		draw_plot('mcl', ['random_1'], ['50k', '100k', '200k', '400k'], True, 'mcl-whole_random_1-xy.pdf', whole_range_length, custom_results = mcl_results)
 		draw_plot('mcl', ['random_1'], ['50k', '100k', '200k', '400k'], False, 'mcl-whole_random_1-theta.pdf', whole_range_length, custom_results = mcl_results)
 		draw_plot('mcl', ['random_2'], ['50k', '100k', '200k', '400k'], True, 'mcl-whole_random_2-xy.pdf', whole_range_length, custom_results = mcl_results)
