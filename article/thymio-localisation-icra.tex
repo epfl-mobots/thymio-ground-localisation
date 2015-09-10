@@ -98,6 +98,17 @@ The observation consists of two sensors located at the bottom of the robot, meas
 The odometry consists of the left and right wheel speeds.
 \end{itemize}
 
+\subsection{Constants}
+
+The following constants are parameters of the model:
+\begin{itemize}
+\item $\alpha_\mathrm{xy}$ the std. dev. of the motion model in translation
+\item $\alpha_\theta$ the std. dev. of the motion model in rotation
+\item $p_\mathrm{uniform}$ ratio of uniform probabilty added at observation time to represent kidnapping
+\item $\sigma_{obs}$ the std. dev. of the grayscale intensity in the observation model
+\end{itemize}
+The first three constants are found using maximum likelyhood (see \sect{mle}), the last one is selected based on the knowledge of the sensor.
+
 \subsection{Joint probability}
 
 The joint probability is:
@@ -124,6 +135,8 @@ We want to estimate the pose $X_t$ at time $t$ knowing the observations $Z_{1:t}
 \subsection{Distributions}
 
 \subsection{Markov implementation}
+
+% TODO: talk about max_prob_error
 
 \subsection{Monte Carlo implementation}
 
@@ -175,6 +188,7 @@ Setting the sensors apart also reduces the redundancy between their information 
 \subsection{Dataset collection}
 
 \subsection{Parameter estimation}
+\label{sec:mle}
 
 \section{Results}
 
