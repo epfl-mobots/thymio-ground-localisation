@@ -108,7 +108,8 @@ def draw_plot(algo, runs, params, show_dist_not_angle, name, path_length, **kwar
 				y_median_values.append(np.interp(x_ticks, x_values, y_values))
 				y_average_counter += 1
 
-				ppl.plot(ax, x_values, y_values, color=colors[i], alpha=0.3, marker=',', ls='')
+				if len(results) > 1:
+					ppl.plot(ax, x_values, y_values, color=colors[i], alpha=0.3, marker=',', ls='')
 
 				#print run, result, param, show_dist_not_angle
 				#print x_values, y_values, cum_dists[-1] * 100.
