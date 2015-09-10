@@ -99,7 +99,7 @@ def draw_plot(algo, runs, params, show_dist_not_angle, name, path_length, **kwar
 				# sum these distances to get the x axis
 				cum_dists = np.cumsum(deltas_dists)
 				if cum_dists[-1] * 100. < path_length:
-					print 'WARNING: In', result_file, 'last path point', cum_dists[-1] * 100., 'is before requested path length', path_length
+					print 'WARNING: In', result_file, 'last path point', cum_dists[-1] * 100., 'is before requested distance travelled', path_length
 				x_values = np.insert(cum_dists, 0, [0.]) * 100.
 				# get the y values directly from data
 				y_values = np.abs(data[:,dataCol])
@@ -122,7 +122,7 @@ def draw_plot(algo, runs, params, show_dist_not_angle, name, path_length, **kwar
 		ppl.plot(ax, x_ticks, y_median_values, label=str(param), color=colors[i])
 
 	# add label, legend and show plot
-	plt.xlabel('path length [cm]')
+	plt.xlabel('distance travelled [cm]')
 	plt.ylabel(ylabel)
 	ppl.legend(ax)
 	fig.savefig(os.path.join(dest_base_dir, name), bbox_inches='tight', pad_inches=0.02)

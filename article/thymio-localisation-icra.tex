@@ -254,10 +254,10 @@ The error is clamped at 50\,cm for position and 90° for orientation.}
 \end{figure*}
 
 \Fig{whole-runs-random12} shows the error in position and orientation for runs \emph{random\_1} and \emph{random\_2}.
-In these plots, \emph{path length} represents the cumulative distance travelled by the center point between the two ground sensors of the robot.
+In these plots, \emph{distance travelled} represents the cumulative distance travelled by the center point between the two ground sensors of the robot.
 
 For Markov localization, all discretization resolutions allow the robot to localize with a precision of 3\,cm and 5°.
-In run \emph{random\_1}, the resolution of 18 is not enough to keep tracking the orientation at path lengths 50\,cm and 80\,cm.
+In run \emph{random\_1}, the resolution of 18 is not enough to keep tracking the orientation at distance travelleds 50\,cm and 80\,cm.
 These both correspond to the robot rotating on spot.
 We see that a discretization of 36 (10° resolution) is sufficient to provide accurate tracking, and that a finer resolution only provides minor improvements in angular precision, and no improvement in position precision.
 In run \emph{random\_3}, we see that a resolution of 54 is allows for a better angular precision than 36, but 72 does not improves over 54.
@@ -267,7 +267,7 @@ For Monte Carlo localization, we see that on run \emph{random\_1}, the robot loc
 Increasing the number of particles over this value only provides minor decrease in localization time and precision.
 While 50k particles allow to localize on this run in average, there are some trials (restart of the run) in which the robot looses orientation, when it turns on spot.
 On run \emph{random\_2}, 50k particles is not enough for localizing the robot.
-Increasing this number to 100k leads to a good localization, exception during path lengths 80--100; indeed this corresponds to a long moment during which the robot rotates on spot, leading to less information acquisition, and therefore degradated precision.
+Increasing this number to 100k leads to a good localization, exception during distance travelleds 80--100; indeed this corresponds to a long moment during which the robot rotates on spot, leading to less information acquisition, and therefore degradated precision.
 %TODO: explain why this does not appear in ML
 
 \subsection{Robot kidnapping}
@@ -296,7 +296,7 @@ The error is clamped at 50\,cm for position and 90° for orientation.}
 \end{figure*}
 
 \Fig{whole-runs-random-long} shows the error in position and orientation for the run with kidnapping.
-In this run, the robot is kidnapped twice, at path length 550\,cm and 1000\,cm.
+In this run, the robot is kidnapped twice, at distance travelled 550\,cm and 1000\,cm.
 It takes the robot approximately 50\,cm to relocalize, and does so successfully with both Markov and Monte Carlo localization.
 With Markov Localization, discretization resolutions of 54 and 72 are approximately equivalent in performance, while 36 and 18 perform clearly worst.
 With Monte Carlo, the robot localizes most of the time with 100k particle or more, and always with 200k particles or more.
