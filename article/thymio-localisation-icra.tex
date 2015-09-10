@@ -14,21 +14,39 @@
 \usepackage{amsmath}
 \usepackage{url}
 
+% options
+\graphicspath{{figures/}{generated-figures/}}
+
+% commands
+\newcommand{\fig}[1]{Figure~\ref{fig:#1}}
+\newcommand{\Fig}[1]{Figure~\ref{fig:#1}}
+\newcommand{\tbl}[1]{{Table}~\ref{fig:#1}}
+\newcommand{\Tbl}[1]{{Table}~\ref{fig:#1}}
+\newcommand{\sect}[1]{Section~\ref{sec:#1}}
+\newcommand{\Sect}[1]{Section~\ref{sec:#1}}
+\newcommand{\hypo}[1]{Hypothesis~\ref{hyp:#1}}
+\newcommand{\Hypo}[1]{Hypothesis~\ref{hyp:#1}}
+\newcommand{\algo}[1]{Algorithm~\ref{algo:#1}}
+\newcommand{\Algo}[1]{Algorithm~\ref{algo:#1}}
+\newcommand{\eq}[1]{Equation~\ref{eq:#1}}
+\newcommand{\Eq}[1]{Equation~\ref{eq:#1}}
+
 % title and authors
 
 \title{\LARGE \bf
 Localization of inexpensive robots with low-bandwidth sensors
 }
 
-\author{Shiling Wang$^{1}$ and Francis Colas$^{2}$ and Ming Liu$^{3}$ and Stéphane Magnenat$^{4}$% <-this % stops a space
-\thanks{*This work was not supported by any organization}% <-this % stops a space
-\thanks{$^{1}$Shiling Wang is with KU Leuven TODO add department
-        {\tt\small Shiling.Wang@esat.kuleuven.be}}%
+\author{Shiling Wang$^{1}$ and Francis Colas$^{2}$ and Ming Liu$^{3}$ and Francesco Mondada$^{4}$ and Stéphane Magnenat$^{5}$% <-this % stops a space
+\thanks{$^{1}$Shiling Wang is with ETH Zürich
+        {\tt\small shilingwang0621@gmail.com}}%
 \thanks{$^{2}$Fraucis Colas is with INRIA Nancy Grand Est
         {\tt\small francis.colas@inria.fr}}%
-\thanks{$^{3}$Ming Liu is with UNDEFINED TODO
-        {\tt\small ming.liu@undefined.nowhere}}%
-\thanks{$^{4}$Stéphane Magnenat is with Mobots, LSRO, EPFL
+\thanks{$^{3}$Ming Liu is with City University of Hong Kong
+        {\tt\small mingliu@cityu.edu.hk}}%
+\thanks{$^{4}$Francesco Mondada is with Mobots, LSRO, EPFL
+        {\tt\small francesco.mondada@epfl.ch}}%
+\thanks{$^{5}$Stéphane Magnenat is with Mobots, LSRO, EPFL
         {\tt\small stephane@magnenat.net}}%
 }
 
@@ -45,6 +63,10 @@ Lorem ipsum...
 \section{Introduction}
 
 Why localisation is useful for cheap robot in educational context, why it is not trivial?
+
+Highlight challenges
+
+
 
 \section{Related work}
 
@@ -76,6 +98,17 @@ The observation consists of two sensors located at the bottom of the robot, meas
 The odometry consists of the left and right wheel speeds.
 \end{itemize}
 
+\subsection{Constants}
+
+The following constants are parameters of the model:
+\begin{itemize}
+\item $\alpha_\mathrm{xy}$ the std. dev. of the motion model in translation
+\item $\alpha_\theta$ the std. dev. of the motion model in rotation
+\item $p_\mathrm{uniform}$ ratio of uniform probabilty added at observation time to represent kidnapping
+\item $\sigma_{obs}$ the std. dev. of the grayscale intensity in the observation model
+\end{itemize}
+The first three constants are found using maximum likelyhood (see \sect{mle}), the last one is selected based on the knowledge of the sensor.
+
 \subsection{Joint probability}
 
 The joint probability is:
@@ -102,6 +135,8 @@ We want to estimate the pose $X_t$ at time $t$ knowing the observations $Z_{1:t}
 \subsection{Distributions}
 
 \subsection{Markov implementation}
+
+% TODO: talk about max_prob_error
 
 \subsection{Monte Carlo implementation}
 
@@ -153,22 +188,127 @@ Setting the sensors apart also reduces the redundancy between their information 
 \subsection{Dataset collection}
 
 \subsection{Parameter estimation}
+\label{sec:mle}
 
 \section{Results}
 
-plot full length, mean random1 + random2, ml, xy
-plot full length, mean random1 + random2, ml, theta
-plot full length, mean random1 + random2, mcl (50, 100, 200, 400), xy
-plot full length, mean random1 + random2, mcl (50, 100, 200, 400), theta
+\subsection{Basic localization}
 
-say which converge and how
+\begin{figure*}
 
-plot short length, mean 5 random1 + 5 random2, ml, xy
-plot short length, mean 5 random1 + 5 random2, ml, theta
-plot short length, mean 5 random1 + 5 random2, mcl, xy
-plot short length, mean 5 random1 + 5 random2, mcl, theta
+\begin{center}
+Markov Localization, run \emph{random\_1}
+\end{center}
+\includegraphics{ml-whole_random_1-xy}\hfill
+\includegraphics{ml-whole_random_1-theta}
 
-\subsection{Synthethic tests}
+\vspace{.5em}
+
+\begin{center}
+Markov Localization, run \emph{random\_2}
+\end{center}
+\includegraphics{ml-whole_random_2-xy}\hfill
+\includegraphics{ml-whole_random_2-theta}
+
+\vspace{.5em}
+
+\begin{center}
+Monte Carlo Localization, run \emph{random\_1}
+\end{center}
+\includegraphics{mcl-whole_random_1-xy}\hfill
+\includegraphics{mcl-whole_random_1-theta}
+
+\vspace{.5em}
+
+\begin{center}
+Monte Carlo Localization, run \emph{random\_2}
+\end{center}
+\includegraphics{mcl-whole_random_2-xy}\hfill
+\includegraphics{mcl-whole_random_2-theta}
+
+\caption{The error in position and orientation between the estimation by the localization algorithm and the ground truth, using Markov and Monte Carlo localization, on two runs.
+For Markov localization, the legend indicates the number of discretization steps for angles; for Monte Carlo localization, it indicates the number of particles.
+For Monte Carlo localization, the solid lines show the average over 10 trials, while the light dots show the individual trials.
+The error is clamped at 50\,cm for position and 90° for orientation.}
+\label{fig:whole-runs-random12}
+\end{figure*}
+
+\Fig{whole-runs-random12} shows the error in position and orientation for runs \emph{random\_1} and \emph{random\_2}.
+In these plots, \emph{path length} represents the cumulative distance travelled by the center point between the two ground sensors of the robot.
+
+For Markov localization, all discretization resolutions allow the robot to localize with a precision of 3\,cm and 5°.
+In run \emph{random\_1}, the resolution of 18 is not enough to keep tracking the orientation at path lengths 50\,cm and 80\,cm.
+These both correspond to the robot rotating on spot.
+We see that a discretization of 36 (10° resolution) is sufficient to provide accurate tracking, and that a finer resolution only provides minor improvements in angular precision, and no improvement in position precision.
+In run \emph{random\_3}, we see that a resolution of 54 is allows for a better angular precision than 36, but 72 does not improves over 54.
+All resolutions provide equal position precision.
+
+For Monte Carlo localization, we see that on run \emph{random\_1}, the robot localizes already with 50k particles, but twice later than with 100k particles.
+Increasing the number of particles over this value only provides minor decrease in localization time and precision.
+While 50k particles allow to localize on this run in average, there are some trials (restart of the run) in which the robot looses orientation, when it turns on spot.
+On run \emph{random\_2}, 50k particles is not enough for localizing the robot.
+Increasing this number to 100k leads to a good localization, exception during path lengths 80--100; indeed this corresponds to a long moment during which the robot rotates on spot, leading to less information acquisition, and therefore degradated precision.
+%TODO: explain why this does not appear in ML
+
+\subsection{Robot kidnapping}
+
+\begin{figure*}
+
+\begin{center}
+Markov Localization, run \emph{random\_long}
+\end{center}
+%\includegraphics{ml-whole_random_long-xy}\hfill
+%\includegraphics{ml-whole_random_long-theta}
+
+\vspace{.5em}
+
+\begin{center}
+Monte Carlo Localization, run \emph{random\_long}
+\end{center}
+%\includegraphics{mcl-whole_random_long-xy}\hfill
+%\includegraphics{mcl-whole_random_long-theta}
+
+\caption{The error in position and orientation between the estimation by the localization algorithm and the ground truth, using Markov and Monte Carlo localization, on the run with kidnapping.
+For Markov localization, the legend indicates the number of discretization steps for angles; for Monte Carlo localization, it indicates the number of particles.
+For Monte Carlo localization, the solid lines show the average over 10 trials, while the light dots show the individual trials.
+The error is clamped at 50\,cm for position and 90° for orientation.}
+\label{fig:whole-runs-random-long}
+\end{figure*}
+
+\Fig{whole-runs-random-long} shows the error in position and orientation for the run with kidnapping.
+In this run, the robot is kidnapped twice, at path length 550\,cm and 1000\,cm.
+It takes the robot approximately 50\,cm to relocalize, and does so successfully with both Markov and Monte Carlo localization.
+With Markov Localization, discretization resolutions of 54 and 72 are approximately equivalent in performance, while 36 and 18 perform clearly worst.
+With Monte Carlo, the robot localizes most of the time with 100k particle or more, and always with 200k particles or more.
+%TODO: reanalyse MCL once we have 10 runs
+
+\begin{figure*}
+
+\begin{center}
+Markov Localization, average of 10 extracts from \emph{random\_1} and \emph{random\_2}
+\end{center}
+%\includegraphics{ml-small_runs_random_12-xy}\hfill
+%\includegraphics{ml-small_runs_random_12-theta}
+
+\vspace{.5em}
+
+\begin{center}
+Monte Carlo Localization, average of 10 extracts from \emph{random\_1} and \emph{random\_2}
+\end{center}
+%\includegraphics{mcl-small_runs_random_12-xy}\hfill
+%\includegraphics{mcl-small_runs_random_12-theta}
+
+\caption{
+The error in position and orientation between the estimation by the localization algorithm and the ground truth, using Markov and Monte Carlo localization, on 10 extracts from two runs.
+For Markov localization, the legend indicates the number of discretization steps for angles; for Monte Carlo localization, it indicates the number of particles.
+The solid lines show the average over 10 trials, while the light dots show the individual trials.
+The error is clamped at 50\,cm for position and 90° for orientation.}
+\label{fig:small-runs}
+\end{figure*}
+
+\subsection{Theoretical length to converge}
+
+%TODO
 
 \subsection{Real-time with Thymio}
 
