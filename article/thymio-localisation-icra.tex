@@ -153,8 +153,7 @@ There are two distributions to specify, the \emph{observation model} $p(Z_t | X_
 The robot has two infrared ground sensors measuring the grayscale value of the ground.
 Our observation model assumes these to be independent, so $p(Z_t | X_t) = \prod_{i=0,1} p(Z_t^{i} | X_t)$.
 Moreover, we assume the ground color to be in the range $[0,1]$ with $0$ being black and $1$ being white.
-Hence, if sensor $i$ for robot pose $X_t$ should see black according to the map, $p(Z_t^{i} | X_t) \sim \mathcal{N}(0,\sigma_\mathrm{obs})$.
-If it should see white, $p(Z_t^{i} | X_t) \sim \mathcal{N}(1,\sigma_\mathrm{obs})$.
+Hence, if sensor $i$ for robot pose $X_t$ should see a ground intensity $v$ according to the map, $p(Z_t^{i} | X_t) \sim \mathcal{N}(v,\sigma_\mathrm{obs})$.
 The parameter $\sigma_\mathrm{obs}$ is selected based on the knowledge of the sensor.
 For black and white maps, we set it to $0.5$, giving a probability of $0.05$ to a completely wrong reading.
 % TODO: add grayscale maps
