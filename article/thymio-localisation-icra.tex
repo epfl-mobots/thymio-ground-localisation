@@ -93,19 +93,39 @@ Finally, we show how users can draw their own ground images and use these to loc
 Markov and Monte Carlo Localization, why not SLAM?
 
 Localization techniques for cheap mobile robots.
+Solving localization problem with limited sensor information is very challenging. 
+
+In \cite{pinto2012localization}, Extended Kalman Filter algorithm is conducted in a LEGO NXT for the purpose of teaching undergraduate university students localization of mobile robots.
+The localization environment is with several white walls and EKF uses information from infra-red sensors equipped on the robot.
+
 
 \section{Material}
 % Merge all three parts together. Datasets gather from two sources: gt and thymio. mention a bit of the frequency and speed. Trajectories detail: what kind of motion, also kidnapping. Total length should not over one column plus the figure. Figure need some explanation.
-\subsection{Thymio robot}
+To realize localization with cheap mobile robot, we conduct experiments with Thymio robot localizing on a printed map.
 
 Thymio and Aseba~\cite{magnenat2012arso, aseba2011tmech, riedo2013arso}.
 
-\subsection{Map}
+
 The map which is used for Thymio to localize against is a 150\,cm$\times$150\,cm pattern which contains 50\,$\times$\,50 black and white random cells of 3\,cm$\times$3\,cm. 
-The cells are generated randomly.
-\subsection{Data acquisition}
+The pattern is generated randomly without regularization.
+
 In order to precisely measure the robot poses, a Vicon\footnote{http://www.vicon.com/} tracking system is used to provide this ground truth.
 Sensor values and odometry information from Thymio are synchronously recorded by connecting to ROS (Robot Operating System)\footnote{http://www.ros.org/} through Aseba.
+During the dataset gathering, the robot move on the map with the speed of 4\,cm/sec. 
+The data is gathered with an enough high frequency, which allows better data synchronization and exploration.
+To fully explore the algorithm performance, the robot conducts several trajectories with all possible motions and the trajectories cover most parts of the map. 
+An example trajectory is shown in \fig{dataset}.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.4\textwidth]{dataset}
+\caption{An example trajectory of the robot. The robot moves on the map with random black and white pattern with three different motions: going forward, going backward and rotating on the same point.}
+\label{fig:dataset}
+\end{center}
+\end{figure}
+
+The motions of the robot can be classified into three different motions, namely moving forward, moving backward and rotating on the same point. 
+To test the algorithm's ability of recovering from catastrophic localization failures, we also conduct experiments with robot kidnapping by moving the robot to another part of the map during one trajectory.  
 \section{Model}
 
 \subsection{Variables}
