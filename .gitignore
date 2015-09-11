@@ -1,3 +1,4 @@
 *~
 .*.sw?
 .directory
+.DS_Store
