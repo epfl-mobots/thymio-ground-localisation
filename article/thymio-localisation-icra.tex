@@ -118,19 +118,6 @@ The observation consists of two sensors located at the bottom of the robot, meas
 The odometry consists of the left and right wheel speeds.
 \end{itemize}
 
-\subsection{Constants}
-
-The following constants are parameters of the model:
-\begin{itemize}
-\item $\alpha_\mathrm{xy}$ the std. dev. of the motion model in translation,
-\item $\alpha_\theta$ the std. dev. of the motion model in rotation,
-\item $p_\mathrm{uniform}$ ratio of uniform probabilty added at observation time to represent kidnapping,
-\item $\sigma_\mathrm{obs}$ the std. dev. of the grayscale intensity in the observation model.
-\end{itemize}
-The first three constants are found using maximum likelihood estimation (see \sect{mle}), the last one is selected based on the knowledge of the sensor.
-
-% FIXME: move these into distributions!
-
 \subsection{Joint probability}
 
 We formulate the model as a recursive Bayesian filter.
@@ -157,11 +144,42 @@ We want to estimate the pose $X_t$ at time $t$ knowing the observations $Z_{1:t}
 
 \subsection{Distributions}
 
-There are two distributions to specify, the \emph{observation model} $p(Z_t | X_t)$ and the \emph{motion model} $p(X_t|X_{t-1}, U_t)$
+There are two distributions to specify, the \emph{observation model} $p(Z_t | X_t)$ and the \emph{motion model} $p(X_t|X_{t-1}, U_t)$.
 
 \subsubsection{Observation model}
 
+% TODO
+
+The parameter $\sigma_\mathrm{obs}$ is selected based on the knowledge of the sensor, while $p_\mathrm{uniform}$ is found using maximum likelihood estimation (see \sect{mle}).
+
 \subsubsection{Motion model}
+
+Based on the model of Eliazar et al.~\cite{eliazar2004motionmodel}, we assume that the motion has a Gaussian error model, hence $p(X_t~|~X_{t-1}, U_{t})\sim\mathcal{N}(\mu_t,\Sigma_t)$.
+
+The mean $\mu_t$ is built by accumulating the estimated displacements by dead-reckoning between times $t-1$ and $t$.
+Therefore, if $\Delta x_t$, $\Delta y_t$, $\Delta \theta_t$ are the displacement between $t-1$ and $t$, expressed in the robot local frame at $t-1$, $\mu_t$ is:
+\begin{equation}
+\mu_t =
+\left[ \begin{array}{c} x_t \\ y_t \\ \theta_t \end{array} \right]
+\text{with}
+\begin{array}{c}
+\left[ \begin{array}{c} x_t \\ y_t \end{array} \right] =
+\left[ \begin{array}{c} x_{t-1} \\ y_{t-1} \end{array} \right] +
+R(\theta_{t-1})
+\left[ \begin{array}{c} \Delta x_{t} \\ \Delta y_{t} \end{array} \right]
+\\
+\theta_t = \theta_{t-1} + \Delta \theta_t
+\end{array}
+\end{equation}
+where $R(\theta)$ is the 2-D rotation matrix of angle $\theta$.
+
+The $3\times3$ diagonal covariance matrix $\Sigma_t$ is a function of the distance travelled and the amount of rotation:
+\begin{equation}
+\Sigma_t=\begin{bmatrix} I_2 \alpha_\mathrm{xy} \sqrt{\Delta x_{t}^2 + \Delta y_{t}^2}  & 0 \\ 0 & \alpha_\theta | \Delta \theta_t | \end{bmatrix}
+\end{equation}
+
+
+The parameters $\alpha_\mathrm{xy}$ and $\alpha_\theta$ are found using maximum likelihood estimation (see \sect{mle}).
 
 \subsection{Markov implementation}
 
