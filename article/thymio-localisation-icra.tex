@@ -171,14 +171,17 @@ There are two distributions to specify, the \emph{observation model} $p(Z_t | X_
 
 \subsubsection{Observation model}
 
-% TODO
-
-The parameter $\sigma_\mathrm{obs}$ is selected based on the knowledge of the sensor, while $p_\mathrm{uniform}$ is found using maximum likelihood estimation (see \sect{mle}).
+The robot has two infrared ground sensors measuring the grayscale value of the ground.
+Our observation model assumes these to be independent, so $p(Z_t | X_t) = \prod_{i=0,1} p(Z_t^{i} | X_t)$.
+Moreover, we assume the ground color to be in the range $[0,1]$ with $0$ being black and $1$ being white.
+Hence, if sensor $i$ for robot pose $X_t$ should see a ground intensity $v$ according to the map, $p(Z_t^{i} | X_t) \sim \mathcal{N}(v,\sigma_\mathrm{obs})$.
+The parameter $\sigma_\mathrm{obs}$ is selected based on the knowledge of the sensor.
+For black and white maps, we set it to $0.5$, giving a probability of $0.05$ to a completely wrong reading.
+% TODO: add grayscale maps
 
 \subsubsection{Motion model}
 
 Based on the model of Eliazar et al.~\cite{eliazar2004motionmodel}, we assume that the motion has a Gaussian error model, hence $p(X_t~|~X_{t-1}, U_{t})\sim\mathcal{N}(\mu_t,\Sigma_t)$.
-
 The mean $\mu_t$ is built by accumulating the estimated displacements by dead-reckoning between times $t-1$ and $t$.
 Therefore, if $\Delta x_t$, $\Delta y_t$, $\Delta \theta_t$ are the displacement between $t-1$ and $t$, expressed in the robot local frame at $t-1$, $\mu_t$ is:
 \begin{equation}
@@ -195,14 +198,14 @@ R(\theta_{t-1})
 \end{array}
 \end{equation}
 where $R(\theta)$ is the 2-D rotation matrix of angle $\theta$.
-
 The $3\times3$ diagonal covariance matrix $\Sigma_t$ is a function of the distance travelled and the amount of rotation:
 \begin{equation}
 \Sigma_t=\begin{bmatrix} I_2 ( \alpha_\mathrm{xy} \sqrt{\Delta x_{t}^2 + \Delta y_{t}^2})^2  & 0 \\ 0 & (\alpha_\theta | \Delta \theta_t |)^2 \end{bmatrix}
 \end{equation}
 
+In addition, to cope for the possibility of the robot to be kidnapped and therefore its pose becomming unknown, a uniform distribution with a weight $p_\mathrm{uniform}$ is added to $X_t$.
 
-The parameters $\alpha_\mathrm{xy}$ and $\alpha_\theta$ are found using maximum likelihood estimation (see \sect{mle}).
+The parameters $\alpha_\mathrm{xy}$, $\alpha_\theta$ and $p_\mathrm{uniform}$ are found using maximum likelihood estimation (see \sect{mle}).
 
 \subsection{Implementations}
 
