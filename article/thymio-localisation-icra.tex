@@ -177,7 +177,7 @@ where $R(\theta)$ is the 2-D rotation matrix of angle $\theta$.
 
 The $3\times3$ diagonal covariance matrix $\Sigma_t$ is a function of the distance travelled and the amount of rotation:
 \begin{equation}
-\Sigma_t=\begin{bmatrix} I_2 \alpha_\mathrm{xy} \sqrt{\Delta x_{t}^2 + \Delta y_{t}^2}  & 0 \\ 0 & \alpha_\theta | \Delta \theta_t | \end{bmatrix}
+\Sigma_t=\begin{bmatrix} I_2 ( \alpha_\mathrm{xy} \sqrt{\Delta x_{t}^2 + \Delta y_{t}^2})^2  & 0 \\ 0 & (\alpha_\theta | \Delta \theta_t |)^2 \end{bmatrix}
 \end{equation}
 
 
