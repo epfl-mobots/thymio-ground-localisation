@@ -95,15 +95,17 @@ Markov and Monte Carlo Localization, why not SLAM?
 Localization techniques for cheap mobile robots.
 
 \section{Material}
-
+% Merge all three parts together. Datasets gather from two sources: gt and thymio. mention a bit of the frequency and speed. Trajectories detail: what kind of motion, also kidnapping. Total length should not over one column plus the figure. Figure need some explanation.
 \subsection{Thymio robot}
 
 Thymio and Aseba~\cite{magnenat2012arso, aseba2011tmech, riedo2013arso}.
 
 \subsection{Map}
-
+The map which is used for Thymio to localize against is a 150\,cm$\times$150\,cm pattern which contains 50\,$\times$\,50 black and white random cells of 3\,cm$\times$3\,cm. 
+The cells are generated randomly.
 \subsection{Data acquisition}
-
+In order to precisely measure the robot poses, a Vicon\footnote{http://www.vicon.com/} tracking system is used to provide this ground truth.
+Sensor values and odometry information from Thymio are synchronously recorded by connecting to ROS (Robot Operating System)\footnote{http://www.ros.org/} through Aseba.
 \section{Model}
 
 \subsection{Variables}
@@ -206,6 +208,7 @@ In order to have a faster localization, the greatest changes could be to move fa
 Setting the sensors apart also reduces the redundancy between their information but given our grid size, they are sufficiently separated.
 
 \subsection{Dataset collection}
+
 
 \subsection{Parameter estimation}
 \label{sec:mle}
