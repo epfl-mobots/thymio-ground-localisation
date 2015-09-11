@@ -93,7 +93,8 @@ Finally, we show how users can draw their own ground images and use these to loc
 Markov and Monte Carlo Localization, why not SLAM?
 
 Localization techniques for cheap mobile robots.
-Solving localization problem with limited sensor information is very challenging. 
+The challenge of solving lovalization problem of cheap mobile robots is the sensor information is very limited.
+Some approaches, such as \cite{prorok2012low, dias2013absolute}, solve localization problem of multiple cheap robots instead of a single robot by using collaborative sensors information.
 
 In \cite{pinto2012localization}, Extended Kalman Filter algorithm is conducted in a LEGO NXT for the purpose of teaching undergraduate university students localization of mobile robots.
 The localization environment is with several white walls and EKF uses information from infra-red sensors equipped on the robot.
@@ -109,7 +110,7 @@ Thymio and Aseba~\cite{magnenat2012arso, aseba2011tmech, riedo2013arso}.
 The map which is used for Thymio to localize against is a 150\,cm$\times$150\,cm pattern which contains 50\,$\times$\,50 black and white random cells of 3\,cm$\times$3\,cm. 
 The pattern is generated randomly without regularization.
 
-In order to precisely measure the robot poses, a Vicon\footnote{http://www.vicon.com/} tracking system is used to provide this ground truth.
+In order to precisely measure the robot poses, a Vicon\footnote{http://www.vicon.com/} tracking system is used to provide this ground truth, with robot 2-D pose $x$, $y$ as well as the heading of the robot $\theta$.
 Sensor values and odometry information from Thymio are synchronously recorded by connecting to ROS (Robot Operating System)\footnote{http://www.ros.org/} through Aseba.
 During the dataset gathering, the robot move on the map with the speed of 4\,cm/sec. 
 The data is gathered with an enough high frequency, which allows better data synchronization and exploration.
