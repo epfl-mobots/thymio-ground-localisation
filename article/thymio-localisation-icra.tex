@@ -196,18 +196,18 @@ For the aim of localizing a robot in a given know space, we can get an idea of t
 For the Markov Localization approach, we can see that there is a given number of discrete cells.
 The amount of information needed to unambiguously specify one among them all is:
 \begin{displaymath}
-	H_{loc} = \log_2(N_cells) = \log_2\left(\frac{L\times W\times N_{\theta}}{h^2}\right),
+	H_{loc} = \log_2(N_{cells}) = \log_2\left(\frac{L\times W\times N_{\theta}}{h^2}\right),
 \end{displaymath}
-with $N_cells$ the number of cells, $L$ and $W$ the length and width of the environment, $h$ the size of the cell, and $N_{\theta}$ the number of discretization steps of the angle $\theta$ of the robot.
-In our example with a 1.5\,m$\times$1.5\,m environment discretized with cells of 1\,cm and 5° angle, the amount of information needed for the localization is around 20.6 bits.
+with $N_{cells}$ the number of cells, $L$ and $W$ the length and width of the environment, $h$ the size of the cell, and $N_{\theta}$ the number of discretization steps of the angle $\theta$ of the robot.
+In our example with a 1.5\,m$\times$1.5\,m environment discretized with cells of 1\,cm and 5° angle, the amount of information needed for the localization is around 20.6\,bit.
 
-A binary sensor ideally yields 1 bit of information per measurement.
-However in practice, there is a loss in information due to the sensor noise, characterized above with the $p_{\mbox{correct}}$ probability of the sensor to be correct:
+A binary sensor ideally yields 1\,bit of information per measurement.
+However in practice, there is a loss in information due to the sensor noise, characterized above with the $p_{correct}$ probability of the sensor to be correct:
 \begin{displaymath}
-	H_{noise} = H_{\mbox{b}}(1 - p_{\mbox{correct}}),
+	H_{noise} = H_{\text{b}}(1 - p_{correct}),
 \end{displaymath}
-where $H_{\mbox{b}}$ is the binary entropy function: $H_{\mbox{b}}(p) = -p\log_2(p) - (1-p)\log_2(1-p)$.
-With $p_{\mbox{correct}}=0.95$ the loss in information is around 0.29 bit per measurement.
+where $H_{\text{b}}$ is the binary entropy function: $H_{\text{b}}(p) = -p\log_2(p) - (1-p)\log_2(1-p)$.
+With $p_{correct}=0.95$ the loss in information is around 0.29\,bit per measurement.
 
 In addition to the noise, we need to take into account that our sensor measurements are not completely independent.
 For example, when not moving, we observe always the same place and thus cannot really gain additional information besides being sure of the color of the current pixel.
@@ -215,7 +215,7 @@ In a discretized world, we thus need to estimate the probability of having chang
 This problem is equivalent to the Buffon-Laplace needle problem of finding the probability for a needle thrown randomly on a grid to actually intersect the grid.\footnote{\url{http://mathworld.wolfram.com/Buffon-LaplaceNeedleProblem.html}}
 In our case, the probability of not changing cell is given by:
 \begin{displaymath}
-	p_{\mbox{same}} = \frac{4d h - d^2}{\pi h^2},
+	p_{same} = \frac{4d h - d^2}{\pi h^2},
 \end{displaymath}
 with $d$ the distance travelled.
 
@@ -224,13 +224,13 @@ We can then compute the conditional entropy for two successive ideal measurement
 	H(O_t | O_{t-1}) = H(O_t, O_{t-1}) - H(O_{t-1}).
 	% That's a really generic formula, but giving the 2x2 matrix or the expression with the logs is probably too much
 \end{displaymath}
-With a robot moving at around 3\,cm/s with a timestep of 0.3\,s with 3\,cm cells, we have $d=0.9$\,cm and the loss of information due to the redundancy of around 0.33 bit.
+With a robot moving at around 3\,cm/s with a timestep of 0.3\,s with 3\,cm cells, we have $d=0.9$\,cm and the loss of information due to the redundancy of around 0.33\,bit.
 
 The computation is similar with a second sensor placed on the robot.
 The probability that they see the same cell based on the distance between them is exactly the same.
-On our small robots, the sensors are 2.2\,cm apart so their redundancy causes a loss of information of 0.041 bit.
+On our small robots, the sensors are 2.2\,cm apart so their redundancy causes a loss of information of 0.041\,bit.
 
-If we combine all these effects, we can bound the information that our robot gathers at each timestep to at most 1.05 bit and a time to localize of at least 6\,s.
+If we combine all these effects, we can bound the information that our robot gathers at each timestep to at most 1.05\,bit and a time to localize of at least 6\,s, which corresponds to a distance travelled of at least 18\,cm.
 In order to have a faster localization, the greatest changes could be to move faster, in order to reduce redundancy in the successive measurements, or to have better sensors.
 Setting the sensors apart also reduces the redundancy between their information but given our grid size, they are sufficiently separated.
 
