@@ -183,11 +183,11 @@ The $3\times3$ diagonal covariance matrix $\Sigma_t$ is a function of the distan
 
 The parameters $\alpha_\mathrm{xy}$ and $\alpha_\theta$ are found using maximum likelihood estimation (see \sect{mle}).
 
-\subsection{Markov implementation}
+\subsection{Implementations}
 
-% TODO: talk about max_prob_error
-
-\subsection{Monte Carlo implementation}
+We provide two implementations of the model.
+The first one does Markov localization by implementing distributions using conditional probability tables~\cite{fox1999markov}.
+The second one does Monte Carlo localization using a particle filter~\cite{dellaert1999monte}.
 
 \subsection{Theoretical analysis}
 % TODO place at correct place
@@ -300,6 +300,40 @@ On run \emph{random\_2}, 50k particles is not enough for localizing the robot.
 Increasing this number to 100k leads to a good localization, exception during distance travelleds 80--100; indeed this corresponds to a long moment during which the robot rotates on spot, leading to less information acquisition, and therefore degradated precision.
 %TODO: explain why this does not appear in ML
 
+\subsection{Distance to converge}
+
+\begin{figure*}
+
+\begin{center}
+Markov Localization, 10 extracts from \emph{random\_1} and \emph{random\_2}
+\end{center}
+\includegraphics{ml-small_runs_random_12-xy}\hfill
+\includegraphics{ml-small_runs_random_12-theta}
+
+\vspace{.5em}
+
+\begin{center}
+Monte Carlo Localization, 10 extracts from \emph{random\_1} and \emph{random\_2}
+\end{center}
+\includegraphics{mcl-small_runs_random_12-xy}\hfill
+\includegraphics{mcl-small_runs_random_12-theta}
+
+\caption{
+The error in position and orientation between the estimation by the localization algorithm and the ground truth, using Markov and Monte Carlo localization, on 10 extracts from two runs.
+For Markov localization, the legend indicates the number of discretization steps for angles; for Monte Carlo localization, it indicates the number of particles.
+The solid lines show the median over 10 trials, while the light dots show the individual trials.
+The error is clamped at 50\,cm for position and 90° for orientation.}
+\label{fig:small-runs}
+\end{figure*}
+
+\Fig{small-runs} shows the error in position and orientation for 5 different locations in the two normal runs.
+We see that, with Markov localization, the correct pose is found after about 20\,cm.
+However, there are outliers.
+This happens when the robot is turning on spot, in that case, there are not enough information to localize the robot.
+The convergence is slower with Monte Carlo localization, excepted with 400k particles, in case it is roughly similar.
+Decreasing the number of particles quickly increases the distance to converge, reaching 60\,cm for 100k particles.
+Using only 50k particles, some extract do not converge even after 80\,cm.
+
 \subsection{Robot kidnapping}
 
 \begin{figure*}
@@ -326,43 +360,23 @@ The error is clamped at 50\,cm for position and 90° for orientation.}
 \end{figure*}
 
 \Fig{whole-runs-random-long} shows the error in position and orientation for the run with kidnapping.
-In this run, the robot is kidnapped twice, at distance travelled 550\,cm and 1000\,cm.
+In this run, the robot is kidnapped twice, after having travelled 550\,cm and 1000\,cm.
 It takes the robot approximately 50\,cm to relocalize, and does so successfully with both Markov and Monte Carlo localization.
-With Markov Localization, discretization resolutions of 54 and 72 are approximately equivalent in performance, while 36 and 18 perform clearly worst.
+% FIXME: check on the video for numbers, edit plots
+With Markov Localization, discretization resolutions of 36, 54 and 72 are approximately equivalent in performance, while 18 performs clearly worst, but only for angular resolution.
 With Monte Carlo, the robot localizes most of the time with 100k particle or more, and always with 200k particles or more.
+With 50k particles, the robot eventually localizes, but this might take more than 2 meters of travelled distance.
 %TODO: reanalyse MCL once we have 10 runs
 
-\begin{figure*}
-
-\begin{center}
-Markov Localization, 10 extracts from \emph{random\_1} and \emph{random\_2}
-\end{center}
-\includegraphics{ml-small_runs_random_12-xy}\hfill
-\includegraphics{ml-small_runs_random_12-theta}
-
-\vspace{.5em}
-
-\begin{center}
-Monte Carlo Localization, 10 extracts from \emph{random\_1} and \emph{random\_2}
-\end{center}
-\includegraphics{mcl-small_runs_random_12-xy}\hfill
-\includegraphics{mcl-small_runs_random_12-theta}
-
-\caption{
-The error in position and orientation between the estimation by the localization algorithm and the ground truth, using Markov and Monte Carlo localization, on 10 extracts from two runs.
-For Markov localization, the legend indicates the number of discretization steps for angles; for Monte Carlo localization, it indicates the number of particles.
-The solid lines show the median over 10 trials, while the light dots show the individual trials.
-The error is clamped at 50\,cm for position and 90° for orientation.}
-\label{fig:small-runs}
-\end{figure*}
-
-\subsection{Theoretical length to converge}
-
-%TODO
+\subsection{Computational load}
 
 \subsection{Real-time with Thymio}
 
 \section{Discussion}
+
+200k particles is too much
+
+GPU
 
 What works, what does not, why?
 
@@ -373,7 +387,7 @@ Why sampling-based approach is not so easy, but propose how it could be done.
 This paper provides several contributions to the state of the art of localization of robots with low-bandwidth sensors:
 \begin{itemize}
 \item an empirical evaluation of Markov- and Monte Carlo-based implementations;
-\item a predictive model allowing designers to select and place sensors to achieve a desired localization performance;
+\item a method to estimate the localization performance in function of the sensors;
 \item a process to let end-users create and provide their own environments, such as drawings made by children.
 \end{itemize}
 Together, these allow absolute positioning of educational mobile robots in the 100 EUR price range.
