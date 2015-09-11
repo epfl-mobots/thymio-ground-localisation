@@ -186,36 +186,38 @@ The parameters $\alpha_\mathrm{xy}$ and $\alpha_\theta$ are found using maximum 
 \subsection{Implementations}
 
 We provide two implementations of the model.
-The first one does Markov localization by implementing distributions using conditional probability tables~\cite{fox1999markov}.
-The second one does Monte Carlo localization using a particle filter~\cite{dellaert1999monte}.
+The first one does Markov Localization by implementing distributions using conditional probability tables~\cite{fox1999markov}.
+The second one does Monte Carlo Localization using a particle filter~\cite{dellaert1999monte}.
 
-\subsection{Theoretical analysis}
-% TODO place at correct place
+\subsection{Theoretical analysis of convergence}
+\label{sec:theoreticalconv}
+
 % TODO text could be adapted, some equations removed, etc. in case it's too long.
 For the aim of localizing a robot in a given know space, we can get an idea of the time required to be localized.
 For the Markov Localization approach, we can see that there is a given number of discrete cells.
 The amount of information needed to unambiguously specify one among them all is:
 \begin{displaymath}
-	H_{loc} = \log_2(N_{cells}) = \log_2\left(\frac{L\times W\times N_{\theta}}{h^2}\right),
+	H_\mathrm{loc} = \log_2(N_\mathrm{cells}) = \log_2\left(\frac{L\times W\times N_{\theta}}{h^2}\right),
 \end{displaymath}
-with $N_{cells}$ the number of cells, $L$ and $W$ the length and width of the environment, $h$ the size of the cell, and $N_{\theta}$ the number of discretization steps of the angle $\theta$ of the robot.
+with $N_\mathrm{cells}$ the number of cells, $L$ and $W$ the length and width of the environment, $h$ the size of the cell, and $N_{\theta}$ the number of discretization steps of the angle $\theta$ of the robot.
 In our example with a 1.5\,m$\times$1.5\,m environment discretized with cells of 1\,cm and 5° angle, the amount of information needed for the localization is around 20.6\,bit.
 
 A binary sensor ideally yields 1\,bit of information per measurement.
-However in practice, there is a loss in information due to the sensor noise, characterized above with the $p_{correct}$ probability of the sensor to be correct:
+However in practice, there is a loss in information due to the sensor noise, characterized above with the $p_\mathrm{correct}$ probability of the sensor to be correct:
 \begin{displaymath}
-	H_{noise} = H_{\text{b}}(1 - p_{correct}),
+	H_\mathrm{noise} = H_{\text{b}}(1 - p_\mathrm{correct}),
 \end{displaymath}
 where $H_{\text{b}}$ is the binary entropy function: $H_{\text{b}}(p) = -p\log_2(p) - (1-p)\log_2(1-p)$.
-With $p_{correct}=0.95$ the loss in information is around 0.29\,bit per measurement.
+With $p_\mathrm{correct}=0.95$ the loss in information is around 0.29\,bit per measurement.
+% FIXME: make sure we introduce \mathrm{correct} before
 
 In addition to the noise, we need to take into account that our sensor measurements are not completely independent.
 For example, when not moving, we observe always the same place and thus cannot really gain additional information besides being sure of the color of the current pixel.
 In a discretized world, we thus need to estimate the probability of having changed cell in order to observe something new, which depends on the distance travelled and the size of the cells.
-This problem is equivalent to the Buffon-Laplace needle problem of finding the probability for a needle thrown randomly on a grid to actually intersect the grid.\footnote{\url{http://mathworld.wolfram.com/Buffon-LaplaceNeedleProblem.html}}
+This problem is equivalent to the Buffon-Laplace needle problem of finding the probability for a needle thrown randomly on a grid to actually intersect the grid~\cite{laplace1820prob}.
 In our case, the probability of not changing cell is given by:
 \begin{displaymath}
-	p_{same} = \frac{4d h - d^2}{\pi h^2},
+	p_\mathrm{same} = \frac{4d h - d^2}{\pi h^2},
 \end{displaymath}
 with $d$ the distance travelled.
 
@@ -234,13 +236,16 @@ If we combine all these effects, we can bound the information that our robot gat
 In order to have a faster localization, the greatest changes could be to move faster, in order to reduce redundancy in the successive measurements, or to have better sensors.
 Setting the sensors apart also reduces the redundancy between their information but given our grid size, they are sufficiently separated.
 
+\section{Experiments}
+
 \subsection{Dataset collection}
 
+% TODO
 
 \subsection{Parameter estimation}
 \label{sec:mle}
 
-\section{Results}
+% TODO
 
 \subsection{Basic localization}
 
@@ -276,9 +281,9 @@ Monte Carlo Localization, run \emph{random\_2}
 \includegraphics{mcl-whole_random_2-xy}\hfill
 \includegraphics{mcl-whole_random_2-theta}
 
-\caption{The error in position and orientation between the estimation by the localization algorithm and the ground truth, using Markov and Monte Carlo localization, on two runs.
-For Markov localization, the legend indicates the number of discretization steps for angles; for Monte Carlo localization, it indicates the number of particles.
-For Monte Carlo localization, the solid lines show the average over 10 trials, while the light dots show the individual trials.
+\caption{The error in position and orientation between the estimation by the localization algorithm and the ground truth, using Markov and Monte Carlo Localization, on two runs.
+For Markov Localization, the legend indicates the number of discretization steps for angles; for Monte Carlo Localization, it indicates the number of particles.
+For Monte Carlo Localization, the solid lines show the average over 10 trials, while the light dots show the individual trials.
 The error is clamped at 50\,cm for position and 90° for orientation.}
 \label{fig:whole-runs-random12}
 \end{figure*}
@@ -286,14 +291,14 @@ The error is clamped at 50\,cm for position and 90° for orientation.}
 \Fig{whole-runs-random12} shows the error in position and orientation for runs \emph{random\_1} and \emph{random\_2}.
 In these plots, \emph{distance travelled} represents the cumulative distance travelled by the center point between the two ground sensors of the robot.
 
-For Markov localization, all discretization resolutions allow the robot to localize with a precision of 3\,cm and 5°.
+For Markov Localization approach, all discretization resolutions allow the robot to localize with a precision of 3\,cm and 5°.
 In run \emph{random\_1}, the resolution of 18 is not enough to keep tracking the orientation at distance travelleds 50\,cm and 80\,cm.
 These both correspond to the robot rotating on spot.
 We see that a discretization of 36 (10° resolution) is sufficient to provide accurate tracking, and that a finer resolution only provides minor improvements in angular precision, and no improvement in position precision.
 In run \emph{random\_3}, we see that a resolution of 54 is allows for a better angular precision than 36, but 72 does not improves over 54.
 All resolutions provide equal position precision.
 
-For Monte Carlo localization, we see that on run \emph{random\_1}, the robot localizes already with 50k particles, but twice later than with 100k particles.
+For Monte Carlo Localization approach, we see that on run \emph{random\_1}, the robot localizes already with 50k particles, but twice later than with 100k particles.
 Increasing the number of particles over this value only provides minor decrease in localization time and precision.
 While 50k particles allow to localize on this run in average, there are some trials (restart of the run) in which the robot looses orientation, when it turns on spot.
 On run \emph{random\_2}, 50k particles is not enough for localizing the robot.
@@ -319,18 +324,19 @@ Monte Carlo Localization, 10 extracts from \emph{random\_1} and \emph{random\_2}
 \includegraphics{mcl-small_runs_random_12-theta}
 
 \caption{
-The error in position and orientation between the estimation by the localization algorithm and the ground truth, using Markov and Monte Carlo localization, on 10 extracts from two runs.
-For Markov localization, the legend indicates the number of discretization steps for angles; for Monte Carlo localization, it indicates the number of particles.
+The error in position and orientation between the estimation by the localization algorithm and the ground truth, using Markov and Monte Carlo Localization, on 10 extracts from two runs.
+For Markov Localization, the legend indicates the number of discretization steps for angles; for Monte Carlo Localization, it indicates the number of particles.
 The solid lines show the median over 10 trials, while the light dots show the individual trials.
 The error is clamped at 50\,cm for position and 90° for orientation.}
 \label{fig:small-runs}
 \end{figure*}
 
 \Fig{small-runs} shows the error in position and orientation for 5 different locations in the two normal runs.
-We see that, with Markov localization, the correct pose is found after about 20\,cm.
+We see that, with Markov Localization approach, the correct pose is found after about 20\,cm.
+This corresponds well to the ideal theoretical distance of 18\,cm computed in \sect{theoreticalconv}.
 However, there are outliers.
 This happens when the robot is turning on spot, in that case, there are not enough information to localize the robot.
-The convergence is slower with Monte Carlo localization, excepted with 400k particles, in case it is roughly similar.
+The convergence is slower with Monte Carlo Localization approach, excepted with 400k particles, in case it is roughly similar.
 Decreasing the number of particles quickly increases the distance to converge, reaching 60\,cm for 100k particles.
 Using only 50k particles, some extract do not converge even after 80\,cm.
 
@@ -352,19 +358,19 @@ Monte Carlo Localization, run \emph{random\_long}
 \includegraphics{mcl-whole_random_long-xy}\hfill
 \includegraphics{mcl-whole_random_long-theta}
 
-\caption{The error in position and orientation between the estimation by the localization algorithm and the ground truth, using Markov and Monte Carlo localization, on the run with kidnapping.
-For Markov localization, the legend indicates the number of discretization steps for angles; for Monte Carlo localization, it indicates the number of particles.
-For Monte Carlo localization, the solid lines show the median over 10 trials, while the light dots show the individual trials.
+\caption{The error in position and orientation between the estimation by the localization algorithm and the ground truth, using Markov and Monte Carlo Localization, on the run with kidnapping.
+For Markov Localization, the legend indicates the number of discretization steps for angles; for Monte Carlo Localization, it indicates the number of particles.
+For Monte Carlo Localization, the solid lines show the median over 10 trials, while the light dots show the individual trials.
 The error is clamped at 50\,cm for position and 90° for orientation.}
 \label{fig:whole-runs-random-long}
 \end{figure*}
 
 \Fig{whole-runs-random-long} shows the error in position and orientation for the run with kidnapping.
 In this run, the robot is kidnapped twice, after having travelled 550\,cm and 1000\,cm.
-It takes the robot approximately 50\,cm to relocalize, and does so successfully with both Markov and Monte Carlo localization.
+It takes the robot approximately 50\,cm to relocalize, and does so successfully with both Markov and Monte Carlo Localization approaches.
 % FIXME: check on the video for numbers, edit plots
-With Markov Localization, discretization resolutions of 36, 54 and 72 are approximately equivalent in performance, while 18 performs clearly worst, but only for angular resolution.
-With Monte Carlo, the robot localizes most of the time with 100k particle or more, and always with 200k particles or more.
+With Markov Localization approach, discretization resolutions of 36, 54 and 72 are approximately equivalent in performance, while 18 performs clearly worst, but only for angular resolution.
+With Monte Carlo Localization approach, the robot localizes most of the time with 100k particle or more, and always with 200k particles or more.
 With 50k particles, the robot eventually localizes, but this might take more than 2 meters of travelled distance.
 %TODO: reanalyse MCL once we have 10 runs
 
