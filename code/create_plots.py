@@ -52,11 +52,12 @@ def draw_plot(algo, runs, params, show_dist_not_angle, name, path_length, **kwar
 	if show_dist_not_angle:
 		dataCol = 8
 		ylabel = 'position error [cm]'
-		ax.set_ylim(0, 50)
+		ylim = 50
 	else:
 		dataCol = 9
 		ylabel = 'angular error [degrees]'
-		ax.set_ylim(0, 90)
+		ylim = 90
+	ax.set_ylim(0, ylim)
 
 	# for every parameter
 	x_ticks = np.arange(0., path_length)
@@ -102,14 +103,14 @@ def draw_plot(algo, runs, params, show_dist_not_angle, name, path_length, **kwar
 					print 'WARNING: In', result_file, 'last path point', cum_dists[-1] * 100., 'is before requested distance travelled', path_length
 				x_values = np.insert(cum_dists, 0, [0.]) * 100.
 				# get the y values directly from data
-				y_values = np.abs(data[:,dataCol])
+				y_values = np.minimum(np.abs(data[:,dataCol]), ylim)
 				# interpolate to put them in relation with other runs
 				y_average_values += np.interp(x_ticks, x_values, y_values)
 				y_median_values.append(np.interp(x_ticks, x_values, y_values))
 				y_average_counter += 1
 
 				if len(results) > 1:
-					ppl.plot(ax, x_values, y_values, color=colors[i], alpha=0.3, marker=',', ls='')
+					ppl.plot(ax, x_values, y_values, color=colors[i], alpha=0.4, marker=',', ls='')
 
 				#print run, result, param, show_dist_not_angle
 				#print x_values, y_values, cum_dists[-1] * 100.
@@ -118,7 +119,7 @@ def draw_plot(algo, runs, params, show_dist_not_angle, name, path_length, **kwar
 
 		# plot
 		y_average_values /= y_average_counter
-		y_median_values = np.mean(y_median_values, axis=0)
+		y_median_values = np.median(y_median_values, axis=0)
 		ppl.plot(ax, x_ticks, y_median_values, label=str(param), color=colors[i])
 
 	# add label, legend and show plot
@@ -159,8 +160,9 @@ if __name__ == '__main__':
 		# random_long, ML and MCL whole range
 		draw_plot('ml', ['random_long'], [18, 36, 54, 72], True, 'ml-whole_random_long-xy.pdf', 1400.)
 		draw_plot('ml', ['random_long'], [18, 36, 54, 72], False, 'ml-whole_random_long-theta.pdf', 1400.)
-		draw_plot('mcl', ['random_long'], ['50k', '100k', '200k', '400k'], True, 'mcl-whole_random_long-xy.pdf', 1400.)
-		draw_plot('mcl', ['random_long'], ['50k', '100k', '200k', '400k'], False, 'mcl-whole_random_long-theta.pdf', 1400.)
+		mcl_results = {'random_long': ['multiple_mcl/random_long_0', 'multiple_mcl/random_long_1', 'multiple_mcl/random_long_2', 'multiple_mcl/random_long_3' ]}
+		draw_plot('mcl', ['random_long'], ['50k', '100k', '200k', '400k'], True, 'mcl-whole_random_long-xy.pdf', 1400., custom_results = mcl_results)
+		draw_plot('mcl', ['random_long'], ['50k', '100k', '200k', '400k'], False, 'mcl-whole_random_long-theta.pdf', 1400., custom_results = mcl_results)
 
 	elif args.small_runs:
 		# small runs

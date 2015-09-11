@@ -307,20 +307,20 @@ Increasing this number to 100k leads to a good localization, exception during di
 \begin{center}
 Markov Localization, run \emph{random\_long}
 \end{center}
-%\includegraphics{ml-whole_random_long-xy}\hfill
-%\includegraphics{ml-whole_random_long-theta}
+\includegraphics{ml-whole_random_long-xy}\hfill
+\includegraphics{ml-whole_random_long-theta}
 
 \vspace{.5em}
 
 \begin{center}
 Monte Carlo Localization, run \emph{random\_long}
 \end{center}
-%\includegraphics{mcl-whole_random_long-xy}\hfill
-%\includegraphics{mcl-whole_random_long-theta}
+\includegraphics{mcl-whole_random_long-xy}\hfill
+\includegraphics{mcl-whole_random_long-theta}
 
 \caption{The error in position and orientation between the estimation by the localization algorithm and the ground truth, using Markov and Monte Carlo localization, on the run with kidnapping.
 For Markov localization, the legend indicates the number of discretization steps for angles; for Monte Carlo localization, it indicates the number of particles.
-For Monte Carlo localization, the solid lines show the average over 10 trials, while the light dots show the individual trials.
+For Monte Carlo localization, the solid lines show the median over 10 trials, while the light dots show the individual trials.
 The error is clamped at 50\,cm for position and 90° for orientation.}
 \label{fig:whole-runs-random-long}
 \end{figure*}
@@ -335,7 +335,7 @@ With Monte Carlo, the robot localizes most of the time with 100k particle or mor
 \begin{figure*}
 
 \begin{center}
-Markov Localization, average of 10 extracts from \emph{random\_1} and \emph{random\_2}
+Markov Localization, 10 extracts from \emph{random\_1} and \emph{random\_2}
 \end{center}
 \includegraphics{ml-small_runs_random_12-xy}\hfill
 \includegraphics{ml-small_runs_random_12-theta}
@@ -343,7 +343,7 @@ Markov Localization, average of 10 extracts from \emph{random\_1} and \emph{rand
 \vspace{.5em}
 
 \begin{center}
-Monte Carlo Localization, average of 10 extracts from \emph{random\_1} and \emph{random\_2}
+Monte Carlo Localization, 10 extracts from \emph{random\_1} and \emph{random\_2}
 \end{center}
 \includegraphics{mcl-small_runs_random_12-xy}\hfill
 \includegraphics{mcl-small_runs_random_12-theta}
@@ -351,7 +351,7 @@ Monte Carlo Localization, average of 10 extracts from \emph{random\_1} and \emph
 \caption{
 The error in position and orientation between the estimation by the localization algorithm and the ground truth, using Markov and Monte Carlo localization, on 10 extracts from two runs.
 For Markov localization, the legend indicates the number of discretization steps for angles; for Monte Carlo localization, it indicates the number of particles.
-The solid lines show the average over 10 trials, while the light dots show the individual trials.
+The solid lines show the median over 10 trials, while the light dots show the individual trials.
 The error is clamped at 50\,cm for position and 90° for orientation.}
 \label{fig:small-runs}
 \end{figure*}
