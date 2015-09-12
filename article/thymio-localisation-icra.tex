@@ -119,7 +119,7 @@ To evaluation the performance of our localization algorithms, we record the grou
 %to provide the ground-truth robot pose, consisting of $x$, $y$ coordinates and the heading $\theta$.
 We use \textsc{ros} to synchronously record these along with sensor values and odometry information from Thymio.
 During the dataset gathering, the robot move on the map with a speed of 3--5\,cm/s.
-The data are gathered with an high enough frequency of 100\,Hz (ground-truth) and 10\,Hz (robot) for subsequent subsampling.
+The data are gathered with a high enough frequency of 100\,Hz (ground-truth) and 10\,Hz (robot) for subsequent subsampling.
 To fully explore the performance of the algorithm, we remote control the robot along several trajectories covering all possible motions.
 An example trajectory is shown in \fig{dataset}.
 
@@ -281,9 +281,9 @@ Our experiments are based on three main datasets:
 \item \texttt{normal~2}: The robot first goes forward, then turns on spot for a long duration, then goes forward and finally backward.
 \item \texttt{kidnapping}: The robot alternates phases of forward movement and turning on spot, with kidnapping happening every minute.
 \end{itemize}
+We use downsampled data at 300\,ms per time step.
 
 % TODO: add something about going straight
-% TODO: say something about 300ms
 
 \subsection{Parameter estimation}
 \label{sec:mle}
@@ -446,29 +446,22 @@ If the map would be smaller, for instance 50\,cm, the algorithm would be 9 times
 Therefore, at 150\,ms per step, it would be suitable for real-time operations.
 Moreover, the code could be further optimized by using multimedia instructions such as \textsc{sse}, implementing it in the \textsc{gpu}, or parallelizing it.
 Conditional probability tables are well suited for such optimisations.
+The Monte Carlo approach requires at least 100k particle for proper localization, at a computation duratoin of 2\,s per step.
+While similar optimization is possible, some parts are harder to optimize, in particular the resampling step and the \textsc{ransac} step.
 
 %\subsection{Real-time with Thymio}
 
-\section{Discussion}
-
-200k particles is too much
-
-GPU
-
-What works, what does not, why?
-
-Why sampling-based approach is not so easy, but propose how it could be done.
-
 \section{Conclusion}
 
-This paper provides several contributions to the state of the art of localization of robots with low-bandwidth sensors:
-\begin{itemize}
-\item an empirical evaluation of Markov- and Monte Carlo-based implementations;
-\item a method to estimate the localization performance in function of the sensors;
-\item a process to let end-users create and provide their own environments, such as drawings made by children.
-\end{itemize}
-Together, these allow absolute positioning of educational mobile robots in the 100 EUR price range.
-This opens many educational opportunities, such as the study of geometry, puzzles based on the physical space, and staging the creation of stories in the context of language education.
+In this paper, we have conducted an empirical evaluation of Markov- and Monte Carlo-based approaches for localizing a mobile robot with two inexpensive ground sensors on a known map.
+We have shown that both approaches work, and that their performances and computational requirements are of a similar order of magnitude.
+With current implementations, Markov localization with 36 discretization steps for angle is the most promising choice for deployment in educational activities.
+In addition, we have outlined a theoretical analysis method to estimate the localization performance in function of the sensors.
+This can be used to take decision for the placement of sensors in a future robot if localization is a design requirement.
+% a process to let end-users create and provide their own environments, such as drawings made by children.
+
+These contributions to the state of the art enable absolute positioning of inexpensive mobile robots in the 100\,\$ price range.
+In the context of educational robotics, this opens many opportunities, such as the study of geometry, puzzles based on the physical space, and staging the creation of stories in the context of language education.
 These new possibilities are key elements for robots to answer the need for embodied computational thinking education.
 
 \bibliographystyle{IEEEtran}
