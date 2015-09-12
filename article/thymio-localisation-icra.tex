@@ -275,15 +275,14 @@ Setting the sensors apart also reduces the redundancy between their information 
 
 \subsection{Dataset collection}
 
-Our experiments are based on three main datasets:
+Our experiments are based on these datasets:
 \begin{itemize}
 \item \texttt{normal~1}: The robot first goes forward, then backward, rotates on spot, and goes again forward and backward.
 \item \texttt{normal~2}: The robot first goes forward, then turns on spot for a long duration, then goes forward and finally backward.
 \item \texttt{kidnapping}: The robot alternates phases of forward movement and turning on spot, with kidnapping happening every minute.
+\item \texttt{linear}: The robt simple goes straight along the x-axis of the map.
 \end{itemize}
-We use downsampled data at 300\,ms per time step.
-
-% TODO: add something about going straight
+We use downsampled data to 300\,ms per time step.
 
 \subsection{Parameter estimation}
 \label{sec:mle}
@@ -326,15 +325,15 @@ Monte Carlo Localization, run \texttt{normal~2}
 \includegraphics{mcl-whole_random_2-xy}\hfill
 \includegraphics{mcl-whole_random_2-theta}
 
-\caption{The error in position and orientation between the estimation by the localization algorithm and the ground truth, using Markov and Monte Carlo Localization, on two runs.
+\caption{The error between the estimation by the localization algorithm and the ground truth, using Markov and Monte Carlo Localization, on two runs.
 For Markov Localization, the legend indicates the number of discretization steps for angles; for Monte Carlo Localization, it indicates the number of particles.
-For Monte Carlo Localization, the solid lines show the average over 10 trials, while the light dots show the individual trials.
-The error is clamped at 50\,cm for position and 90° for orientation.}
+For Monte Carlo Localization, the solid lines show the average over 10 trials, while the light dots show the individual trials.}
 \label{fig:whole-runs-random12}
 \end{figure*}
 
 \Fig{whole-runs-random12} shows the error in position and orientation for runs \texttt{normal~1} and \texttt{normal~2}.
 In these plots, \emph{distance travelled} represents the cumulative distance travelled by the center point between the two ground sensors of the robot.
+The error is clamped at 50\,cm for position and 90° for orientation.
 
 For Markov Localization approach, all discretization resolutions allow the robot to localize with a precision of 3\,cm and 5°.
 In run \texttt{normal~1}, the resolution of 18 is not enough to keep tracking the orientation at distance travelleds 50\,cm and 80\,cm.
@@ -373,10 +372,9 @@ Monte Carlo Localization, 10 extracts from \texttt{normal~1} and \texttt{normal~
 \includegraphics{mcl-small_runs_random_12-theta}
 
 \caption{
-The error in position and orientation between the estimation by the localization algorithm and the ground truth, using Markov and Monte Carlo Localization, on 10 extracts from two runs.
+The error between the estimation by the localization algorithm and the ground truth, using Markov and Monte Carlo Localization, on 10 extracts from two normal runs.
 For Markov Localization, the legend indicates the number of discretization steps for angles; for Monte Carlo Localization, it indicates the number of particles.
-The solid lines show the median over 10 trials, while the light dots show the individual trials.
-The error is clamped at 50\,cm for position and 90° for orientation.}
+The solid lines show the median over 10 trials, while the light dots show the individual trials.}
 \label{fig:small-runs}
 \end{figure*}
 
@@ -388,6 +386,19 @@ This happens when the robot is turning on spot, in that case, there are not enou
 The convergence is slower with Monte Carlo Localization approach, excepted with 400k particles, in case it is roughly similar.
 Decreasing the number of particles quickly increases the distance to converge, reaching 60\,cm for 100k particles.
 Using only 50k particles, some extract do not converge even after 80\,cm.
+
+\Fig{small-maps} shows the effect on convergence distance when the map size is reduced.
+The robot runs linearly on one quarter of the map, while the Markov Localization is run with the whole map, half of it, and a quarter of it.
+We see that reducing the map size does reduces the distance travelled necessary to converge, in accordance to the theory.
+
+\begin{figure}
+\includegraphics{ml-small_maps-xy}
+\vspace{.5em}
+\includegraphics{ml-small_maps-theta}
+\caption{The error between the estimation by the localization algorithm and the ground truth, using Markov Localization, for different map sizes on the linear run.
+The solid lines show the median over 3 different positions, while the light dots show the individual positions.}
+\label{fig:small-maps}
+\end{figure}
 
 \subsection{Robot kidnapping}
 
@@ -407,10 +418,9 @@ Monte Carlo Localization, run \texttt{kidnapping}
 \includegraphics{mcl-whole_random_long-xy}\hfill
 \includegraphics{mcl-whole_random_long-theta}
 
-\caption{The error in position and orientation between the estimation by the localization algorithm and the ground truth, using Markov and Monte Carlo Localization, on the run with kidnapping.
+\caption{The error between the estimation by the localization algorithm and the ground truth, using Markov and Monte Carlo Localization, on the run with kidnapping.
 For Markov Localization, the legend indicates the number of discretization steps for angles; for Monte Carlo Localization, it indicates the number of particles.
-For Monte Carlo Localization, the solid lines show the median over 10 trials, while the light dots show the individual trials.
-The error is clamped at 50\,cm for position and 90° for orientation.}
+For Monte Carlo Localization, the solid lines show the median over 10 trials, while the light dots show the individual trials.}
 \label{fig:whole-runs-random-long}
 \end{figure*}
 

@@ -73,6 +73,84 @@ def plot_cpu_load(name):
 	fig.tight_layout(pad=0.02, rect=(0,0.08,1,1))
 	fig.savefig(os.path.join(dest_base_dir, name), pad_inches=0.02)
 
+
+def plot_small_maps(show_dist_not_angle, name):
+
+	# setup parameters
+	plt.rcParams.update(plot_params)
+
+	# create figure
+	path_length = 35
+	fig, ax = plt.subplots(figsize=(3.6, 1.5))
+	ax.set_xlim(0, path_length)
+
+	# show dist or angle diff?
+	if show_dist_not_angle:
+		dataCol = 8
+		ylabel = 'position error [cm]'
+		ylim = 50
+	else:
+		dataCol = 9
+		ylabel = 'angular error [degrees]'
+		ylim = 90
+	ax.set_ylim(0, ylim)
+
+	# for different map
+	algo = 'ml'
+	param = 36
+	run = 'forward_x_minus_slow_1'
+	map_names =  ['map', 'map-xhalf', 'map-xhalf-yhalf']
+	map_labels = ['full map', '1/2 map', '1/4 map']
+	x_ticks = np.arange(0., path_length)
+	for i, map_name in enumerate(map_names):
+		start_positions = [80, 85, 90]
+		y_median_values = []
+		for start_pos in start_positions:
+
+			result_file = 'small_maps/{}_{}_{}_{}_{}'.format(run, map_name, start_pos, algo, param)
+			data = np.loadtxt(os.path.join(result_base_dir, result_file))
+			gt = np.loadtxt(os.path.join(data_base_dir, run, 'gt.txt'))
+
+			# get the indices in gt for every line in data
+			indices = data[:,0].astype(int)
+
+			# compute the local change of the sensors position between every line in data
+			# we consider the center between the two centers, which is in (12,0) cm local frame
+			thetas = gt[indices,2]
+			sensor_local_poses = np.vstack((np.cos(thetas) * .12, np.sin(thetas) * .12))
+			deltas_sensor_poses = np.diff(sensor_local_poses, axis=1).transpose()
+
+			# compute the change of the position of the robot's center between every line in data
+			xys = gt[indices,0:2]
+			deltas_xy = np.diff(xys, axis=0)
+
+			# compute the global distances traveled by the sensors between every line in data
+			deltas_dists = np.linalg.norm(deltas_xy + deltas_sensor_poses, axis=1)
+
+			# sum these distances to get the x axis
+			cum_dists = np.cumsum(deltas_dists)
+			if cum_dists[-1] * 100. < path_length:
+				print 'WARNING: In', result_file, 'last path point', cum_dists[-1] * 100., 'is before requested distance travelled', path_length
+			x_values = np.insert(cum_dists, 0, [0.]) * 100.
+			# get the y values directly from data
+			y_values = np.minimum(np.abs(data[:,dataCol]), ylim)
+			y_median_values.append(np.interp(x_ticks, x_values, y_values))
+
+			# plot dots
+			ppl.plot(ax, x_values, y_values, color=colors[i], alpha=0.4, marker=',', ls='')
+
+		# plot
+		y_median_values = np.median(y_median_values, axis=0)
+		ppl.plot(ax, x_ticks, y_median_values, label=map_labels[i], color=colors[i])
+
+	# add label, legend and show plot
+	plt.xlabel('distance travelled [cm]')
+	plt.ylabel(ylabel)
+	ppl.legend(ax, loc=3)
+	fig.savefig(os.path.join(dest_base_dir, name), bbox_inches='tight', pad_inches=0.02)
+
+
+
 def draw_plot(algo, runs, params, show_dist_not_angle, name, path_length, **kwargs):
 
 	# setup parameters
@@ -178,6 +256,7 @@ if __name__ == '__main__':
 	parser.add_argument('--whole_range_random12', help='whole range on random_1 and random_2 for ML and MCL', action='store_true')
 	parser.add_argument('--whole_range_random_long', help='whole range on random_long for ML and MCL', action='store_true')
 	parser.add_argument('--small_runs', help='small runs on random_1 and random_2 for ML and MCL', action='store_true')
+	parser.add_argument('--small_maps', help='multiple map sizes using forward_x_minus_slow_1, ML and 36 angle steps', action='store_true')
 	parser.add_argument('--cpu_load', help='plot CPU load for different methods and paramters on random_1 and random_2', action='store_true')
 
 	args = parser.parse_args()
@@ -214,6 +293,11 @@ if __name__ == '__main__':
 		draw_plot('ml', ['random_1', 'random_2'], [18, 36, 54, 72], False, 'ml-small_runs_random_12-theta.pdf', 77, custom_results = small_runs_results)
 		draw_plot('mcl', ['random_1', 'random_2'], ['50k', '100k', '200k', '400k'], True, 'mcl-small_runs_random_12-xy.pdf', 77, custom_results = small_runs_results)
 		draw_plot('mcl', ['random_1', 'random_2'], ['50k', '100k', '200k', '400k'], False, 'mcl-small_runs_random_12-theta.pdf', 77, custom_results = small_runs_results)
+
+	elif args.small_maps:
+		# small maps, same run
+		plot_small_maps(True, 'ml-small_maps-xy.pdf')
+		plot_small_maps(False, 'ml-small_maps-theta.pdf')
 
 	elif args.cpu_load:
 		plot_cpu_load('cpu_load.pdf')
