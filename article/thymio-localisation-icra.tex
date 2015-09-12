@@ -277,8 +277,8 @@ Setting the sensors apart also reduces the redundancy between their information 
 
 Our experiments are based on three main datasets:
 \begin{itemize}
-\item \texttt{normal 1}: The robot first goes forward, then backward, rotates on spot, and goes again forward and backward.
-\item \texttt{normal 2}: The robot first goes forward, then turns on spot for a long duration, then goes forward and finally backward.
+\item \texttt{normal~1}: The robot first goes forward, then backward, rotates on spot, and goes again forward and backward.
+\item \texttt{normal~2}: The robot first goes forward, then turns on spot for a long duration, then goes forward and finally backward.
 \item \texttt{kidnapping}: The robot alternates phases of forward movement and turning on spot, with kidnapping happening every minute.
 \end{itemize}
 
@@ -289,7 +289,7 @@ Our experiments are based on three main datasets:
 \label{sec:mle}
 
 The noise parameters of the motion model were estimated using maximum likelihood, considering the error between the ground truth and the odometry data in the local frame between two time steps.
-Using runs \texttt{normal 1} and \texttt{normal 2}, the values for  $\alpha_\mathrm{xy}$ and $\alpha_\theta$ were found be in the order of 0.1.
+Using runs \texttt{normal~1} and \texttt{normal~2}, the values for  $\alpha_\mathrm{xy}$ and $\alpha_\theta$ were found be in the order of 0.1.
 Similarly, using run \texttt{kidnapping}, the value for $p_\mathrm{uniform}$ was also found to be in the order of 0.1.
 
 \subsection{Basic localization}
@@ -297,7 +297,7 @@ Similarly, using run \texttt{kidnapping}, the value for $p_\mathrm{uniform}$ was
 \begin{figure*}
 
 \begin{center}
-Markov Localization, run \texttt{normal 1}
+Markov Localization, run \texttt{normal~1}
 \end{center}
 \includegraphics{ml-whole_random_1-xy}\hfill
 \includegraphics{ml-whole_random_1-theta}
@@ -305,7 +305,7 @@ Markov Localization, run \texttt{normal 1}
 \vspace{.5em}
 
 \begin{center}
-Markov Localization, run \texttt{normal 2}
+Markov Localization, run \texttt{normal~2}
 \end{center}
 \includegraphics{ml-whole_random_2-xy}\hfill
 \includegraphics{ml-whole_random_2-theta}
@@ -313,7 +313,7 @@ Markov Localization, run \texttt{normal 2}
 \vspace{.5em}
 
 \begin{center}
-Monte Carlo Localization, run \texttt{normal 1}
+Monte Carlo Localization, run \texttt{normal~1}
 \end{center}
 \includegraphics{mcl-whole_random_1-xy}\hfill
 \includegraphics{mcl-whole_random_1-theta}
@@ -321,7 +321,7 @@ Monte Carlo Localization, run \texttt{normal 1}
 \vspace{.5em}
 
 \begin{center}
-Monte Carlo Localization, run \texttt{normal 2}
+Monte Carlo Localization, run \texttt{normal~2}
 \end{center}
 \includegraphics{mcl-whole_random_2-xy}\hfill
 \includegraphics{mcl-whole_random_2-theta}
@@ -333,20 +333,20 @@ The error is clamped at 50\,cm for position and 90° for orientation.}
 \label{fig:whole-runs-random12}
 \end{figure*}
 
-\Fig{whole-runs-random12} shows the error in position and orientation for runs \texttt{normal 1} and \texttt{normal 2}.
+\Fig{whole-runs-random12} shows the error in position and orientation for runs \texttt{normal~1} and \texttt{normal~2}.
 In these plots, \emph{distance travelled} represents the cumulative distance travelled by the center point between the two ground sensors of the robot.
 
 For Markov Localization approach, all discretization resolutions allow the robot to localize with a precision of 3\,cm and 5°.
-In run \texttt{normal 1}, the resolution of 18 is not enough to keep tracking the orientation at distance travelleds 50\,cm and 80\,cm.
+In run \texttt{normal~1}, the resolution of 18 is not enough to keep tracking the orientation at distance travelleds 50\,cm and 80\,cm.
 These both correspond to the robot rotating on spot.
 We see that a discretization of 36 (10° resolution) is sufficient to provide accurate tracking, and that a finer resolution only provides minor improvements in angular precision, and no improvement in position precision.
 In run \emph{random\_3}, we see that a resolution of 54 is allows for a better angular precision than 36, but 72 does not improves over 54.
 All resolutions provide equal position precision.
 
-For Monte Carlo Localization approach, we see that on run \texttt{normal 1}, the robot localizes already with 50k particles, but twice later than with 100k particles.
+For Monte Carlo Localization approach, we see that on run \texttt{normal~1}, the robot localizes already with 50k particles, but twice later than with 100k particles.
 Increasing the number of particles over this value only provides minor decrease in localization time and precision.
 While 50k particles allow to localize on this run in average, there are some trials (restart of the run) in which the robot looses orientation, when it turns on spot.
-On run \texttt{normal 2}, 50k particles is not enough for localizing the robot.
+On run \texttt{normal~2}, 50k particles is not enough for localizing the robot.
 Increasing this number to 100k leads to a good localization, exception during distance travelleds 80--100; indeed this corresponds to a long moment during which the robot rotates on spot, leading to less information acquisition, and therefore degradated precision.
 
 In overall, both approaches have similar localization accuracy.
@@ -359,7 +359,7 @@ When angular precision is critical, the Monte Carlo approach might achieve bette
 \begin{figure*}
 
 \begin{center}
-Markov Localization, 10 extracts from \texttt{normal 1} and \texttt{normal 2}
+Markov Localization, 10 extracts from \texttt{normal~1} and \texttt{normal~2}
 \end{center}
 \includegraphics{ml-small_runs_random_12-xy}\hfill
 \includegraphics{ml-small_runs_random_12-theta}
@@ -367,7 +367,7 @@ Markov Localization, 10 extracts from \texttt{normal 1} and \texttt{normal 2}
 \vspace{.5em}
 
 \begin{center}
-Monte Carlo Localization, 10 extracts from \texttt{normal 1} and \texttt{normal 2}
+Monte Carlo Localization, 10 extracts from \texttt{normal~1} and \texttt{normal~2}
 \end{center}
 \includegraphics{mcl-small_runs_random_12-xy}\hfill
 \includegraphics{mcl-small_runs_random_12-theta}
