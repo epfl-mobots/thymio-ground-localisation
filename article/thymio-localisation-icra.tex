@@ -102,31 +102,38 @@ The localization environment is with several white walls and EKF uses informatio
 
 \section{Material}
 % Merge all three parts together. Datasets gather from two sources: gt and thymio. mention a bit of the frequency and speed. Trajectories detail: what kind of motion, also kidnapping. Total length should not over one column plus the figure. Figure need some explanation.
-To realize localization with cheap mobile robot, we conduct experiments with Thymio robot localizing on a printed map.
 
-Thymio and Aseba~\cite{magnenat2012arso, aseba2011tmech, riedo2013arso}.
+We run empirical experiments with the Thymio~II mobile robot localizing on a printed map.
 
+Thymio~II is an open-source differential-wheeled mobile robot.
+Its footprint is approximately $10 \times 10$ cm and it costs about 120\,\$.
+About 10k units have been sold to date and are used in the context of computational thinking and engineering education~\cite{magnenat2012arso}.
+It features many sensors; in the context of this project, only two ground infrared sensors are used. % TODO: ref figure
+Thymio~II is programmed through the Aseba framework~\cite{aseba2011tmech}.
+For this work, Aseba is connected to the \textsc{ros} framework\footnote{ROS (Robot Operating System): \url{http://www.ros.org/}}.
 
-The map which is used for Thymio to localize against is a 150\,cm$\times$150\,cm pattern which contains 50\,$\times$\,50 black and white random cells of 3\,cm$\times$3\,cm. 
-The pattern is generated randomly without regularization.
+The map consists of a 150$\times$150\,cm pattern containing 50\,$\times$\,50 black and white random cells of 3$\times$3\,cm.
+The pattern is generated randomly with an equal probability of black and white cells and without regularization.
 
-In order to precisely measure the robot poses, a Vicon\footnote{http://www.vicon.com/} tracking system is used to provide this ground truth, with robot 2-D pose $x$, $y$ as well as the heading of the robot $\theta$.
-Sensor values and odometry information from Thymio are synchronously recorded by connecting to ROS (Robot Operating System)\footnote{http://www.ros.org/} through Aseba.
-During the dataset gathering, the robot move on the map with the speed of 4\,cm/sec. 
-The data is gathered with an enough high frequency, which allows better data synchronization and exploration.
-To fully explore the algorithm performance, the robot conducts several trajectories with all possible motions and the trajectories cover most parts of the map. 
+To evaluation the performance of our localization algorithms, we record the ground-truth pose of the robot using a Vicon\footnote{\url{http://www.vicon.com/}} tracking system.
+%to provide the ground-truth robot pose, consisting of $x$, $y$ coordinates and the heading $\theta$.
+We use \textsc{ros} to synchronously record these along with sensor values and odometry information from Thymio.
+During the dataset gathering, the robot move on the map with a speed of 3--5\,cm/s.
+The data are gathered with an high enough frequency of 100\,Hz (ground-truth) and 10\,Hz (robot) for subsequent subsampling.
+To fully explore the performance of the algorithm, we remote control the robot along several trajectories covering all possible motions.
 An example trajectory is shown in \fig{dataset}.
 
 \begin{figure}
 \begin{center}
 \includegraphics[width=0.4\textwidth]{dataset}
-\caption{An example trajectory of the robot. The robot moves on the map with random black and white pattern with three different motions: going forward, going backward and rotating on the same point.}
+\caption{An example trajectory of the robot. The robot moves on the map with random black and white pattern with three different motions: going forward, going backward and rotating on spot.}
 \label{fig:dataset}
 \end{center}
 \end{figure}
 
-The motions of the robot can be classified into three different motions, namely moving forward, moving backward and rotating on the same point. 
-To test the algorithm's ability of recovering from catastrophic localization failures, we also conduct experiments with robot kidnapping by moving the robot to another part of the map during one trajectory.  
+The motions of the robot can be classified into two different types, namely moving forward or backward (possible in arcs) and rotating on spot.
+To test the algorithm's ability of recovering from catastrophic localization failures, we also conduct experiments with robot kidnapping by lifting the robot and moving it to another part of the map.
+
 \section{Model}
 
 \subsection{Variables}
@@ -209,9 +216,13 @@ The parameters $\alpha_\mathrm{xy}$, $\alpha_\theta$ and $p_\mathrm{uniform}$ ar
 
 \subsection{Implementations}
 
-We provide two implementations of the model.
-The first one does Markov Localization by implementing distributions using conditional probability tables~\cite{fox1999markov}.
-The second one does Monte Carlo Localization using a particle filter~\cite{dellaert1999monte}.
+We provide two implementations of the model, both programmed in Python, with Cython\footnote{\url{http://www.cython.org}} used for time-critical inner loops, leading to similar overall performance as C code.
+The first implementation does Markov Localization using conditional probability tables to represent distributions~\cite{fox1999markov}.
+The $x,y$ cell resolution is 1\,cm, while the angular resolution varies from 20° (18 discretization steps) to 5° (72 discretization steps).
+The second implementation does Monte Carlo Localization using a particle filter~\cite{dellaert1999monte}.
+The pose is estimated by averaging around a particle that has many neighbours, using \textsc{ransac}~\cite{Fischler1981ransac}.
+Both the search for the particle with most neighbours and the search for neighbours are done with 500 trials.
+The thresholds for a particule to be a neighbour are a distance of 1.5\,cm and an angular difference of 5°.
 
 \subsection{Theoretical analysis of convergence}
 \label{sec:theoreticalconv}
@@ -264,19 +275,29 @@ Setting the sensors apart also reduces the redundancy between their information 
 
 \subsection{Dataset collection}
 
-% TODO
+Our experiments are based on three main datasets:
+\begin{itemize}
+\item \texttt{normal~1}: The robot first goes forward, then backward, rotates on spot, and goes again forward and backward.
+\item \texttt{normal~2}: The robot first goes forward, then turns on spot for a long duration, then goes forward and finally backward.
+\item \texttt{kidnapping}: The robot alternates phases of forward movement and turning on spot, with kidnapping happening every minute.
+\end{itemize}
+
+% TODO: add something about going straight
+% TODO: say something about 300ms
 
 \subsection{Parameter estimation}
 \label{sec:mle}
 
-% TODO
+The noise parameters of the motion model were estimated using maximum likelihood, considering the error between the ground truth and the odometry data in the local frame between two time steps.
+Using runs \texttt{normal~1} and \texttt{normal~2}, the values for  $\alpha_\mathrm{xy}$ and $\alpha_\theta$ were found be in the order of 0.1.
+Similarly, using run \texttt{kidnapping}, the value for $p_\mathrm{uniform}$ was also found to be in the order of 0.1.
 
 \subsection{Basic localization}
 
 \begin{figure*}
 
 \begin{center}
-Markov Localization, run \emph{random\_1}
+Markov Localization, run \texttt{normal~1}
 \end{center}
 \includegraphics{ml-whole_random_1-xy}\hfill
 \includegraphics{ml-whole_random_1-theta}
@@ -284,7 +305,7 @@ Markov Localization, run \emph{random\_1}
 \vspace{.5em}
 
 \begin{center}
-Markov Localization, run \emph{random\_2}
+Markov Localization, run \texttt{normal~2}
 \end{center}
 \includegraphics{ml-whole_random_2-xy}\hfill
 \includegraphics{ml-whole_random_2-theta}
@@ -292,7 +313,7 @@ Markov Localization, run \emph{random\_2}
 \vspace{.5em}
 
 \begin{center}
-Monte Carlo Localization, run \emph{random\_1}
+Monte Carlo Localization, run \texttt{normal~1}
 \end{center}
 \includegraphics{mcl-whole_random_1-xy}\hfill
 \includegraphics{mcl-whole_random_1-theta}
@@ -300,7 +321,7 @@ Monte Carlo Localization, run \emph{random\_1}
 \vspace{.5em}
 
 \begin{center}
-Monte Carlo Localization, run \emph{random\_2}
+Monte Carlo Localization, run \texttt{normal~2}
 \end{center}
 \includegraphics{mcl-whole_random_2-xy}\hfill
 \includegraphics{mcl-whole_random_2-theta}
@@ -312,21 +333,25 @@ The error is clamped at 50\,cm for position and 90° for orientation.}
 \label{fig:whole-runs-random12}
 \end{figure*}
 
-\Fig{whole-runs-random12} shows the error in position and orientation for runs \emph{random\_1} and \emph{random\_2}.
+\Fig{whole-runs-random12} shows the error in position and orientation for runs \texttt{normal~1} and \texttt{normal~2}.
 In these plots, \emph{distance travelled} represents the cumulative distance travelled by the center point between the two ground sensors of the robot.
 
 For Markov Localization approach, all discretization resolutions allow the robot to localize with a precision of 3\,cm and 5°.
-In run \emph{random\_1}, the resolution of 18 is not enough to keep tracking the orientation at distance travelleds 50\,cm and 80\,cm.
+In run \texttt{normal~1}, the resolution of 18 is not enough to keep tracking the orientation at distance travelleds 50\,cm and 80\,cm.
 These both correspond to the robot rotating on spot.
 We see that a discretization of 36 (10° resolution) is sufficient to provide accurate tracking, and that a finer resolution only provides minor improvements in angular precision, and no improvement in position precision.
 In run \emph{random\_3}, we see that a resolution of 54 is allows for a better angular precision than 36, but 72 does not improves over 54.
 All resolutions provide equal position precision.
 
-For Monte Carlo Localization approach, we see that on run \emph{random\_1}, the robot localizes already with 50k particles, but twice later than with 100k particles.
+For Monte Carlo Localization approach, we see that on run \texttt{normal~1}, the robot localizes already with 50k particles, but twice later than with 100k particles.
 Increasing the number of particles over this value only provides minor decrease in localization time and precision.
 While 50k particles allow to localize on this run in average, there are some trials (restart of the run) in which the robot looses orientation, when it turns on spot.
-On run \emph{random\_2}, 50k particles is not enough for localizing the robot.
+On run \texttt{normal~2}, 50k particles is not enough for localizing the robot.
 Increasing this number to 100k leads to a good localization, exception during distance travelleds 80--100; indeed this corresponds to a long moment during which the robot rotates on spot, leading to less information acquisition, and therefore degradated precision.
+
+In overall, both approaches have similar localization accuracy.
+When angular precision is critical, the Monte Carlo approach might achieve better performance as the Markov approach is limited in precision by its discretization.
+
 %TODO: explain why this does not appear in ML
 
 \subsection{Distance to converge}
@@ -334,7 +359,7 @@ Increasing this number to 100k leads to a good localization, exception during di
 \begin{figure*}
 
 \begin{center}
-Markov Localization, 10 extracts from \emph{random\_1} and \emph{random\_2}
+Markov Localization, 10 extracts from \texttt{normal~1} and \texttt{normal~2}
 \end{center}
 \includegraphics{ml-small_runs_random_12-xy}\hfill
 \includegraphics{ml-small_runs_random_12-theta}
@@ -342,7 +367,7 @@ Markov Localization, 10 extracts from \emph{random\_1} and \emph{random\_2}
 \vspace{.5em}
 
 \begin{center}
-Monte Carlo Localization, 10 extracts from \emph{random\_1} and \emph{random\_2}
+Monte Carlo Localization, 10 extracts from \texttt{normal~1} and \texttt{normal~2}
 \end{center}
 \includegraphics{mcl-small_runs_random_12-xy}\hfill
 \includegraphics{mcl-small_runs_random_12-theta}
@@ -369,7 +394,7 @@ Using only 50k particles, some extract do not converge even after 80\,cm.
 \begin{figure*}
 
 \begin{center}
-Markov Localization, run \emph{random\_long}
+Markov Localization, run \texttt{kidnapping}
 \end{center}
 \includegraphics{ml-whole_random_long-xy}\hfill
 \includegraphics{ml-whole_random_long-theta}
@@ -377,7 +402,7 @@ Markov Localization, run \emph{random\_long}
 \vspace{.5em}
 
 \begin{center}
-Monte Carlo Localization, run \emph{random\_long}
+Monte Carlo Localization, run \texttt{kidnapping}
 \end{center}
 \includegraphics{mcl-whole_random_long-xy}\hfill
 \includegraphics{mcl-whole_random_long-theta}
@@ -398,9 +423,31 @@ With Monte Carlo Localization approach, the robot localizes most of the time wit
 With 50k particles, the robot eventually localizes, but this might take more than 2 meters of travelled distance.
 %TODO: reanalyse MCL once we have 10 runs
 
-\subsection{Computational load}
+\subsection{Computational cost}
 
-\subsection{Real-time with Thymio}
+\begin{figure}
+\includegraphics{cpu_load}
+\caption{The computational cost for one step for the different implementations.
+For Markov Localization, the legend indicates the number of discretization steps for angles; for Monte Carlo Localization, the number of particles.}
+\label{fig:cpuload}
+\end{figure}
+
+\Fig{cpuload} shows the duration of one step for the different algorithms and parameters, averaged over the two normal runs.
+These data were measured on a Lenovo laptop with an Intel XXX processor running at YYY GHz.
+We see that with the Markov approach, the duration scales linearly with the number of discretization angles.
+With the Monte Carlo approach, the scaling is linear but amortized (50k particles is not twice faster as 100k).
+This is due to the selection of pose estimate, which uses a \textsc{ransac} approach and is therefore independant of the number of particles.
+For similar localization accuracy, the Monte Carlo approach is slower than the Markov approach, and therefore we suggest to use the former with a discretization angle of 36 in practical applications.
+However, the Monte Carlo approach might be prefered if a high angular precision is required.
+
+At a computation duration of 1.5\,s per step, the Monte Carlo Localization approach with a discretization angle of 36 is far from real time.
+However, this duration corresponding to a map size of 150\,cm.
+If the map would be smaller, for instance 50\,cm, the algorithm would be 9 times faster.
+Therefore, at 150\,ms per step, it would be suitable for real-time operations.
+Moreover, the code could be further optimized by using multimedia instructions such as \textsc{sse}, implementing it in the \textsc{gpu}, or parallelizing it.
+Conditional probability tables are well suited for such optimisations.
+
+%\subsection{Real-time with Thymio}
 
 \section{Discussion}
 
