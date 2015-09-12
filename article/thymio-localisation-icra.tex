@@ -216,13 +216,13 @@ The parameters $\alpha_\mathrm{xy}$, $\alpha_\theta$ and $p_\mathrm{uniform}$ ar
 
 \subsection{Implementations}
 
-We provide two implementations of the model.
-The first one does Markov Localization by implementing distributions using conditional probability tables~\cite{fox1999markov}.
+We provide two implementations of the model, both programmed in Python, with Cython~\footnote{\url{http://www.cython.org}} used for time-critical inner loops, leading to similar overall performance as C code.
+The first implementation does Markov Localization using conditional probability tables to represent distributions~\cite{fox1999markov}.
 The $x,y$ cell resolution is 1\,cm, while the angular resolution varies from 20° (18 discretization steps) to 5° (72 discretization steps).
-The second one does Monte Carlo Localization using a particle filter~\cite{dellaert1999monte}.
-
-% TODO: talk about Cython
-% TODO: talk about RANSAC
+The second implementation does Monte Carlo Localization using a particle filter~\cite{dellaert1999monte}.
+The pose is estimated by averaging around a particle that has many neighbours, using \textsc{ransac}~\cite{Fischler1981ransac}.
+Both the search for the particle with most neighbours and the search for neighbours are done with 500 trials.
+The thresholds for a particule to be a neighbour are a distance of 1.5\,cm and an angular difference of 5°.
 
 \subsection{Theoretical analysis of convergence}
 \label{sec:theoreticalconv}
@@ -422,7 +422,7 @@ For Markov Localization, the legend indicates the number of discretization steps
 \label{fig:cpuload}
 \end{figure}
 
-\Fig{cpuload} shows the duration of one step for the different algorithms and parameters.
+\Fig{cpuload} shows the duration of one step for the different algorithms and parameters, averaged over the two normal runs.
 These data were measured on a Lenovo laptop with an Intel XXX processor running at YYY GHz.
 We see that with the Markov approach, the duration scales linearly with the number of discretization angles.
 With the Monte Carlo approach, the scaling is linear but amortized (50k particles is not twice faster as 100k).
