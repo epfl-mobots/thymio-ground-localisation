@@ -2,3 +2,8 @@
 .*.sw?
 .directory
 .DS_Store
+article/generated-figures
+article/build
+article/*.aux
+article/*.log
+article/synctex.gz
