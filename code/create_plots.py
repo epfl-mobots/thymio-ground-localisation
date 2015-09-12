@@ -30,6 +30,48 @@ default_width_in = 3.6
 aspect_ratio = 4./2.
 default_height_in = default_width_in / aspect_ratio
 
+def plot_cpu_load(name):
+
+	# setup parameters
+	plt.rcParams.update(plot_params)
+
+	# data to use
+	runs = ['random_1', 'random_2']
+	algos = ['ml', 'mcl']
+	algo_params = { 'ml': [18, 36, 54, 72], 'mcl': ['50k', '100k', '200k', '400k'] }
+
+	# create plot
+	fig, ax = plt.subplots(figsize=(3.6, 1.8))
+	ax.set_ylim(0,12)
+
+	# one bar for each algo,param couple
+	all_durations = []
+	all_labels = []
+	all_colors = []
+	for algo in algos:
+		params = algo_params[algo]
+		for i, param in enumerate(params):
+			# average on runs
+			durations = np.array([])
+			for run in runs:
+				result_file = '{}_{}_{}'.format(run, algo, param)
+				data = np.loadtxt(os.path.join(result_base_dir, result_file))
+				durations = np.append(durations, np.average(data[:,1]))
+			average_durations = np.average(durations)
+			all_durations.append(average_durations)
+			all_labels.append(str(param))
+			all_colors.append(colors[i])
+			print algo, param, average_durations
+	ppl.bar(ax, np.arange(len(all_durations)), all_durations, color=all_colors)
+	plt.ylabel('step duration [s]')
+	ax.set_xticks(np.arange(len(all_durations))+0.4)
+	ax.set_xticklabels(all_labels)
+	ax.text(2-0.1, -2.3, 'Markov Localization', horizontalalignment='center')
+	ax.text(6-0.1, -2.3, 'Monte Carlo Localization', horizontalalignment='center')
+
+	# save figure
+	fig.tight_layout(pad=0.02, rect=(0,0.08,1,1))
+	fig.savefig(os.path.join(dest_base_dir, name), pad_inches=0.02)
 
 def draw_plot(algo, runs, params, show_dist_not_angle, name, path_length, **kwargs):
 
@@ -136,6 +178,7 @@ if __name__ == '__main__':
 	parser.add_argument('--whole_range_random12', help='whole range on random_1 and random_2 for ML and MCL', action='store_true')
 	parser.add_argument('--whole_range_random_long', help='whole range on random_long for ML and MCL', action='store_true')
 	parser.add_argument('--small_runs', help='small runs on random_1 and random_2 for ML and MCL', action='store_true')
+	parser.add_argument('--cpu_load', help='plot CPU load for different methods and paramters on random_1 and random_2', action='store_true')
 
 	args = parser.parse_args()
 
@@ -171,6 +214,9 @@ if __name__ == '__main__':
 		draw_plot('ml', ['random_1', 'random_2'], [18, 36, 54, 72], False, 'ml-small_runs_random_12-theta.pdf', 77, custom_results = small_runs_results)
 		draw_plot('mcl', ['random_1', 'random_2'], ['50k', '100k', '200k', '400k'], True, 'mcl-small_runs_random_12-xy.pdf', 77, custom_results = small_runs_results)
 		draw_plot('mcl', ['random_1', 'random_2'], ['50k', '100k', '200k', '400k'], False, 'mcl-small_runs_random_12-theta.pdf', 77, custom_results = small_runs_results)
+
+	elif args.cpu_load:
+		plot_cpu_load('cpu_load.pdf')
 
 	else:
 		parser.print_help()
