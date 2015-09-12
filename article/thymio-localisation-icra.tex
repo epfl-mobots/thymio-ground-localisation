@@ -118,7 +118,7 @@ The pattern is generated randomly with an equal probability of black and white c
 To evaluation the performance of our localization algorithms, we record the ground-truth pose of the robot using a Vicon\footnote{\url{http://www.vicon.com/}} tracking system.
 %to provide the ground-truth robot pose, consisting of $x$, $y$ coordinates and the heading $\theta$.
 We use \textsc{ros} to synchronously record these along with sensor values and odometry information from Thymio.
-During the dataset gathering, the robot move on the map with a speed of 3--4\,cm/s.
+During the dataset gathering, the robot move on the map with a speed of 3--5\,cm/s.
 The data are gathered with an high enough frequency of 100\,Hz (ground-truth) and 10\,Hz (robot) for subsequent subsampling.
 To fully explore the performance of the algorithm, we remote control the robot along several trajectories covering all possible motions.
 An example trajectory is shown in \fig{dataset}.
@@ -216,7 +216,7 @@ The parameters $\alpha_\mathrm{xy}$, $\alpha_\theta$ and $p_\mathrm{uniform}$ ar
 
 \subsection{Implementations}
 
-We provide two implementations of the model, both programmed in Python, with Cython~\footnote{\url{http://www.cython.org}} used for time-critical inner loops, leading to similar overall performance as C code.
+We provide two implementations of the model, both programmed in Python, with Cython\footnote{\url{http://www.cython.org}} used for time-critical inner loops, leading to similar overall performance as C code.
 The first implementation does Markov Localization using conditional probability tables to represent distributions~\cite{fox1999markov}.
 The $x,y$ cell resolution is 1\,cm, while the angular resolution varies from 20° (18 discretization steps) to 5° (72 discretization steps).
 The second implementation does Monte Carlo Localization using a particle filter~\cite{dellaert1999monte}.
@@ -275,7 +275,14 @@ Setting the sensors apart also reduces the redundancy between their information 
 
 \subsection{Dataset collection}
 
-% TODO
+Our experiments are based on three main datasets:
+\begin{itemize}
+\item \texttt{normal 1}: The robot first goes forward, then backward, rotates on spot, and goes again forward and backward.
+\item \texttt{normal 2}: The robot first goes forward, then turns on spot for a long duration, then goes forward and finally backward.
+\item \texttt{kidnapping}: The robot alternates phases of forward movement and turning on spot, with kidnapping happening every minute.
+\end{itemize}
+
+% TODO: add something about going straight
 
 \subsection{Parameter estimation}
 \label{sec:mle}
@@ -287,7 +294,7 @@ Setting the sensors apart also reduces the redundancy between their information 
 \begin{figure*}
 
 \begin{center}
-Markov Localization, run \emph{random\_1}
+Markov Localization, run \texttt{normal 1}
 \end{center}
 \includegraphics{ml-whole_random_1-xy}\hfill
 \includegraphics{ml-whole_random_1-theta}
@@ -295,7 +302,7 @@ Markov Localization, run \emph{random\_1}
 \vspace{.5em}
 
 \begin{center}
-Markov Localization, run \emph{random\_2}
+Markov Localization, run \texttt{normal 2}
 \end{center}
 \includegraphics{ml-whole_random_2-xy}\hfill
 \includegraphics{ml-whole_random_2-theta}
@@ -303,7 +310,7 @@ Markov Localization, run \emph{random\_2}
 \vspace{.5em}
 
 \begin{center}
-Monte Carlo Localization, run \emph{random\_1}
+Monte Carlo Localization, run \texttt{normal 1}
 \end{center}
 \includegraphics{mcl-whole_random_1-xy}\hfill
 \includegraphics{mcl-whole_random_1-theta}
@@ -311,7 +318,7 @@ Monte Carlo Localization, run \emph{random\_1}
 \vspace{.5em}
 
 \begin{center}
-Monte Carlo Localization, run \emph{random\_2}
+Monte Carlo Localization, run \texttt{normal 2}
 \end{center}
 \includegraphics{mcl-whole_random_2-xy}\hfill
 \includegraphics{mcl-whole_random_2-theta}
@@ -323,20 +330,20 @@ The error is clamped at 50\,cm for position and 90° for orientation.}
 \label{fig:whole-runs-random12}
 \end{figure*}
 
-\Fig{whole-runs-random12} shows the error in position and orientation for runs \emph{random\_1} and \emph{random\_2}.
+\Fig{whole-runs-random12} shows the error in position and orientation for runs \texttt{normal 1} and \texttt{normal 2}.
 In these plots, \emph{distance travelled} represents the cumulative distance travelled by the center point between the two ground sensors of the robot.
 
 For Markov Localization approach, all discretization resolutions allow the robot to localize with a precision of 3\,cm and 5°.
-In run \emph{random\_1}, the resolution of 18 is not enough to keep tracking the orientation at distance travelleds 50\,cm and 80\,cm.
+In run \texttt{normal 1}, the resolution of 18 is not enough to keep tracking the orientation at distance travelleds 50\,cm and 80\,cm.
 These both correspond to the robot rotating on spot.
 We see that a discretization of 36 (10° resolution) is sufficient to provide accurate tracking, and that a finer resolution only provides minor improvements in angular precision, and no improvement in position precision.
 In run \emph{random\_3}, we see that a resolution of 54 is allows for a better angular precision than 36, but 72 does not improves over 54.
 All resolutions provide equal position precision.
 
-For Monte Carlo Localization approach, we see that on run \emph{random\_1}, the robot localizes already with 50k particles, but twice later than with 100k particles.
+For Monte Carlo Localization approach, we see that on run \texttt{normal 1}, the robot localizes already with 50k particles, but twice later than with 100k particles.
 Increasing the number of particles over this value only provides minor decrease in localization time and precision.
 While 50k particles allow to localize on this run in average, there are some trials (restart of the run) in which the robot looses orientation, when it turns on spot.
-On run \emph{random\_2}, 50k particles is not enough for localizing the robot.
+On run \texttt{normal 2}, 50k particles is not enough for localizing the robot.
 Increasing this number to 100k leads to a good localization, exception during distance travelleds 80--100; indeed this corresponds to a long moment during which the robot rotates on spot, leading to less information acquisition, and therefore degradated precision.
 
 In overall, both approaches have similar localization accuracy.
@@ -349,7 +356,7 @@ When angular precision is critical, the Monte Carlo approach might achieve bette
 \begin{figure*}
 
 \begin{center}
-Markov Localization, 10 extracts from \emph{random\_1} and \emph{random\_2}
+Markov Localization, 10 extracts from \texttt{normal 1} and \texttt{normal 2}
 \end{center}
 \includegraphics{ml-small_runs_random_12-xy}\hfill
 \includegraphics{ml-small_runs_random_12-theta}
@@ -357,7 +364,7 @@ Markov Localization, 10 extracts from \emph{random\_1} and \emph{random\_2}
 \vspace{.5em}
 
 \begin{center}
-Monte Carlo Localization, 10 extracts from \emph{random\_1} and \emph{random\_2}
+Monte Carlo Localization, 10 extracts from \texttt{normal 1} and \texttt{normal 2}
 \end{center}
 \includegraphics{mcl-small_runs_random_12-xy}\hfill
 \includegraphics{mcl-small_runs_random_12-theta}
@@ -384,7 +391,7 @@ Using only 50k particles, some extract do not converge even after 80\,cm.
 \begin{figure*}
 
 \begin{center}
-Markov Localization, run \emph{random\_long}
+Markov Localization, run \texttt{kidnapping}
 \end{center}
 \includegraphics{ml-whole_random_long-xy}\hfill
 \includegraphics{ml-whole_random_long-theta}
@@ -392,7 +399,7 @@ Markov Localization, run \emph{random\_long}
 \vspace{.5em}
 
 \begin{center}
-Monte Carlo Localization, run \emph{random\_long}
+Monte Carlo Localization, run \texttt{kidnapping}
 \end{center}
 \includegraphics{mcl-whole_random_long-xy}\hfill
 \includegraphics{mcl-whole_random_long-theta}
