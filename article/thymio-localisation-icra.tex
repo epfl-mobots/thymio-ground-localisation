@@ -102,31 +102,38 @@ The localization environment is with several white walls and EKF uses informatio
 
 \section{Material}
 % Merge all three parts together. Datasets gather from two sources: gt and thymio. mention a bit of the frequency and speed. Trajectories detail: what kind of motion, also kidnapping. Total length should not over one column plus the figure. Figure need some explanation.
-To realize localization with cheap mobile robot, we conduct experiments with Thymio robot localizing on a printed map.
 
-Thymio and Aseba~\cite{magnenat2012arso, aseba2011tmech, riedo2013arso}.
+We run empirical experiments with the Thymio~II mobile robot localizing on a printed map.
 
+Thymio~II is an open-source differential-wheeled mobile robot.
+Its footprint is approximately $10 \times 10$ cm and it costs about 120\,\$.
+About 10k units have been sold to date and are used in the context of computational thinking and engineering education~\cite{magnenat2012arso}.
+It features many sensors; in the context of this project, only two ground infrared sensors are used. % TODO: ref figure
+Thymio~II is programmed through the Aseba framework~\cite{aseba2011tmech}.
+For this work, Aseba is connected to the \textsc{ros} framework\footnote{ROS (Robot Operating System): \url{http://www.ros.org/}}.
 
-The map which is used for Thymio to localize against is a 150\,cm$\times$150\,cm pattern which contains 50\,$\times$\,50 black and white random cells of 3\,cm$\times$3\,cm. 
-The pattern is generated randomly without regularization.
+The map consists of a 150$\times$150\,cm pattern containing 50\,$\times$\,50 black and white random cells of 3$\times$3\,cm.
+The pattern is generated randomly with an equal probability of black and white cells and without regularization.
 
-In order to precisely measure the robot poses, a Vicon\footnote{http://www.vicon.com/} tracking system is used to provide this ground truth, with robot 2-D pose $x$, $y$ as well as the heading of the robot $\theta$.
-Sensor values and odometry information from Thymio are synchronously recorded by connecting to ROS (Robot Operating System)\footnote{http://www.ros.org/} through Aseba.
-During the dataset gathering, the robot move on the map with the speed of 4\,cm/sec. 
-The data is gathered with an enough high frequency, which allows better data synchronization and exploration.
-To fully explore the algorithm performance, the robot conducts several trajectories with all possible motions and the trajectories cover most parts of the map. 
+To evaluation the performance of our localization algorithms, we record the ground-truth pose of the robot using a Vicon\footnote{\url{http://www.vicon.com/}} tracking system.
+%to provide the ground-truth robot pose, consisting of $x$, $y$ coordinates and the heading $\theta$.
+We use \textsc{ros} to synchronously record these along with sensor values and odometry information from Thymio.
+During the dataset gathering, the robot move on the map with a speed of 3--4\,cm/s.
+The data are gathered with an high enough frequency of 100\,Hz (ground-truth) and 10\,Hz (robot) for subsequent subsampling.
+To fully explore the performance of the algorithm, we remote control the robot along several trajectories covering all possible motions.
 An example trajectory is shown in \fig{dataset}.
 
 \begin{figure}
 \begin{center}
 \includegraphics[width=0.4\textwidth]{dataset}
-\caption{An example trajectory of the robot. The robot moves on the map with random black and white pattern with three different motions: going forward, going backward and rotating on the same point.}
+\caption{An example trajectory of the robot. The robot moves on the map with random black and white pattern with three different motions: going forward, going backward and rotating on spot.}
 \label{fig:dataset}
 \end{center}
 \end{figure}
 
-The motions of the robot can be classified into three different motions, namely moving forward, moving backward and rotating on the same point. 
-To test the algorithm's ability of recovering from catastrophic localization failures, we also conduct experiments with robot kidnapping by moving the robot to another part of the map during one trajectory.  
+The motions of the robot can be classified into two different types, namely moving forward or backward (possible in arcs) and rotating on spot.
+To test the algorithm's ability of recovering from catastrophic localization failures, we also conduct experiments with robot kidnapping by lifting the robot and moving it to another part of the map.
+
 \section{Model}
 
 \subsection{Variables}
