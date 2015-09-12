@@ -283,11 +283,14 @@ Our experiments are based on three main datasets:
 \end{itemize}
 
 % TODO: add something about going straight
+% TODO: say something about 300ms
 
 \subsection{Parameter estimation}
 \label{sec:mle}
 
-% TODO
+The noise parameters of the motion model were estimated using maximum likelihood, considering the error between the ground truth and the odometry data in the local frame between two time steps.
+Using runs \texttt{normal 1} and \texttt{normal 2}, the values for  $\alpha_\mathrm{xy}$ and $\alpha_\theta$ were found be in the order of 0.1.
+Similarly, using run \texttt{kidnapping}, the value for $p_\mathrm{uniform}$ was also found to be in the order of 0.1.
 
 \subsection{Basic localization}
 
