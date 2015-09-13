@@ -235,6 +235,23 @@ def eval_data(args):
 			print '  d_odom (local frame): ', odom_d_x, odom_d_y, odom_d_theta
 			print '  d_gt (local frame):   ', gt_d_x, gt_d_y, gt_d_theta
 
+		# have we been asked to fake observation?
+		if args.fake_observations:
+			# if so, regenerate it from map and ground-truth position
+			lpos, rpos = sensors_from_pos(gt_x, gt_y, gt_theta)
+			# left sensor
+			if localizer.is_in_bound(lpos):
+				sensor_left = ground_map[localizer.xyW2C(lpos[0]), localizer.xyW2C(lpos[1])]
+			else:
+				sensor_left = 0.5
+			sensor_left += np.random.uniform(-args.sigma_obs, args.sigma_obs)
+			# right sensor
+			if localizer.is_in_bound(rpos):
+				sensor_right = ground_map[localizer.xyW2C(rpos[0]), localizer.xyW2C(rpos[1])]
+			else:
+				sensor_right = 0.5
+			sensor_right += np.random.uniform(-args.sigma_obs, args.sigma_obs)
+
 		# apply observation
 		localizer.apply_obs(sensor_left, sensor_right)
 		if args.debug_dump:
@@ -270,6 +287,7 @@ if __name__ == '__main__':
 	parser.add_argument('--skip_steps', type=int, default=3, help='only process one step every N when loading the data file (default: 3)')
 	parser.add_argument('--skip_at_start', type=int, default=0, help='optionally, some steps to skip at the beginning of the data file (multiplied by --skip_steps) (default: 0)')
 	parser.add_argument('--duration', type=int, help='optionally, process only a certain number of steps (multiplied by --skip_steps) (default: use until the end)')
+	parser.add_argument('--fake_observations', help='regenerate observations from map and ground truth', action='store_true')
 
 
 	args = parser.parse_args()
