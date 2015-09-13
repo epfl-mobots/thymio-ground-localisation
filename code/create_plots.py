@@ -74,6 +74,75 @@ def plot_cpu_load(name):
 	fig.savefig(os.path.join(dest_base_dir, name), pad_inches=0.02)
 
 
+def plot_grayscale_images(run, show_dist_not_angle, name):
+
+	# setup parameters
+	plt.rcParams.update(plot_params)
+
+	# create figure
+	path_length = 180
+	fig, ax = plt.subplots(figsize=(3.6, 1.8))
+	ax.set_xlim(0, path_length)
+
+	# show dist or angle diff?
+	if show_dist_not_angle:
+		dataCol = 8
+		ylabel = 'position error [cm]'
+		ylim = 50
+	else:
+		dataCol = 9
+		ylabel = 'angular error [degrees]'
+		ylim = 90
+	ax.set_ylim(0, ylim)
+
+	# for different map
+	algo = 'ml'
+	param = 36
+	map_names =  ['breugel_babel', 'van-gogh_starry-night', 'kandinsky_comp-8', 'vermeer_girl-pearl', 'babar', 'childs-drawing_tooth-fairy']
+	map_labels = ['Breugel',  'Van Gogh', 'Kandinsky', 'Vermeer', 'Babar', 'Child']
+	colors = ['#2cb67b', '#2c7bb6', '#fdae61', '#2cb67b', '#2c7bb6', '#fdae61']
+	linestyles = ['-', '-', '-', ':', ':', ':']
+	x_ticks = np.arange(0., path_length)
+	for i, map_name in enumerate(map_names):
+
+		result_file = 'grayscale_images/{}_{}_{}_{}'.format(run, map_name, algo, param)
+		data = np.loadtxt(os.path.join(result_base_dir, result_file))
+		gt = np.loadtxt(os.path.join(data_base_dir, run, 'gt.txt'))
+
+		# get the indices in gt for every line in data
+		indices = data[:,0].astype(int)
+
+		# compute the local change of the sensors position between every line in data
+		# we consider the center between the two centers, which is in (12,0) cm local frame
+		thetas = gt[indices,2]
+		sensor_local_poses = np.vstack((np.cos(thetas) * .12, np.sin(thetas) * .12))
+		deltas_sensor_poses = np.diff(sensor_local_poses, axis=1).transpose()
+
+		# compute the change of the position of the robot's center between every line in data
+		xys = gt[indices,0:2]
+		deltas_xy = np.diff(xys, axis=0)
+
+		# compute the global distances traveled by the sensors between every line in data
+		deltas_dists = np.linalg.norm(deltas_xy + deltas_sensor_poses, axis=1)
+
+		# sum these distances to get the x axis
+		cum_dists = np.cumsum(deltas_dists)
+		if cum_dists[-1] * 100. < path_length:
+			print 'WARNING: In', result_file, 'last path point', cum_dists[-1] * 100., 'is before requested distance travelled', path_length
+		x_values = np.insert(cum_dists, 0, [0.]) * 100.
+		# get the y values directly from data
+		y_values = np.minimum(np.abs(data[:,dataCol]), ylim)
+
+		# plot
+		ppl.plot(ax, x_values, y_values, label=map_labels[i], color=colors[i], ls=linestyles[i])
+
+	# add label, legend and show plot
+	plt.xlabel('distance travelled [cm]')
+	plt.ylabel(ylabel)
+	ppl.legend(ax)
+	fig.savefig(os.path.join(dest_base_dir, name), bbox_inches='tight', pad_inches=0.02)
+
+
 def plot_small_maps(show_dist_not_angle, name):
 
 	# setup parameters
@@ -258,6 +327,7 @@ if __name__ == '__main__':
 	parser.add_argument('--small_runs', help='small runs on random_1 and random_2 for ML and MCL', action='store_true')
 	parser.add_argument('--small_maps', help='multiple map sizes using forward_x_minus_slow_1, ML and 36 angle steps', action='store_true')
 	parser.add_argument('--cpu_load', help='plot CPU load for different methods and paramters on random_1 and random_2', action='store_true')
+	parser.add_argument('--grayscale_images', help='various grayscale images using random_1 and random_2', action='store_true')
 
 	args = parser.parse_args()
 
@@ -298,6 +368,13 @@ if __name__ == '__main__':
 		# small maps, same run
 		plot_small_maps(True, 'ml-small_maps-xy.pdf')
 		plot_small_maps(False, 'ml-small_maps-theta.pdf')
+
+	elif args.grayscale_images:
+		# various grayscale images
+		plot_grayscale_images('random_1', True, 'ml-grayscale_images-random_1-xy.pdf')
+		plot_grayscale_images('random_1', False, 'ml-grayscale_images-random_1-theta.pdf')
+		plot_grayscale_images('random_2', True, 'ml-grayscale_images-random_2-xy.pdf')
+		plot_grayscale_images('random_2', False, 'ml-grayscale_images-random_2-theta.pdf')
 
 	elif args.cpu_load:
 		plot_cpu_load('cpu_load.pdf')

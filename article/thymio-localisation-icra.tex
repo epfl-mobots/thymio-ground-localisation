@@ -13,6 +13,7 @@
 \usepackage{microtype}
 \usepackage{amsmath}
 \usepackage{url}
+\usepackage{tabularx}
 
 % options
 \graphicspath{{figures/}{generated-figures/}}
@@ -459,7 +460,61 @@ Conditional probability tables are well suited for such optimisations.
 The Monte Carlo approach requires at least 100k particle for proper localization, at a computation duratoin of 2\,s per step.
 While similar optimization is possible, some parts are harder to optimize, in particular the resampling step and the \textsc{ransac} step.
 
-%\subsection{Real-time with Thymio}
+\subsection{Maps as grayscale images}
+
+\begin{figure*}
+\includegraphics[width=.15\textwidth]{maps/breugel_babel} \hfill
+\includegraphics[width=.15\textwidth]{maps/van-gogh_starry-night} \hfill
+\includegraphics[width=.15\textwidth]{maps/kandinsky_comp-8} \hfill
+\includegraphics[width=.15\textwidth]{maps/vermeer_girl-pearl} \hfill
+\includegraphics[width=.15\textwidth]{maps/babar} \hfill
+\includegraphics[width=.15\textwidth]{maps/childs-drawing_tooth-fairy}
+
+\makebox[.15\textwidth][c]{Breugel}\hfill
+\makebox[.15\textwidth][c]{Van Gogh}\hfill
+\makebox[.15\textwidth][c]{Kandinsky}\hfill
+\makebox[.15\textwidth][c]{Vermeer}\hfill
+\makebox[.15\textwidth][c]{Babar}\hfill
+\makebox[.15\textwidth][c]{Child's drawing}
+
+\begin{center}
+Run \texttt{normal~1}
+\end{center}
+\includegraphics{ml-grayscale_images-random_1-xy}\hfill
+\includegraphics{ml-grayscale_images-random_1-theta}
+
+\vspace{.5em}
+
+\begin{center}
+Run \texttt{normal~2}
+\end{center}
+\includegraphics{ml-grayscale_images-random_2-xy}\hfill
+\includegraphics{ml-grayscale_images-random_2-theta}
+
+\caption{The error between the estimation by the localization algorithm and the ground truth, using Markov Localization with 36 angle discretization, for different grayscale maps.}
+\label{fig:grayscale}
+\end{figure*}
+
+% TODO: write text
+In addition to random black and white patterns, our localization model can also work on grayscale images.
+While we have not recorded datasets with such images, we can simulate these scenarios by using the ground-truth data to look up the corresponding pixel on the image, adding some noise ($\pm$ 0.1, uniform distribution, found using a real Thymio).
+When running on such maps, we set $\sigma_\mathrm{obs}$ to 0.1.
+
+\Fig{grayscale} shows the error in position and orientation for six different grayscale maps.
+These cover various styles, contrast and distribution of intensities.
+The first three, paintings from Breugel, Van Gogh and Kandinsky, allow the robot to localize in less than 10\,cm for both runs \texttt{normal\,1} and \texttt{normal\,2}.
+This is due to their variety of contrasted visual structures.
+In areas with less contrast, the angular tracking becomes imprecise, but is always within 20°.
+The Vermeer painting is harder.
+While the robot localizes within 20\,cm on run \texttt{normal\,1}, it has trouble with run \texttt{normal\,2}, especially with the angle.
+We attribute this degradated performance to the large areas without constrast in this painting.
+The next image is a line-art drawing from a popular children comics.
+Stable localization on run \texttt{normal\,1} is only achieved after travelling 150\,cm.
+The reason is the low amont of information present in such images.
+Nevertheless, when the trajectory encounters sufficient information, like in run \texttt{normal\,2}, accurate localization is possible.
+The last image is a child's drawing taken from Wikimedia Commons\footnote{\url{https://commons.wikimedia.org/wiki/File:Child's_Drawing_of_the_Tooth_Fairy.jpg}}.
+This drawing allows accurate localization, after travelling 80\,cm in the first run, but only 20\,cm in the second.
+This shows that with our model, the robot can localize successfully on maps drawn by children themselves, which opens creative educational opportunities.
 
 \section{Conclusion}
 
@@ -468,7 +523,7 @@ We have shown that both approaches work, and that their performances and computa
 With current implementations, Markov localization with 36 discretization steps for angle is the most promising choice for deployment in educational activities.
 In addition, we have outlined a theoretical analysis method to estimate the localization performance in function of the sensors.
 This can be used to take decision for the placement of sensors in a future robot if localization is a design requirement.
-% a process to let end-users create and provide their own environments, such as drawings made by children.
+Finally, we have demonstrated that our localization method works on a large variety of grayscale images, from well-known paintings to drawings by children.
 
 These contributions to the state of the art enable absolute positioning of inexpensive mobile robots in the 100\,\$ price range.
 In the context of educational robotics, this opens many opportunities, such as the study of geometry, puzzles based on the physical space, and staging the creation of stories in the context of language education.
