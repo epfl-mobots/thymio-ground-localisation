@@ -58,7 +58,16 @@ Localization of inexpensive robots with low-bandwidth sensors
 \pagestyle{empty}
 
 \begin{abstract}
-Lorem ipsum...
+Recent progress in electronics has allowed the construction of affordable mobile robots.
+These open many new opportunities, in particular in the educational context.
+However, these robots have little long range sensing abilities, as they are still more expensive than shorter range ones, such as infrared sensors.
+This lack has prevented these robots from performing global localization without external aids.
+This severly limits their use, for example to create advanced educational activities.
+In this paper, we propose a solution to this problem, using only infrared ground sensors, approximate dead-reckoning, and a visual pattern on the ground.
+Our approach builds on a recursive Bayesian filter, of which we demonstrate two implementations, a dense Markov Localization and a particle-based Monte Carlo Localization.
+We show that both implementations allow accurate localization on a large variety of patterns, from pseudo-random black and white matrices to grayscale drawings by children.
+We discuss the optimal parameters and the real-time applicability of our algorithms.
+Our solution to the localization of inexpensive mobile robots enables a new dimension of educational activites, dramatically increasing the value of robots for the educational world.
 \end{abstract}
 
 \section{Introduction}
@@ -68,7 +77,7 @@ They are now widely available at prices making affordable mobile robots a realit
 This opens many new opportunities, in particular in the educational context.
 Robots have been shown to be effective in supporting the teaching of knowledge in fields such as mathematics, physics, computer science and engineering; and of skills such as problem solving and the scientific method~\cite{benitti2012explorin}.
 
-Programmable platforms such as the LEGO Mindstorms, in the 300-400\,\$ price range, have been successfully used in classrooms worldwide, especially to teach engineering.
+Programmable platforms such as the LEGO Mindstorms, in the 300--400\,\$ price range, have been successfully used in classrooms worldwide, especially to teach engineering.
 Yet, despite its high price tag, this platform has little perception capabilities; its longest-range sensor being a single ultrasound unit.
 Cheaper products such as the Thymio~II (120\,\$) and Dash \& Dot (160\,\$) even lack such a long-range perception capability, and only provide local infrared sensors.
 These are limited to sensing distances up to 15\,cm and measuring the grayscale intensity of a close object or the ground.
@@ -559,6 +568,7 @@ This opens the way to user-created maps, for instance for a child making a pictu
 
 These contributions to the state of the art enable absolute positioning of inexpensive mobile robots costing less than 100\,\$.
 In the context of educational robotics, this opens many opportunities, such as the study of geometry, puzzles based on the physical space, and robots playing a theater piece, for instance in the context of language education.
+As our solution to the localization of inexpensive mobile robots enables a new dimension of educational activites, it also dramatically increases the value of robots for the educational world.
 %These new possibilities are key elements for robots to answer the need for embodied computational thinking education.
 % TODO: finish on constructionism?
 
