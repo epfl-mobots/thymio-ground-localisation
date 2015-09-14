@@ -385,7 +385,7 @@ On \texttt{trajectory~2}, 50k particles is not enough for localizing the robot.
 Increasing this number to 100k leads to a good localization, excepted after the robot has traveled 80\,cm; which corresponds to a long moment during which the robot rotates on spot, leading to less information acquisition, and therefore degraded precision.
 
 Overall, both approaches have similar localization accuracy.
-When angular precision is critical, the Monte Carlo approach might achieve better performance, as the Markov approach is limited in precision by its discretization.
+When angular precision is critical, the Monte Carlo Localization approach might achieve better performance, as the Markov Localization approach is limited in precision by its discretization.
 
 %TODO: explain why this does not appear in ML
 
@@ -476,11 +476,11 @@ Data are averaged over all time steps of first two trajectories.}
 
 \Fig{cpuload} shows the duration of one step for the different algorithms and parameters, averaged over the two first trajectories.
 These data were measured on a Lenovo laptop T450s with an Intel Core i7 5600U processor running at 2.6\,GHz.
-We see that with the Markov approach, the duration scales linearly with the number of discretization angles.
-With the Monte Carlo approach, the scaling is linear but amortized (50k particles is not twice faster as 100k).
+We see that with the Markov Localization approach, the duration scales linearly with the number of discretization angles.
+With the Monte Carlo Localization approach, the scaling is linear but amortized (50k particles is not twice faster as 100k).
 This is due to the selection of pose estimate, which uses a \textsc{ransac} approach and is therefore independent of the number of particles.
-For similar localization accuracy, the Monte Carlo approach is slower than the Markov approach, and therefore we suggest to use the former with a discretization angle of 36 in practical applications.
-However, the Monte Carlo approach might be preferred if a high angular precision is required.
+For similar localization accuracy, the Monte Carlo Localization approach is slower than the Markov Localization approach, and therefore we suggest to use the former with a discretization angle of 36 in practical applications.
+However, the Monte Carlo Localization approach might be preferred if a high angular precision is required.
 
 At a computation duration of 1.5\,s per step, the Monte Carlo Localization approach with a discretization angle of 36 is far from real time.
 However, this computation duration corresponding to a map size of 150\,cm.
@@ -488,7 +488,7 @@ If the map was smaller, for instance 50\,cm, the algorithm would be 9 times fast
 Therefore, at 150\,ms per step, it would be suitable for real-time operations.
 Moreover, the code could be further optimized by using multimedia instructions such as \textsc{sse}, implementing it in the \textsc{gpu}, or parallelizing it.
 Conditional probability tables are well suited for such optimizations.
-The Monte Carlo approach requires at least 100k particle for proper localization, at a computation duration of 2\,s per step.
+The Monte Carlo Localization approach requires at least 100k particle for proper localization, at a computation duration of 2\,s per step.
 While similar optimization is possible, some parts are harder to optimize, in particular the re-sampling step and the \textsc{ransac} step.
 
 \subsection{Maps as grayscale images}
