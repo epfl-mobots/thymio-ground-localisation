@@ -74,6 +74,41 @@ def plot_cpu_load(name):
 	fig.savefig(os.path.join(dest_base_dir, name), pad_inches=0.02)
 
 
+def plot_trajectories():
+
+	# setup parameters
+	plt.rcParams.update(plot_params)
+
+	# parameters
+	runs = ['random_1', 'random_2']
+	algos = ['ml', 'mcl']
+	algo_params = {'ml': 72, 'mcl': '400k'}
+
+	# process all runs
+	for run in runs:
+		for algo in algos:
+			param = algo_params[algo]
+			result_file = '{}_{}_{}'.format(run, algo, param)
+
+			data = np.loadtxt(os.path.join(result_base_dir, result_file))
+			xy = data[:,5:7]
+
+			# create plot
+			fig, ax = plt.subplots(figsize=(3, 3))
+			ax.set_xlim(0, 150)
+			ax.set_ylim(0, 150)
+
+			# draw
+			x = xy[20:,0]
+			y = xy[20:,1]
+			ppl.plot(ax, x, y)
+
+			# save
+			name = '{}-{}-{}-trajectory.svg'.format(algo, param, run)
+			fig.tight_layout(pad=0.02, rect=(0,0,1,1))
+			fig.savefig(os.path.join(dest_base_dir, name), pad_inches=0.02)
+
+
 def plot_grayscale_images(run, show_dist_not_angle, name):
 
 	# setup parameters
@@ -328,6 +363,7 @@ if __name__ == '__main__':
 	parser.add_argument('--small_maps', help='multiple map sizes using forward_x_minus_slow_1, ML and 36 angle steps', action='store_true')
 	parser.add_argument('--cpu_load', help='plot CPU load for different methods and paramters on random_1 and random_2', action='store_true')
 	parser.add_argument('--grayscale_images', help='various grayscale images using random_1 and random_2', action='store_true')
+	parser.add_argument('--trajectories', help='trajectories for random_1 and random_2', action='store_true')
 
 	args = parser.parse_args()
 
@@ -378,6 +414,9 @@ if __name__ == '__main__':
 
 	elif args.cpu_load:
 		plot_cpu_load('cpu_load.pdf')
+
+	elif args.trajectories:
+		plot_trajectories()
 
 	else:
 		parser.print_help()
