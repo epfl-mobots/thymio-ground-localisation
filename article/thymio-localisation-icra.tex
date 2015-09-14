@@ -80,14 +80,14 @@ When dead-reckoning is provided, such as on the Thymio~II, it builds on approxim
 % But this robot can only follow pre-programmed trajectories, it is not able to react to external events.
 
 The combined lack of long-range sensors and quality dead-reckoning prevents these robots from using state of the art localization algorithms, such as simulataneous localization and mapping.
-This limits their educational use, in particular for the study of geometry, physics, and engineering; but also the building of advanced behaviours, such as several robots playing a staged story in a shared space.
+This lack of absolute positionning limits their educational use, in particular for the study of geometry, physics, and engineering; but also the building of advanced behaviours, such as robots playing a theater piece.
 
 This paper solves this problem.
-We provide an obsolute positioning system using only approximate dead-reckoning and inexpensive infrared sensors measuring ground lightness.
+We provide an obsolute positioning system using only approximate dead-reckoning and inexpensive infrared sensors measuring the grayscale intensity of the ground.
 Our solution builds on a recursive Bayesian filter, of which we propose both a dense and a sampling-based implementation.
 We evaluate these using the Thymio~II mobile robot on a known black and white pseudo-random pattern, with ground truth provided by a Vicon tracking system.
 In addition, we provide a theoretical contribution predicting the traveled distance necessary to localize the robot.
-Finally, we show how users can draw their own ground images and use these to localise the robot.
+Finally, we show how grayscale images can be used as ground maps that allow the robot to localise.
 
 \section{Related work}
 
@@ -105,8 +105,8 @@ The localization environment is with several white walls and EKF uses informatio
 % Merge all three parts together. Datasets gather from two sources: gt and thymio. mention a bit of the frequency and speed. Trajectories detail: what kind of motion, also kidnapping. Total length should not over one column plus the figure. Figure need some explanation.
 
 \begin{figure}
-\includegraphics[width=.55\columnwidth]{thymio2-shadow}\hfill
-\includegraphics[width=.44\columnwidth]{thymio2-dimensions}
+\includegraphics[width=.56\columnwidth]{thymio2-shadow}\hfill
+\includegraphics[width=.42\columnwidth]{thymio2-dimensions}
 \caption{The Thymio~II robot and the placement of its ground sensors.}
 \label{fig:thymio}
 \end{figure}
@@ -525,16 +525,19 @@ This shows that with our model, the robot can localize successfully on maps draw
 
 \section{Conclusion}
 
-In this paper, we have conducted an empirical evaluation of Markov- and Monte Carlo-based approaches for localizing a mobile robot with two inexpensive ground sensors on a known map.
-We have shown that both approaches work, and that their performances and computational requirements are of a similar order of magnitude.
+In this paper, we have conducted an empirical evaluation of Markov- and Monte Carlo-based approaches for localizing a mobile robot, equipped with two inexpensive ground sensors, on a known map.
+We have shown that both approaches allow successful localization, and that their performances and computational requirements are of a similar order of magnitude.
 With current implementations, Markov localization with 36 discretization steps for angle is the most promising choice for deployment in educational activities.
-In addition, we have outlined a theoretical analysis method to estimate the localization performance in function of the sensors.
-This can be used to take decision for the placement of sensors in a future robot if localization is a design requirement.
-Finally, we have demonstrated that our localization method works on a large variety of grayscale images, from well-known paintings to drawings by children.
+In addition, we have outlined, and empirically validated, a theoretical analysis method to estimate the localization performance in function of the sensor configuration.
+This method provides a guide for taking decisions about the placement of sensors in a future robot:
+localization performance can be improved by placing the sensors far apart on a line perpendicular to the direction of movement of the robot; in addition, more sensors allow to collect more information, if they are separated by the size of the smallest visual structure in the map.
+Finally, we have demonstrated that our model allows successful localization on a large variety of grayscale images, from well-known paintings to drawings made by children.
+This opens the way to user-created maps, for instance for a child making a picture with her mobile phone of her own drawing, and using this picture as map.
 
 These contributions to the state of the art enable absolute positioning of inexpensive mobile robots in the 100\,\$ price range.
-In the context of educational robotics, this opens many opportunities, such as the study of geometry, puzzles based on the physical space, and staging the creation of stories in the context of language education.
-These new possibilities are key elements for robots to answer the need for embodied computational thinking education.
+In the context of educational robotics, this opens many opportunities, such as the study of geometry, puzzles based on the physical space, and robots playing a theater piece, for instance in the context of language education.
+%These new possibilities are key elements for robots to answer the need for embodied computational thinking education.
+% TODO: finish on constructionism?
 
 \bibliographystyle{IEEEtran}
 \bibliography{thymio-localisation-icra}
