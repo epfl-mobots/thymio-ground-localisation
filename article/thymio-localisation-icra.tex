@@ -104,12 +104,19 @@ The localization environment is with several white walls and EKF uses informatio
 \section{Material}
 % Merge all three parts together. Datasets gather from two sources: gt and thymio. mention a bit of the frequency and speed. Trajectories detail: what kind of motion, also kidnapping. Total length should not over one column plus the figure. Figure need some explanation.
 
+\begin{figure}
+\includegraphics[width=.55\columnwidth]{thymio2-shadow}\hfill
+\includegraphics[width=.44\columnwidth]{thymio2-dimensions}
+\caption{The Thymio~II robot and the placement of its ground sensors.}
+\label{fig:thymio}
+\end{figure}
+
 We run empirical experiments with the Thymio~II mobile robot localizing on a printed map.
 
-Thymio~II is an open-source differential-wheeled mobile robot.
+Thymio~II is an open-source differential-wheeled mobile robot (\fig{thymio}, left).
 Its footprint is approximately $10 \times 10$ cm and it costs about 120\,\$.
-About 10k units have been sold to date and are used in the context of computational thinking and engineering education~\cite{magnenat2012arso}.
-It features many sensors; in the context of this project, only two ground infrared sensors are used. % TODO: ref figure
+Thousands of units have been sold to date and are used in the context of computational thinking and engineering education~\cite{riedo2015thymio}.
+It features many sensors; in the context of this project, only two ground infrared sensors are used (\fig{thymio}, right).
 Thymio~II is programmed through the Aseba framework~\cite{aseba2011tmech}.
 For this work, Aseba is connected to the \textsc{ros} framework\footnote{ROS (Robot Operating System): \url{http://www.ros.org/}}.
 
