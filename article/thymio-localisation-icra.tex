@@ -95,10 +95,18 @@ Markov and Monte Carlo Localization, why not SLAM?
 
 Localization techniques for cheap mobile robots.
 The challenge of solving localization problem of cheap mobile robots is the sensor information is very limited.
-Some approaches, such as \cite{prorok2012low, dias2013absolute}, solve localization problem of multiple cheap robots instead of a single robot by using collaborative sensors information.
+Some approaches, such as \cite{prorok2012low, dias2013absolute, mclurkin2013low}, solve localization problem of multiple cheap robots instead of a single robot by using collaborative sensors information.
 
+\cite{varveropoulos2005robot} presents a method which solves small-scale robotics localization problem using data from sonar-based range sensor.
+An occupancy algorithm based on Bayes' probabilistic model is applied and the map is discretized into 2-D grid map. 
+In \cite{zug2011design}, a localization system is developed for supporting multi-sensor mobile robot in RoboCup Junior competitions using Kalman filter.
+The localization system is applied for robot equipped with four distance sensors with limited range moving in an environment of a rectangle consisting of four walls.
+In \cite{pinto2012localization,singh2013map}, approaches are presented for solving localization problem with LEGO NXT.
 In \cite{pinto2012localization}, Extended Kalman Filter algorithm is conducted in a LEGO NXT for the purpose of teaching undergraduate university students localization of mobile robots.
 The localization environment is with several white walls and EKF uses information from infra-red sensors equipped on the robot.
+\cite{singh2013map} uses a particle filter algorithm to solve robot localization problem with robot kidnapping using information from ultrasonic sensors.
+
+ 
 
 
 \section{Material}
