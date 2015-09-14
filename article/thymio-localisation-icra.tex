@@ -125,20 +125,22 @@ We run empirical experiments with the Thymio~II mobile robot localizing on a pri
 Thymio~II is an open-source differential-wheeled mobile robot (\fig{thymio}, left).
 Its footprint is approximately $10 \times 10$ cm and it costs about 120\,\$.
 Thousands of units have been sold to date and are used in the context of computational thinking and engineering education~\cite{riedo2015thymio}.
-It features many sensors; in the context of this project, only two ground infrared sensors are used (\fig{thymio}, right).
+It features many sensors such as a set of infrared sensors, a small accelerometer, or a microphone.
+For this project, only two infrared sensors directed at the ground are used (\fig{thymio}, right).
 Thymio~II is programmed through the Aseba framework~\cite{aseba2011tmech}.
-For this work, Aseba is connected to the \textsc{ros} framework\footnote{ROS (Robot Operating System): \url{http://www.ros.org/}}.
 
-The map consists of a 150$\times$150\,cm pattern containing 50\,$\times$\,50 black and white random cells of 3$\times$3\,cm.
+The map consists in a 150$\times$150\,cm pattern containing 50\,$\times$\,50 black and white random cells of 3$\times$3\,cm.
 The pattern is generated randomly with an equal probability of black and white cells and without regularization.
+% TODO: what do you call regularization? no correlation between adjacent cells? can you clarify?
 
 To evaluation the performance of our localization algorithms, we record the ground-truth pose of the robot using a Vicon\footnote{\url{http://www.vicon.com/}} tracking system.
 %to provide the ground-truth robot pose, consisting of $x$, $y$ coordinates and the heading $\theta$.
-We use \textsc{ros} to synchronously record these along with sensor values and odometry information from Thymio.
-During the dataset gathering, the robot move on the map with a speed of 3--5\,cm/s.
-The data are gathered with a high enough frequency of 100\,Hz (ground-truth) and 10\,Hz (robot) for subsequent sub-sampling.
+We use the \textsc{ros} framework\footnote{ROS (Robot Operating System): \url{http://www.ros.org/}} to synchronously record these along with sensor values and odometry information from the Thymio through a connection with Aseba.
+During the dataset gathering, the robot moves on the map with a speed in the range of 3--5\,cm/s.
+The data are gathered with a high enough frequency of 100\,Hz (ground-truth) and 10\,Hz (robot) for subsequent sub-sampling with a period of 300\,ms.
 To fully explore the performance of the algorithm, we remote control the robot along several trajectories covering all possible motions.
 An example trajectory is shown in \fig{dataset}.
+% TODO is this figure really necessary?
 
 \begin{figure}
 \begin{center}
@@ -148,7 +150,7 @@ An example trajectory is shown in \fig{dataset}.
 \end{center}
 \end{figure}
 
-The motions of the robot can be classified into two different types, namely moving forward or backward (possible in arcs) and rotating on spot.
+The motions of the robot can be classified into two different types, namely moving forward or backward (possibly in arcs) and rotating on spot.
 To test the algorithm's ability of recovering from catastrophic localization failures, we also conduct experiments with robot kidnapping by lifting the robot and moving it to another part of the map.
 
 \section{Model}
