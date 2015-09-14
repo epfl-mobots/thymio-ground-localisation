@@ -63,10 +63,10 @@ Lorem ipsum...
 
 \section{Introduction}
 
-Driven by consumer products, electronics, motor and battery technologies have made tremendous progress in the last decades.
-They are now available widely at a price making affordable mobile robots a reality.
+Driven by consumer products, the last decades have seen tremendous progress in electronics, motor and battery technologies.
+They are now widely available at prices making affordable mobile robots a reality.
 This opens many new opportunities, in particular in the educational context.
-Robots have been shown to be effective in supporting the teaching of knowledge such as mathematics, physics, computer science and engineering; and of skills such as problem solving and the scientific method~\cite{benitti2012explorin}.
+Robots have been shown to be effective in supporting the teaching of knowledge in fields such as mathematics, physics, computer science and engineering; and of skills such as problem solving and the scientific method~\cite{benitti2012explorin}.
 
 Programmable platforms such as the LEGO Mindstorms, in the 300-400\,\$ price range, have been successfully used in classrooms worldwide, especially to teach engineering.
 Yet, despite its high price tag, this platform has little perception capabilities; its longest-range sensor being a single ultrasound unit.
@@ -74,17 +74,18 @@ Cheaper products such as the Thymio~II (120\,\$) and Dash \& Dot (160\,\$) even 
 These are limited to sensing distances up to 15\,cm and measuring the grayscale intensity of a close object or the ground.
 These products also lack a camera, because processing image would require extended memory and processing resources, which would increase their price significantly.
 Therefore, all affordable educational robots (in the 100\,\$ range) lack long-range sensing capabilities.
-In addition, dead-reckoning on these platforms is bad to non-existent, as proper wheel encoders are too expensive.
+In addition, dead-reckoning on these platforms is bad to non-existent, as proper wheel encoders are still too expensive.
 When dead-reckoning is provided, such as on the Thymio~II, it builds on approximate methods such as measuring the back electromotive force.
 % A notable exception is the BeeBot, which uses proper dead-reckoning as its only sensor.
 % But this robot can only follow pre-programmed trajectories, it is not able to react to external events.
 
 The combined lack of long-range sensors and quality dead-reckoning prevents these robots from using state of the art localization algorithms, such as simultaneous localization and mapping.
 This lack of absolute positioning limits their educational use, in particular for the study of geometry, physics, and engineering; but also the building of advanced behaviors, such as robots playing a theater piece.
+% TODO ???robots playing a theater piece??? that's not a typical robot behaviour
 
-This paper solves this problem.
-We provide an absolute positioning system using only approximate dead-reckoning and inexpensive infrared sensors measuring the grayscale intensity of the ground.
-Our solution builds on a recursive Bayesian filter, of which we propose both a dense and a sampling-based implementation.
+This paper tackles this issue by providing an absolute positioning system using only approximate dead-reckoning and inexpensive infrared sensors measuring the grayscale intensity of the ground.
+Our solution is based on the classical Markov and Monte Carlo Localization frameworks that can be seen as respectively a dense and sampling-based implementation of a recursive Bayesian filter.
+%Our solution builds on a recursive Bayesian filter, of which we propose both a dense and a sampling-based implementation.
 We evaluate these using the Thymio~II mobile robot on a known black and white pseudo-random pattern, with ground truth provided by a Vicon tracking system.
 In addition, we provide a theoretical contribution predicting the traveled distance necessary to localize the robot.
 Finally, we show how grayscale images can be used as ground maps that allow the robot to localize.
