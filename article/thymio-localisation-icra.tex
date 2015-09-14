@@ -64,9 +64,9 @@ Lorem ipsum...
 \section{Introduction}
 
 Driven by consumer products, electronics, motor and battery technologies have made tremendous progress in the last decades.
-They are now widely available at a price that makes affordable mobile robots a reality.
-This opens many new opportunities, particularly in education.
-Robots have been shown to effectively support teaching of knowledge such as mathematics, physics, computer science and engineering; and of skills such as problem solving and the scientific method~\cite{benitti2012explorin}.
+They are now widely available at prices making affordable mobile robots a reality.
+This opens many new opportunities, in particular in the educational context.
+Robots have been shown to be effective in supporting the teaching of knowledge in fields such as mathematics, physics, computer science and engineering; and of skills such as problem solving and the scientific method~\cite{benitti2012explorin}.
 
 Programmable platforms such as the LEGO Mindstorms, in the 300-400\,\$ price range, have been successfully used in classrooms worldwide, especially to teach engineering.
 Yet, despite its high price tag, this platform has little perception capabilities; its longest-range sensor being a single ultrasound unit.
@@ -74,17 +74,18 @@ Cheaper products such as the Thymio~II (120\,\$) and Dash \& Dot (160\,\$) even 
 These are limited to sensing distances up to 15\,cm and measuring the grayscale intensity of a close object or the ground.
 These products also lack a camera, because processing images would require extended memory and processing resources, which would increase their price significantly.
 Therefore, all affordable educational robots (in the 100\,\$ range) lack long-range sensing capabilities.
-In addition, dead-reckoning on programmable educational platforms is bad to non-existent, as proper wheel encoders are too expensive on platforms that must already provide a variety of sensing modalities to meet educational needs.
+In addition, dead-reckoning on these platforms is bad to non-existent, as proper wheel encoders are still too expensive on platforms that must already provide a variety of programming and sensing modalities to meet educational needs.
 When dead-reckoning is provided, such as on the Thymio~II, it builds on approximate methods such as measuring the back electromotive force.
 % A notable exception is the BeeBot, which uses proper dead-reckoning as its only sensor.
 % But this robot can only follow pre-programmed trajectories, it is not able to react to external events.
 
 The combined lack of long-range sensors and quality dead-reckoning prevents these robots from using state of the art localization algorithms, such as simultaneous localization and mapping.
 This lack of absolute positioning limits their educational use, in particular for the study of geometry, physics, and engineering; but also the building of advanced behaviors, such as robots playing a theater piece.
+% TODO ???robots playing a theater piece??? that's not a typical robot behaviour
 
-This paper solves this problem.
-We provide an absolute positioning system using only approximate dead-reckoning and inexpensive infrared sensors measuring the grayscale intensity of the ground.
-Our solution builds on a recursive Bayesian filter, of which we propose both a dense and a sampling-based implementation.
+This paper tackles this issue by providing an absolute positioning system using only approximate dead-reckoning and inexpensive infrared sensors measuring the grayscale intensity of the ground.
+Our solution is based on the classical Markov and Monte Carlo Localization frameworks that can be seen as respectively a dense and sampling-based implementation of a recursive Bayesian filter.
+%Our solution builds on a recursive Bayesian filter, of which we propose both a dense and a sampling-based implementation.
 We evaluate these using the Thymio~II mobile robot on a known black and white pseudo-random pattern, with ground truth provided by a Vicon tracking system.
 In addition, we provide a theoretical contribution predicting the traveled distance necessary to localize the robot.
 Finally, we show how grayscale images can be used as ground maps that allow the robot to localize.
@@ -95,10 +96,18 @@ Markov and Monte Carlo Localization, why not SLAM?
 
 Localization techniques for cheap mobile robots.
 The challenge of solving localization problem of cheap mobile robots is the sensor information is very limited.
-Some approaches, such as \cite{prorok2012low, dias2013absolute}, solve localization problem of multiple cheap robots instead of a single robot by using collaborative sensors information.
+Some approaches, such as \cite{prorok2012low, dias2013absolute, mclurkin2013low}, solve localization problem of multiple cheap robots instead of a single robot by using collaborative sensors information.
 
+\cite{varveropoulos2005robot} presents a method which solves small-scale robotics localization problem using data from sonar-based range sensor.
+An occupancy algorithm based on Bayes' probabilistic model is applied and the map is discretized into 2-D grid map. 
+In \cite{zug2011design}, a localization system is developed for supporting multi-sensor mobile robot in RoboCup Junior competitions using Kalman filter.
+The localization system is applied for robot equipped with four distance sensors with limited range moving in an environment of a rectangle consisting of four walls.
+In \cite{pinto2012localization,singh2013map}, approaches are presented for solving localization problem with LEGO NXT.
 In \cite{pinto2012localization}, Extended Kalman Filter algorithm is conducted in a LEGO NXT for the purpose of teaching undergraduate university students localization of mobile robots.
 The localization environment is with several white walls and EKF uses information from infra-red sensors equipped on the robot.
+\cite{singh2013map} uses a particle filter algorithm to solve robot localization problem with robot kidnapping using information from ultrasonic sensors.
+
+ 
 
 
 \section{Material}
@@ -116,19 +125,22 @@ We run empirical experiments with the Thymio~II mobile robot localizing on a pri
 Thymio~II is an open-source differential-wheeled mobile robot (\fig{thymio}, left).
 Its footprint is approximately $10 \times 10$ cm and it costs about 120\,\$.
 Thousands of units have been sold to date and are used in the context of computational thinking and engineering education~\cite{riedo2015thymio}.
-While this robot features several sensing modulatities, this project uses its two ground infrared sensors (\fig{thymio}, right) and the measurement of wheels speed.
+It features many sensors such as a set of infrared sensors, a small accelerometer, or a microphone.
+This project uses only its two ground infrared sensors (\fig{thymio}, right) and the measurement of wheels speed.
 Thymio~II is programmed through the Aseba framework~\cite{aseba2011tmech}, which, in this work, connects to the \textsc{ros} framework\footnote{ROS (Robot Operating System): \url{http://www.ros.org/}}.
 
-The map consists of a 150$\times$150\,cm pattern containing 50\,$\times$\,50 black and white random cells of 3$\times$3\,cm.
+The map consists in a 150$\times$150\,cm pattern containing 50\,$\times$\,50 black and white random cells of 3$\times$3\,cm.
 The pattern is generated randomly with an equal probability of black and white cells and without regularization.
+% TODO: what do you call regularization? no correlation between adjacent cells? can you clarify?
 
 To evaluate the performance of our localization algorithms, we record the ground-truth pose of the robot using a Vicon\footnote{\url{http://www.vicon.com/}} tracking system.
 %to provide the ground-truth robot pose, consisting of $x$, $y$ coordinates and the heading $\theta$.
 We use \textsc{ros} to synchronously record these along with sensor values and odometry information from Thymio.
 During the dataset gathering, the robot moves on the map with a speed of 3--5\,cm/s.
-The data are gathered with a high enough frequency of 100\,Hz (ground-truth) and 10\,Hz (robot) for subsequent sub-sampling.
+The data are gathered with a high enough frequency of 100\,Hz (ground-truth) and 10\,Hz (robot) for subsequent sub-sampling with a period of 300\,ms.
 To fully explore the performance of the algorithm, we remotely control the robot along several trajectories covering all possible motions.
 An example trajectory is shown in \fig{dataset}.
+% TODO is this figure really necessary?
 
 \begin{figure}
 \begin{center}
@@ -138,8 +150,8 @@ An example trajectory is shown in \fig{dataset}.
 \end{center}
 \end{figure}
 
-The motions of the robot can be classified into two different types, namely moving forward or backward (possiblely in arcs) and rotating on spot.
-To test the algorithm's ability to recover from catastrophic localization failures, we also conduct experiments with ``robot kidnapping'' by lifting the robot and moving it to another part of the map.
+The motions of the robot can be classified into two different types, namely moving forward or backward (possibly in arcs) and rotating on spot.
+To test the algorithm's ability of recovering from catastrophic localization failures, we also conduct experiments with ``robot kidnapping'' by lifting the robot and moving it to another part of the map.
 
 \section{Model}
 
