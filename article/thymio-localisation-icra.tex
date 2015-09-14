@@ -102,45 +102,33 @@ Finally, we show how grayscale images can be used as ground maps that allow the 
 \section{Related work}
 
 Localization techniques for cheap mobile robots.
+
 The challenge of solving localization problem of cheap mobile robots is the sensor information is very limited.
-% The first line of research solves the localization problem using several robots.
-% Prorok et al.~\cite{prorok2012low} have used an infrared-based range and bearing hardware along with a distribute Monte Carlo approach, allowing a group of robots to localize down to a precision of 20\,cm.
-% This work focuses on scalability rather than absolute positioning.
+Some approaches are developed to solve localization problem by using multiple robots instead of one.
+In this case, collaborative sensors information is used instead of one.
+Prorok et al.~\cite{prorok2012low} have used an infrared-based range and bearing hardware along with a distribute Monte Carlo approach, allowing a group of robots to localize down to a precision of 20\,cm.
+However, this work only focuses on scalability rather than absolute positioning.
 
 % In opposition to this line of research, our work focus on absolute positioning of a single robot.
 % Nevertheless, our approach is also fully distributed and therefore scales perfectly.
 
-Some approaches, such as \cite{prorok2012low, dias2013absolute, mclurkin2013low}, solve localization problem of multiple cheap robots instead of a single robot by using collaborative sensors information.
-
-% mclurkin2013low
-% not relevant
-
-% Dias and Ventura~\cite{dias2013absolute} have used barcode on the wall of an arena and an Extended Kalman Filter to localize an e-puck robot.
-% Their system reaches precision in the order of cm and 5° but requires wall around the arena to place the bar codes.
-% dias2013absolute
-
-% \cite{varveropoulos2005robot} presents a method which solves small-scale robotics localization problem using data from sonar-based range sensor.
-% An occupancy algorithm based on Bayes' probabilistic model is applied and the map is discretized into 2-D grid map.
-
-%Zug et al.~\cite{zug2011design} have developed an algorithm using an array of triangulation-based infrared distance sensors.
-%Their localization algorithm uses a Kalman filter to localize the robot within a 2 by 1 meter box.
-%While they do not provide experimental result, they provide a simulation estimating the error to be within 2\,cm.
-In \cite{zug2011design}, a localization system is developed for supporting multi-sensor mobile robot in RoboCup Junior competitions using Kalman filter.
-The localization system is applied for robot equipped with four distance sensors with limited range moving in an environment of a rectangle consisting of four walls.
-
+Solving localization problem with only one cheap robot with limited sensor information is even more challenging.
+Dias and Ventura~\cite{dias2013absolute} use barcode on the wall of an arena and apply an Extended Kalman Filter algorithm to localize an e-puck robot.
+Their system reaches precision in the order of cm and 5°, but requires wall around the arena to place the bar codes.
+Zug et al.~\cite{zug2011design} have developed an algorithm using an array of triangulation-based infrared distance sensors.
+A Kalman filter algorithm is applied to localize the robot within a 2 by 1 meter box.  
+However, experimental result is not provided. 
+The simulation show the estimated error to be within 2\, cm. 
 In \cite{pinto2012localization,singh2013map}, approaches are presented for solving localization problem with LEGO NXT.
-
-In \cite{pinto2012localization}, Extended Kalman Filter algorithm is conducted in a LEGO NXT for the purpose of teaching undergraduate university students localization of mobile robots.
+In \cite{pinto2012localization}, Extended Kalman Filter algorithm is conducted for the purpose of teaching undergraduate university students localization of mobile robots.
 The localization environment is with several white walls and EKF uses information from infra-red sensors equipped on the robot.
-\cite{singh2013map} uses a particle filter algorithm to solve robot localization problem with robot kidnapping using information from ultrasonic sensors.
-% Neither of these papers give experimental results, and they all depend on a very specific wall arrangement.
+In \cite{singh2013map} a particle filter algorithm is used to solve robot localization problem with robot kidnapping using information from ultrasonic sensors.
+Neither of these papers give experimental results, and they all depend on a very specific wall arrangement.
 
 % While positioning in affordable mobile robots has been done before, no existing solution is as cheap and precise as the proposed system.
 
 
 \section{Material}
-% Merge all three parts together. Datasets gather from two sources: gt and thymio. mention a bit of the frequency and speed. Trajectories detail: what kind of motion, also kidnapping. Total length should not over one column plus the figure. Figure need some explanation.
-
 \begin{figure}
 \includegraphics[width=.56\columnwidth]{thymio2-shadow}\hfill
 \includegraphics[width=.42\columnwidth]{thymio2-dimensions}
