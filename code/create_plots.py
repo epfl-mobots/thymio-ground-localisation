@@ -105,7 +105,7 @@ def plot_trajectories():
 
 			# save
 			name = '{}-{}-{}-trajectory.svg'.format(algo, param, run)
-			fig.tight_layout(pad=0.02, rect=(0,0.08,1,1))
+			fig.tight_layout(pad=0.02, rect=(0,0,1,1))
 			fig.savefig(os.path.join(dest_base_dir, name), pad_inches=0.02)
 
 
