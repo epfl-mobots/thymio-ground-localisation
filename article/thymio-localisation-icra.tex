@@ -156,7 +156,7 @@ To evaluate the performance of our localization algorithms, we record the ground
 %to provide the ground-truth robot pose, consisting of $x$, $y$ coordinates and the heading $\theta$.
 We use \textsc{ros} to synchronously record these along with sensor values and odometry information from Thymio.
 During the dataset gathering, the robot moves on the map with a speed of 3--5\,cm/s.
-The data are gathered with a high enough frequency of 100\,Hz (ground-truth) and 10\,Hz (robot) for subsequent sub-sampling with a period of 300\,ms.
+The data are gathered with a high enough frequency of 100\,Hz (ground-truth) and 10\,Hz (robot) and subsequently down-sampled to a period of 0.3\,s.
 To fully explore the performance of the algorithm, we remotely control the robot along several trajectories covering all possible motions.
 An example trajectory is shown in \fig{dataset}.
 % TODO is this figure really necessary?
@@ -190,24 +190,24 @@ The odometry consists of the left and right wheel speeds.
 
 We formulate the model as a recursive Bayesian filter.
 Its joint probability is:
-\begin{equation}
+\begin{equation*}
 \begin{split}
 & p(X_{1:t}, Z_{1:t}, U_{1:t}) = \\
 & p(Z_t|X_t) p(X_t|X_{t-1}, U_{t}) p(U_t) p(X_{1:t-1}, Z_{1:t-1}, U_{1:t-1})
 \end{split}
-\end{equation}
+\end{equation*}
 
 \subsection{Question}
 
 We want to estimate the pose $X_t$ at time $t$ knowing the observations $Z_{1:t}$ and the commands $U_{1:t}$:
-\begin{equation}
+\begin{equation*}
 \begin{split}
 & p(X_t|Z_{1:t},U_{1:t}) = \frac{p(X_t,Z_t | Z_{1:t-1}, U_{1:t})}{p(Z_t|Z_{1:t-1}, U_{1:t})} \\
 % &\propto p(Z_t | X_t) p(X_t | Z_{1:t-1}, U_{1:t}) \\
 % &\propto p(Z_t | X_t) \sum_{X_{t-1}} p(X_t, X_{t-1} | Z_{1:t-1}, U_{1:t} ) \\
  &\propto p(Z_t | X_t) \sum_{X_{t-1}} p(X_t|X_{t-1}, U_t) p(X_{t-1} | Z_{1:t-1}, U_{1:t-1})
 \end{split}
-\end{equation}
+\end{equation*}
 %This is a recursive filter to estimate $X_t$ using the previous estimation $X_{t-1}$, the odometry $U_t$ and the observation $Z_t$.
 
 \subsection{Distributions}
@@ -229,7 +229,7 @@ For grayscale images, based on measurement on a real Thymio, we set it to $0.1$.
 Based on the model of Eliazar et al.~\cite{eliazar2004motionmodel}, we assume that the motion has a Gaussian error model, hence $p(X_t~|~X_{t-1}, U_{t})\sim\mathcal{N}(\mu_t,\Sigma_t)$.
 The mean $\mu_t$ is built by accumulating the estimated displacements by dead-reckoning between times $t-1$ and $t$.
 Therefore, if $\Delta x_t$, $\Delta y_t$, $\Delta \theta_t$ are the displacement between $t-1$ and $t$, expressed in the robot local frame at $t-1$, $\mu_t$ is:
-\begin{equation}
+\begin{equation*}
 \mu_t =
 \left[ \begin{array}{c} x_t \\ y_t \\ \theta_t \end{array} \right]
 \text{with}
@@ -241,12 +241,12 @@ R(\theta_{t-1})
 \\
 \theta_t = \theta_{t-1} + \Delta \theta_t
 \end{array}
-\end{equation}
+\end{equation*}
 where $R(\theta)$ is the 2-D rotation matrix of angle $\theta$.
 The $3\times3$ diagonal covariance matrix $\Sigma_t$ is a function of the distance traveled and the amount of rotation:
-\begin{equation}
+\begin{equation*}
 \Sigma_t=\begin{bmatrix} \sigma_{\mathrm{xy},t}^2 & 0 & 0 \\ 0 & \sigma_{\mathrm{xy},t}^2 & 0 \\ 0 & 0 & (\alpha_\theta | \Delta \theta_t |)^2 \end{bmatrix}
-\end{equation}
+\end{equation*}
 with $ \sigma_{\mathrm{xy},t} = \alpha_\mathrm{xy} \sqrt{\Delta x_{t}^2 + \Delta y_{t}^2}$.
 
 In addition, to cope for the possibility of the robot being kidnapped and therefore its pose becoming unknown, a uniform distribution with a weight $p_\mathrm{uniform}$ is added to $X_t$.
@@ -313,14 +313,13 @@ Setting the sensors apart also reduces the redundancy between their information 
 
 \subsection{Dataset collection}
 
-Our experiments are based on these datasets:
+Our experiments are based on four datasets:
 \begin{itemize}
-\item \texttt{trajectory~1}: The robot first goes forward, then backward, rotates on spot, and goes again forward and backward.
-\item \texttt{trajectory~2}: The robot first goes forward, then turns on spot for a long duration, then goes forward and finally backward.
-\item \texttt{trajectory with kidnapping}: The robot alternates phases of forward movement and turning on spot, with kidnapping happening every minute.
-\item \texttt{linear trajectory}: The robot simple goes straight along the x-axis of the map.
+\item \texttt{trajectory~1}: The robot goes forward, then backward, rotates on spot, and again forward and backward;
+\item \texttt{trajectory~2}: The robot goes forward, turns on spot for a long duration, then goes forward and backward;
+\item \texttt{trajectory with kidnapping}: The robot alternates phases of forward movement and turning on spot, with kidnapping happening every minute;
+\item \texttt{linear trajectory}: The robot simply goes straight along the x-axis of the map.
 \end{itemize}
-We use down-sampled data to 300\,ms per time step.
 
 \subsection{Parameter estimation}
 \label{sec:mle}
@@ -363,58 +362,56 @@ Monte Carlo Localization, \texttt{trajectory~2}, for different \emph{number of p
 \includegraphics{mcl-whole_random_2-xy}\hfill
 \includegraphics{mcl-whole_random_2-theta}
 
-\caption{The error between the estimation by the localization algorithm and the ground truth, using Markov and Monte Carlo Localization, on \texttt{trajectory~1} (top) and \texttt{trajectory~2} (bottom).
+\caption{The error between the estimation by the localization algorithm and the ground truth on \texttt{trajectory~1} (top) and \texttt{trajectory~2} (bottom).
 For Monte Carlo Localization, the solid lines show the average over 10 trials, while the light dots show the individual trials.}
 \label{fig:whole-runs-random12}
 \end{figure*}
 
-\Fig{whole-runs-random12} shows the error in position and orientation for \texttt{trajectory~1} and \texttt{trajectory~2}.
+\Fig{whole-runs-random12} shows the error in position and orientation for the first two trajectories.
 In these plots, \emph{distance traveled} represents the cumulative distance traveled by the center point between the two ground sensors of the robot.
 The error is clamped at 50\,cm for position and 90° for orientation.
 
 For Markov Localization approach, all discretization resolutions allow the robot to localize with a precision of 3\,cm and 5°.
-In \texttt{trajectory~1}, the resolution of 18 is not enough to keep tracking the orientation at distance traveled 50\,cm and 80\,cm.
+In \texttt{trajectory~1}, the resolution of 18 is not enough to keep tracking the orientation at a distance traveled of 50\,cm and 80\,cm.
 These both correspond to the robot rotating on spot.
-We see that a discretization of 36 (10° resolution) is sufficient to provide accurate tracking, and that a finer resolution only provides minor improvements in angular precision, and no improvement in position precision.
+We see that an angular discretization of 36 (10° resolution) is sufficient to provide accurate tracking, and that a finer resolution only provides minor improvements in angular precision, and no improvement in position precision.
 In \texttt{trajectory~2}, we see that a resolution of 54 allows for a better angular precision than 36, but 72 does not improve over 54.
 All resolutions provide equal position precision.
 
 For Monte Carlo Localization approach, we see that on \texttt{trajectory~1}, the robot localizes already with 50k particles, but twice later than with 100k particles.
-Increasing the number of particles over this value only provides minor decrease in localization time and precision.
+Increasing the number of particles over this value only provides minor decrease in localization time.
 While 50k particles allow to localize on this run in average, there are some trials (restart of the run) in which the robot looses orientation, when it turns on spot.
 On \texttt{trajectory~2}, 50k particles is not enough for localizing the robot.
-Increasing this number to 100k leads to a good localization, excepted after the robot has traveled 80; which corresponds to a long moment during which the robot rotates on spot, leading to less information acquisition, and therefore degraded precision.
+Increasing this number to 100k leads to a good localization, excepted after the robot has traveled 80\,cm; which corresponds to a long moment during which the robot rotates on spot, leading to less information acquisition, and therefore degraded precision.
 
 Overall, both approaches have similar localization accuracy.
-When angular precision is critical, the Monte Carlo approach might achieve better performance as the Markov approach is limited in precision by its discretization.
+When angular precision is critical, the Monte Carlo approach might achieve better performance, as the Markov approach is limited in precision by its discretization.
 
 %TODO: explain why this does not appear in ML
 
 \subsection{Distance to converge}
 
-\begin{figure*}
+\begin{figure}
 
 \begin{center}
-Markov Localization, 10 extracts from \texttt{trajectory~1} and \texttt{trajectory~2}, for different \emph{number of discretization angles}
+Markov Localization, 10 segments from the first two trajectories, for different \emph{number of discretization angles}
 \end{center}
-\includegraphics{ml-small_runs_random_12-xy}\hfill
-\includegraphics{ml-small_runs_random_12-theta}
+\includegraphics{ml-small_runs_random_12-xy}
 
 \vspace{.5em}
 
 \begin{center}
-Monte Carlo Localization, 10 extracts from \texttt{trajectory~1} and \texttt{trajectory~2}, for different \emph{number of particles}
+Monte Carlo Localization, 10 segments from the first two trajectories, for different \emph{number of particles}
 \end{center}
-\includegraphics{mcl-small_runs_random_12-xy}\hfill
-\includegraphics{mcl-small_runs_random_12-theta}
+\includegraphics{mcl-small_runs_random_12-xy}
 
 \caption{
-The error between the estimation by the localization algorithm and the ground truth, using Markov and Monte Carlo Localization, on 10 extracts from two first trajectories.
-The solid lines show the median over 10 trials, while the light dots show the individual trials.}
+The error between the estimation by the localization algorithm and the ground truth on 10 segments from the first two trajectories.
+The solid lines show the median while the light dots show the individual trials.}
 \label{fig:small-runs}
-\end{figure*}
+\end{figure}
 
-\Fig{small-runs} shows the error in position and orientation for 5 different locations in the two first trajectories.
+\Fig{small-runs} shows the error in position for 5 different locations in the two first trajectories.
 We see that, with Markov Localization approach, the correct pose is found after about 20\,cm.
 This corresponds well to the ideal theoretical distance of 18\,cm computed in \sect{theoreticalconv}.
 However, there are outliers.
@@ -424,42 +421,40 @@ Decreasing the number of particles quickly increases the distance to converge, r
 Using only 50k particles, some trajectory segments fail to converge, even after 80\,cm length.
 
 \Fig{small-maps} shows the effect on convergence distance when the map size is reduced.
-The robot runs linearly on one quarter of the map, while the Markov Localization is run with the whole map, half of it, and a quarter of it.
-We see that reducing the map size does reduces the distance traveled necessary to converge, in accordance to the theory.
+The robot runs linearly on one quarter of the map, while the Markov Localization is provided with the whole map, half of it, and a quarter of it.
+We see that reducing the map size does reduce the distance traveled necessary to converge, in accordance to the theory.
 
 \begin{figure}
 \includegraphics{ml-small_maps-xy}
-\vspace{.5em}
-\includegraphics{ml-small_maps-theta}
-\caption{The error between the estimation by the localization algorithm and the ground truth, using Markov Localization, for different map sizes on the linear run.
-The solid lines show the median over 3 different positions, while the light dots show the individual positions.}
+%\vspace{.5em}
+%\includegraphics{ml-small_maps-theta}
+\caption{The error between the estimation by the localization algorithm and the ground truth, using Markov Localization, for different map sizes on \texttt{linear trajectory}.
+The solid lines show the median over 3 different sizes, while the light dots show the individual sizes.}
 \label{fig:small-maps}
 \end{figure}
 
 \subsection{Robot kidnapping}
 
-\begin{figure*}
+\begin{figure}
 
 \begin{center}
 Markov Localization, \texttt{trajectory with kidnapping}, for different \emph{number of discretization angles}
 \end{center}
-\includegraphics{ml-whole_random_long-xy}\hfill
-\includegraphics{ml-whole_random_long-theta}
+\includegraphics{ml-whole_random_long-xy}
 
 \vspace{.5em}
 
 \begin{center}
 Monte Carlo Localization, \texttt{trajectory with kidnapping}, for different \emph{number of particles}
 \end{center}
-\includegraphics{mcl-whole_random_long-xy}\hfill
-\includegraphics{mcl-whole_random_long-theta}
+\includegraphics{mcl-whole_random_long-xy}
 
-\caption{The error between the estimation by the localization algorithm and the ground truth, using Markov and Monte Carlo Localization, on the run with kidnapping.
+\caption{The error between the estimation by the localization algorithm and the ground truth on the run with kidnapping.
 For Monte Carlo Localization, the solid lines show the median over 10 trials, while the light dots show the individual trials.}
 \label{fig:whole-runs-random-long}
-\end{figure*}
+\end{figure}
 
-\Fig{whole-runs-random-long} shows the error in position and orientation for the run with kidnapping.
+\Fig{whole-runs-random-long} shows the error in position for the run with kidnapping.
 In this run, the robot is kidnapped twice, after having traveled 550\,cm and 1000\,cm.
 It takes the robot approximately 50\,cm to re-localize, and does so successfully with both Markov and Monte Carlo Localization approaches.
 % FIXME: check on the video for numbers, edit plots
@@ -467,6 +462,7 @@ With Markov Localization approach, discretization resolutions of 36, 54 and 72 a
 With Monte Carlo Localization approach, the robot localizes most of the time with 100k particle or more, and always with 200k particles or more.
 With 50k particles, the robot eventually localizes, but this might take more than 2 meters of traveled distance.
 %TODO: reanalyse MCL once we have 10 runs
+%FIXME: make more clear
 
 \subsection{Computational cost}
 
@@ -535,7 +531,7 @@ While we have not recorded datasets with such images, we can simulate these scen
 When running on such maps, we set $\sigma_\mathrm{obs}$ to 0.1.
 
 \Fig{grayscale} shows the error in position and orientation for six different grayscale maps.
-These cover various styles, contrast and distribution of intensities.
+These cover various styles, contrast profiles and distributions of intensities.
 The first three, paintings from Breugel, Van Gogh and Kandinsky, allow the robot to localize in less than 10\,cm for both \texttt{trajectory~1} and \texttt{trajectory~2}.
 This is due to their variety of contrasted visual structures.
 In areas with less contrast, the angular tracking becomes imprecise, but is always within 20°.
@@ -559,7 +555,7 @@ In addition, we have outlined, and empirically validated, a theoretical analysis
 This method provides a guide for taking decisions about the placement of sensors in a future robot:
 localization performance can be improved by placing the sensors far apart on a line perpendicular to the direction of movement of the robot; in addition, more sensors allow to collect more information, if they are separated by the size of the smallest visual structure in the map.
 Finally, we have demonstrated that our model allows successful localization on a large variety of grayscale images, from well-known paintings to drawings made by children.
-This opens the way to user-created maps, for instance for a child making a picture with her mobile phone of her own drawing, and using this picture as map.
+This opens the way to user-created maps, for instance for a child making a picture with her mobile phone of her own drawing, printing this picture on a poster, and using it as map.
 
 These contributions to the state of the art enable absolute positioning of inexpensive mobile robots costing less than 100\,\$.
 In the context of educational robotics, this opens many opportunities, such as the study of geometry, puzzles based on the physical space, and robots playing a theater piece, for instance in the context of language education.
