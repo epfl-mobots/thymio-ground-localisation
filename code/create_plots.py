@@ -41,7 +41,7 @@ def plot_cpu_load(name):
 	algo_params = { 'ml': [18, 36, 54, 72], 'mcl': ['50k', '100k', '200k', '400k'] }
 
 	# create plot
-	fig, ax = plt.subplots(figsize=(3.6, 1.8))
+	fig, ax = plt.subplots(figsize=(3.4, 1.8))
 	ax.set_ylim(0,12)
 
 	# one bar for each algo,param couple
