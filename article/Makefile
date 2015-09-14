@@ -26,7 +26,8 @@ generated-figures/%.pdf: figures/%.svg
 generated-figures/%.pdf: figures/%.r
 	cd build && R BATCH --no-save < ../$< && mv $(patsubst generated-figures/%.pdf,%.pdf,$@) ../generated-figures/
 
-all: $(targetpdf)
+%-emb.pdf: %.pdf
+	gs -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -dEmbedAllFonts=true  -dPDFSETTINGS=/prepress -dSubsetFonts=true -sOutputFile=$@ -f $<
 
 clean: buildclean
 
