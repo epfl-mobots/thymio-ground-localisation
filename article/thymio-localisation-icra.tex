@@ -60,26 +60,27 @@ Localization of inexpensive robots with low-bandwidth sensors
 
 \begin{abstract}
 Recent progress in electronics has allowed the construction of affordable mobile robots.
-These open many new opportunities, in particular in the educational context.
-However, these robots have little long range sensing abilities, as they are still more expensive than shorter range ones, such as infrared sensors.
+This opens many new opportunities, in particular in the educational context.
+However, these robots have little long-range sensing abilities, as they are still more expensive than shorter range ones, such as infrared sensors.
 This lack has prevented these robots from performing global localization without external aids.
 This severely limits their use, for example to teach spatial reasoning or develop artistic activities.
 In this paper, we propose a solution to this problem, using only infrared ground sensors, approximate dead-reckoning, and a visual pattern on the ground.
-Our approach builds on a recursive Bayesian filter, of which we demonstrate two implementations, a dense Markov Localization and a particle-based Monte Carlo Localization.
+Our approach builds on a recursive Bayesian filter, of which we demonstrate two implementations: a dense Markov Localization and a particle-based Monte Carlo Localization.
 We show that both implementations allow accurate localization on a large variety of patterns, from pseudo-random black and white matrices to grayscale drawings by children.
 We discuss the optimal parameters and the real-time applicability of our algorithms.
-These results show that by enabling a new dimension of educational activities, our solution to the localization of inexpensive robots strongly increases the value of robots for education.
+These result show that by enabling a new range of educational activities, our solution to the localization of inexpensive robots strongly increases the value of robots for education.
+
 \end{abstract}
 
 \section{Introduction}
 
-Driven by consumer products, electronics, motor and battery technologies have made tremendous progress in the last decades.
+Driven by consumer products, the technologies of electronics, motor and battery have made tremendous progress in the last decades.
 They are now widely available at prices making affordable mobile robots a reality.
 This opens many new opportunities, in particular in the educational context.
-Robots have been shown to be effective in supporting the teaching of knowledge in fields such as mathematics, physics, computer science and engineering; and of skills such as problem solving and the scientific method~\cite{benitti2012explorin}.
+Robots have been shown to be effective in supporting the teaching of knowledge in fields such as mathematics, physics, computer science and engineering; and of skills such as problem solving and introduction to the scientific method~\cite{benitti2012explorin}.
 
 Programmable platforms such as the LEGO Mindstorms, in the 300--400\,\$ price range, have been successfully used in classrooms worldwide, especially to teach engineering.
-Yet, despite its high price tag, this platform has little perception capabilities; its longest-range sensor being a single ultrasound unit.
+Yet, despite its high price tag, this platform has little perception capabilities: its longest-range sensor is a single ultrasound unit.
 Cheaper products such as the Thymio~II (120\,\$) and Dash \& Dot (160\,\$) even lack such a long-range perception capability, and only provide local infrared sensors.
 These are limited to sensing distances up to 15\,cm and measuring the grayscale intensity of a close object or the ground.
 These products also lack a camera, because processing images would require extended memory and processing resources, which would increase their price significantly.
@@ -89,11 +90,11 @@ When dead-reckoning is provided, such as on the Thymio~II, it builds on approxim
 % A notable exception is the BeeBot, which uses proper dead-reckoning as its only sensor.
 % But this robot can only follow pre-programmed trajectories, it is not able to react to external events.
 
-The combined lack of long-range sensors and quality dead-reckoning prevents these robots from using state of the art localization algorithms, such as simultaneous localization and mapping.
-This lack of absolute positioning limits their educational use, in particular for the study of geometry, physics, and engineering.
-This is especially a pity when following a constructivist/constructionist approach to education, which is the case in most robot-based educational material, because spatial reasoning has been recognized as a critical element for learning about the world~\cite{lesh2003beyond}.
-In addition, while robots have the potential to reach minorities currently underrepresented in technical fields, they typically achieve so through art and storytelling~\cite{szecsei2015girls}.
-Such educational activities, such as staging a theater play with robots, typically demand absolute positioning.
+The combined lack of long-range sensors and poor quality dead-reckoning prevent these robots from using state of the art localization algorithms, such as simultaneous localization and mapping.
+This lack of absolute positioning hinders their educational use, especially with constructivist or constructionist approaches (the most commons in robot-based educational material), because spatial reasoning has been recognized as a critical element for learning about the world~\cite{lesh2003beyond}.
+This has negative effects for the study of geometry, physics, and engineering;
+In addition, while robots have the potential to reach minorities currently under-represented in technical fields, they typically do so through art and storytelling~\cite{szecsei2015girls}.
+Such educational activities, for example staging a theater play with robots, typically demand absolute positioning.
 
 This paper answers this need by providing an absolute positioning system using only approximate dead-reckoning and inexpensive infrared sensors measuring the grayscale intensity of the ground.
 Our solution is based on the classical Markov~\cite{fox1999markov} and Monte Carlo~\cite{dellaert1999monte} Localization frameworks that can be seen as respectively a dense and a sampling-based implementation of a recursive Bayesian filter.
@@ -119,14 +120,14 @@ However, this method demands the installation of a projector and requires empty 
 
 Part and Hashimoto~\cite{park2009approach} proposed to localize a mobile robot over a ground equipped with randomly distributed passive \textsc{rfid} tags.
 The average localization error of this method is lower than 10\,cm.
-However, this approach requires the group to be equipped, and is only applicable when the starting position of the robot is known.
+However, this approach requires the ground to be equipped, and is only applicable when the starting position of the robot is known.
 
 In the context of education, Singh and Bedi~\cite{singh2013map} have used the ultrasound sensor of the LEGO Mindstorms NXT to localize a robot in a room.
 They use a Monte Carlo Localization approach based on a particle filter.
 However, they do not provide quantitative results.
 
 Dias and Ventura~\cite{dias2013absolute} use two horizontal lines from a \textsc{vga} camera to read barcodes on the walls of an arena and localize an e-puck robot.
-Their system employ an Extended Kalman Filter algorithm and reaches a precision in the order of cm and 5°.
+Their system employ an Extended Kalman Filter algorithm and reaches a precision of 1\,cm and 5°.
 As with the work of Singh and Bedi, it requires an enclosed arena with a specific wall arrangement and no obstacles between the robot and the walls.
 
 Another line of research has approached the localization problem by using multiple robots and combining their perception.
@@ -150,7 +151,7 @@ The system proposed in this paper meets these requirements.
 
 We run empirical experiments with the Thymio~II mobile robot localizing on a printed map.
 
-Thymio~II is an open-source differential-wheeled mobile robot (\fig{thymio}, left).
+Thymio~II is an open-source differential-wheeled mobile robot (\fig{thymio}).
 Its footprint is approximately $10 \times 10$ cm and it costs about 120\,\$.
 Thousands of units have been sold to date and are used in the context of computational thinking and engineering education~\cite{riedo2015thymio}.
 It features many sensors such as a set of infrared sensors, a small accelerometer, or a microphone.
@@ -158,8 +159,7 @@ This project uses only its two ground infrared sensors (\fig{thymio}, right) and
 Thymio~II is programmed through the Aseba framework~\cite{aseba2011tmech}, which, in this work, connects to the \textsc{ros} framework\footnote{ROS (Robot Operating System): \url{http://www.ros.org/}}.
 
 The map consists in a 150$\times$150\,cm pattern containing 50\,$\times$\,50 black and white random cells of 3$\times$3\,cm.
-The pattern is generated randomly with an equal probability of black and white cells and without regularization.
-% TODO: what do you call regularization? no correlation between adjacent cells? can you clarify?
+The pattern is generated randomly with an equal probability of black and white cells.
 
 To evaluate the performance of our localization algorithms, we record the ground-truth pose of the robot using a Vicon\footnote{\url{http://www.vicon.com/}} tracking system (\fig{thymio}, left).
 %to provide the ground-truth robot pose, consisting of $x$, $y$ coordinates and the heading $\theta$.
@@ -243,7 +243,7 @@ R(\theta_{t-1})
 \end{array}
 \end{equation*}
 where $R(\theta)$ is the 2-D rotation matrix of angle $\theta$.
-The $3\times3$ diagonal covariance matrix $\Sigma_t$ is a function of the distance traveled and the amount of rotation:
+The $3\times3$ diagonal covariance matrix $\Sigma_t$ is a function of the distance traveled, the amount of rotation, and two parameters $\alpha_\mathrm{xy}$, $\alpha_\theta$:
 \begin{equation*}
 \Sigma_t=\begin{bmatrix} \sigma_{\mathrm{xy},t}^2 & 0 & 0 \\ 0 & \sigma_{\mathrm{xy},t}^2 & 0 \\ 0 & 0 & (\alpha_\theta | \Delta \theta_t |)^2 \end{bmatrix}
 \end{equation*}
@@ -272,7 +272,7 @@ We implemented both algorithms in Python with some Cython\footnote{\url{http://w
 
 % TODO text could be adapted, some equations removed, etc. in case it's too long.
 It is possible to estimate the time required for the robot to localize itself in a given known space.
-For the Markov Localization approach, we can see that there is a given number of discrete cells.
+For the Markov Localization approach, there is a given number of discrete cells.
 The amount of information needed to unambiguously specify one among them all is $H_\mathrm{loc} = \log_2(N_\mathrm{cells})$, with $N_\mathrm{cells}$ the number of cells.
 In our example with a 150\,cm$\times$150\,cm environment discretized with cells of 1\,cm and 5° angle, the amount of information needed for the localization is around 20.6\,bit.
 
@@ -285,7 +285,7 @@ where $H_{\text{b}}$ is the binary entropy function: $H_{\text{b}}(p) = -p\log_2
 With $p_\mathrm{correct}=0.95$ the loss in information is around 0.29\,bit per measurement.
 
 In addition to the noise, we need to take into account that our sensor measurements are not completely independent.
-For example, when not moving, we observe always the same place and thus cannot really gain additional information besides being sure of the color of the current pixel.
+For example, when not moving, we always observe the same place and thus cannot really gain additional information besides being sure of the color of the current pixel.
 In a discretized world, we thus need to estimate the probability of having changed cell in order to observe something new, which depends on the distance traveled and the size of the cells.
 This problem is equivalent to the Buffon-Laplace needle problem of finding the probability for a needle thrown randomly on a grid to actually intersect the grid~\cite{laplace1820prob}.
 In our case, the probability of not changing cell is given by:
@@ -307,8 +307,9 @@ On our small robots, the sensors are 2.2\,cm apart so their redundancy causes a 
 
 If we combine all these effects, we can bound the information that our robot gathers at each timestep to at most 1.05\,bit and a time to localize of at least 6\,s, which corresponds to a distance traveled of at least 18\,cm.
 
-In the design of a new robot, if the aim is to have a faster localization, the greatest changes needed could be to move faster, in order to reduce redundancy in the successive measurements, or to have better sensors to reduce cross-over noise.
-Setting the sensors apart also reduces the redundancy between their information but, for our specific grid size, they are sufficiently separated.
+Faster localization can be achieved by moving at a greater speed to reduce redundancy in the successive measurements.
+If designing a new robot, better sensors would reduce cross-over noise.
+Setting the sensors apart would also reduce the redundancy between their information but, for our specific grid size, they are sufficiently separated in Thymio~II.
 
 
 \section{Experiments}
@@ -571,7 +572,7 @@ This opens the way to user-created maps, for instance for a child making a pictu
 
 These contributions to the state of the art enable absolute positioning of inexpensive mobile robots costing less than 100\,\$.
 In the context of educational robotics, this opens many opportunities in the field of spatial reasoning, but also for art and storytelling.
-Hence, by enabling a new dimension of educational activites, our solution also strongly increases the value of robots for education.
+Hence, by enabling a new range of educational activites, our solution also strongly increases the value of robots for education.
 
 \section{Acknowledgements}
 
