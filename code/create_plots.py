@@ -33,7 +33,7 @@ plot_params = {'font.size' : 8,
 colors = ['#2cb67b', '#2c7bb6', '#fdae61', '#d7191c']
 
 default_width_in = 3.6
-aspect_ratio = 4./2.
+aspect_ratio = 4./1.8
 default_height_in = default_width_in / aspect_ratio
 
 def plot_cpu_load(name):
@@ -140,7 +140,7 @@ def plot_grayscale_images(run, show_dist_not_angle, name):
 
 	# create figure
 	path_length = 180
-	fig, ax = plt.subplots(figsize=(3.6, 1.8))
+	fig, ax = plt.subplots(figsize=(default_width_in, default_height_in))
 	ax.set_xlim(0, path_length)
 
 	# show dist or angle diff?
@@ -187,7 +187,7 @@ def plot_grayscale_images(run, show_dist_not_angle, name):
 		# sum these distances to get the x axis
 		cum_dists = np.cumsum(deltas_dists)
 		if cum_dists[-1] * 100. < path_length:
-			print 'WARNING: In', result_file, 'last path point', cum_dists[-1] * 100., 'is before requested distance travelled', path_length
+			print 'WARNING: In', result_file, 'last path point', cum_dists[-1] * 100., 'is before requested distance traveled', path_length
 		x_values = np.insert(cum_dists, 0, [0.]) * 100.
 		# get the y values directly from data
 		y_values = np.minimum(np.abs(data[:,dataCol]), ylim)
@@ -196,7 +196,7 @@ def plot_grayscale_images(run, show_dist_not_angle, name):
 		ppl.plot(ax, x_values, y_values, label=map_labels[i], color=colors[i], ls=linestyles[i])
 
 	# add label, legend and show plot
-	plt.xlabel('distance travelled [cm]')
+	plt.xlabel('distance traveled [cm]')
 	plt.ylabel(ylabel)
 	ppl.legend(ax)
 	fig.savefig(os.path.join(dest_base_dir, name), bbox_inches='tight', pad_inches=0.02)
@@ -209,7 +209,7 @@ def plot_small_maps(show_dist_not_angle, name):
 
 	# create figure
 	path_length = 35
-	fig, ax = plt.subplots(figsize=(3.6, 1.5))
+	fig, ax = plt.subplots(figsize=(default_width_in, default_height_in))
 	ax.set_xlim(0, path_length)
 
 	# show dist or angle diff?
@@ -258,7 +258,7 @@ def plot_small_maps(show_dist_not_angle, name):
 			# sum these distances to get the x axis
 			cum_dists = np.cumsum(deltas_dists)
 			if cum_dists[-1] * 100. < path_length:
-				print 'WARNING: In', result_file, 'last path point', cum_dists[-1] * 100., 'is before requested distance travelled', path_length
+				print 'WARNING: In', result_file, 'last path point', cum_dists[-1] * 100., 'is before requested distance traveled', path_length
 			x_values = np.insert(cum_dists, 0, [0.]) * 100.
 			# get the y values directly from data
 			y_values = np.minimum(np.abs(data[:,dataCol]), ylim)
@@ -272,7 +272,7 @@ def plot_small_maps(show_dist_not_angle, name):
 		ppl.plot(ax, x_ticks, y_median_values, label=map_labels[i], color=colors[i])
 
 	# add label, legend and show plot
-	plt.xlabel('distance travelled [cm]')
+	plt.xlabel('distance traveled [cm]')
 	plt.ylabel(ylabel)
 	ppl.legend(ax, loc=3)
 	fig.savefig(os.path.join(dest_base_dir, name), bbox_inches='tight', pad_inches=0.02)
@@ -361,7 +361,7 @@ def draw_plot(algo, runs, params, show_dist_not_angle, name, path_length, **kwar
 				# sum these distances to get the x axis
 				cum_dists = np.cumsum(deltas_dists)
 				if cum_dists[-1] * 100. < path_length:
-					print 'WARNING: In', result_file, 'last path point', cum_dists[-1] * 100., 'is before requested distance travelled', path_length
+					print 'WARNING: In', result_file, 'last path point', cum_dists[-1] * 100., 'is before requested distance traveled', path_length
 				x_values = np.insert(cum_dists, 0, [0.]) * 100.
 				# get the y values directly from data
 				y_values = np.minimum(np.abs(data[:,dataCol]), ylim)
@@ -384,7 +384,7 @@ def draw_plot(algo, runs, params, show_dist_not_angle, name, path_length, **kwar
 		ppl.plot(ax, x_ticks, y_median_values, label=str(param), color=colors[i])
 
 	# add label, legend and show plot
-	plt.xlabel('distance travelled [cm]')
+	plt.xlabel('distance traveled [cm]')
 	plt.ylabel(ylabel)
 	ppl.legend(ax)
 	fig.savefig(os.path.join(dest_base_dir, name), bbox_inches='tight', pad_inches=0.02)
