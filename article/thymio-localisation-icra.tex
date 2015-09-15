@@ -90,10 +90,12 @@ When dead-reckoning is provided, such as on the Thymio~II, it builds on approxim
 % But this robot can only follow pre-programmed trajectories, it is not able to react to external events.
 
 The combined lack of long-range sensors and quality dead-reckoning prevents these robots from using state of the art localization algorithms, such as simultaneous localization and mapping.
-This lack of absolute positioning limits their educational use, in particular for the study of geometry, physics, and engineering; but also the building of advanced behaviors, such as robots playing a theater piece.
-% TODO ???robots playing a theater piece??? that's not a typical robot behaviour
+This lack of absolute positioning limits their educational use, in particular for the study of geometry, physics, and engineering.
+This is especially a pity when following a constructivist/constructionist approach to education, which is the case in most robot-based educational material, because spatial reasoning has been recognized as a critical element for learning about the world~\cite{lesh2003beyond}.
+In addition, while robots have the potential to reach minorities currently underrepresented in technical fields, they typically achieve so through art and storytelling~\cite{szecsei2015girls}.
+Such educational activities, such as staging a theater play with robots, typically demand absolute positioning.
 
-This paper tackles this issue by providing an absolute positioning system using only approximate dead-reckoning and inexpensive infrared sensors measuring the grayscale intensity of the ground.
+This paper answers this need by providing an absolute positioning system using only approximate dead-reckoning and inexpensive infrared sensors measuring the grayscale intensity of the ground.
 Our solution is based on the classical Markov~\cite{fox1999markov} and Monte Carlo~\cite{dellaert1999monte} Localization frameworks that can be seen as respectively a dense and a sampling-based implementation of a recursive Bayesian filter.
 %Our solution builds on a recursive Bayesian filter, of which we propose both a dense and a sampling-based implementation.
 We evaluate these using the Thymio~II mobile robot on a known black and white pseudo-random pattern, with ground truth provided by a Vicon tracking system.
@@ -173,7 +175,7 @@ To test the algorithm's ability of recovering from catastrophic localization fai
 
 In this section, we start by presenting the generic Bayesian filter used to estimate the pose of the robot in the environment.
 Then we discuss the specificities of the Markov Localization and Monte Carlo Localization approaches for its inference.
-Finally, we propose a theoretical analysis from the information theory point of view to give a lower bound on the time or distance to start achieving localization.
+Finally, we propose a theoretical analysis from an information theoretic point of view to give a lower bound on the time or distance to start achieving localization.
 
 \subsection{Pose estimation filter}
 %\subsection{Variables}
@@ -494,7 +496,7 @@ However, the Monte Carlo Localization approach might be preferred if a high angu
 At a computation duration of 1.5\,s per step, the Monte Carlo Localization approach with a discretization angle of 36 is far from real time.
 However, this computation duration corresponding to a map size of 150\,cm.
 If the map was smaller, for instance 50\,cm, the algorithm would be 9 times faster.
-Therefore, at 150\,ms per step, it would be suitable for real-time operations.
+Therefore, at 0.15\,s per step, it would be suitable for real-time operations.
 Moreover, the code could be further optimized by using multimedia instructions such as \textsc{sse}, implementing it in the \textsc{gpu}, or parallelizing it.
 Conditional probability tables are well suited for such optimizations.
 The Monte Carlo Localization approach requires at least 100k particle for proper localization, at a computation duration of 2\,s per step.
@@ -560,17 +562,15 @@ This shows that with our model, the robot can localize successfully on maps draw
 In this paper, we have conducted an empirical evaluation of Markov- and Monte Carlo-based approaches for localizing a mobile robot, equipped with two inexpensive ground sensors, on a known map.
 We have shown that both approaches allow successful localization, and that their performances and computational requirements are of a similar order of magnitude.
 With current implementations, Markov localization with 36 discretization steps for angle is the most promising choice for deployment in educational activities.
-In addition, we have outlined, and empirically validated, a theoretical analysis method to estimate the localization performance in function of the sensor configuration.
+In addition, we have outlined, and empirically validated, a method to estimate the localization performance in function of the sensor configuration.
 This method provides a guide for taking decisions about the placement of sensors in a future robot:
 localization performance can be improved by placing the sensors far apart on a line perpendicular to the direction of movement of the robot; in addition, more sensors allow to collect more information, if they are separated by the size of the smallest visual structure in the map.
 Finally, we have demonstrated that our model allows successful localization on a large variety of grayscale images, from well-known paintings to drawings made by children.
 This opens the way to user-created maps, for instance for a child making a picture with her mobile phone of her own drawing, printing this picture on a poster, and using it as map.
 
 These contributions to the state of the art enable absolute positioning of inexpensive mobile robots costing less than 100\,\$.
-In the context of educational robotics, this opens many opportunities, such as the study of geometry, puzzles based on the physical space, and robots playing a theater piece, for instance in the context of language education.
-By creating a new dimension of educational activites, our solution also strongly increases the value of robots for education.
-%These new possibilities are key elements for robots to answer the need for embodied computational thinking education.
-% TODO: finish on constructionism?
+In the context of educational robotics, this opens many opportunities in the field of spatial reasoning, but also for art and storytelling.
+Hence, by enabling a new dimension of educational activites, our solution also strongly increases the value of robots for education.
 
 \section{Acknowledgements}
 
