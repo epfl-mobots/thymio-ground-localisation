@@ -91,11 +91,6 @@ When dead-reckoning is provided, such as on the Thymio~II, it builds on approxim
 The combined lack of long-range sensors and quality dead-reckoning prevents these robots from using state of the art localization algorithms, such as simultaneous localization and mapping.
 This lack of absolute positioning limits their educational use, in particular for the study of geometry, physics, and engineering; but also the building of advanced behaviors, such as robots playing a theater piece.
 % TODO ???robots playing a theater piece??? that's not a typical robot behaviour
-\begin{figure}
-\includegraphics[width=.80\columnwidth]{thymio_on_map}
-\caption{Thymio on map....need further explanation}
-\label{fig:thymio_on_map}
-\end{figure}
 
 This paper tackles this issue by providing an absolute positioning system using only approximate dead-reckoning and inexpensive infrared sensors measuring the grayscale intensity of the ground.
 Our solution is based on the classical Markov and Monte Carlo Localization frameworks that can be seen as respectively a dense and sampling-based implementation of a recursive Bayesian filter.
@@ -106,45 +101,54 @@ Finally, we show how grayscale images can be used as ground maps that allow the 
 
 \section{Related work}
 
-The challenge of solving localization problem of cheap mobile robots is the sensor information is very limited.
+The main challenge of solving the localization problem on affordable mobile robots is the limited information content typical inexpensive sensors provide.
+In particular, we did not find any work using only short-range intensity-based infrared sensors to provide absolute localization.
+
+Zug et al.~\cite{zug2011design} have developed an algorithm using an array of triangulation-based infrared distance sensors.
+A Kalman filter algorithm is applied to localize the robot within a 2 by 1 meter box.
+However, no experimental result is provided, but a simulation shows the estimated error to be within 2\, cm.
+Pinto et al.~\cite{pinto2012localization} have developed a localization system using only one of these sensors, in the context of education.
+They mount the sensor on a platform built around a LEGO Mindstorms NXT and use an Extended Kalman Filter for localization.
+However, they do not provide experimental results.
+
+Focusing on a low cost, Gutmann et al.~\cite{gutmann2013challenges} have developed a system using only 3 or 4 light detectors, and able to localize a mobile robot in a room with an accuracy of 10\,cm.
+Their system is based on detecting a known pattern projected on the ceiling and fusing this information with odometry.
+However, this method demands the installation of a projector and requires empty space over it.
+
+% FIXME: I would add Francesco's paper here
+% Also I haven't added the example from Francesco... I don't know where to add, maybe before Gutmann?
+
+In the context of education, Singh and Bedi~\cite{singh2013map} have used the ultrasound sensor of the LEGO Mindstorms NXT to localize a robot in a room.
+They use a Monte Carlo Localization approach based on a particle filter.
+However, they do not provide quantitative results.
+
 % Here need to add some opening sentence like we are doing cheap robots not very well equipped robots, bla bla bla.... One sentence is enough
-
-Some approaches are developed to solve localization problem by using multiple robots instead of one.
-In this case, collaborative sensors information is used instead of one.
-Prorok et al.~\cite{prorok2012low} have used an infrared-based range and bearing hardware along with a distribute Monte Carlo approach, allowing a group of robots to localize down to a precision of 20\,cm.
-However, this work only focuses on scalability rather than absolute positioning.
-% Maybe one example is not enough?
-
 
 % In opposition to this line of research, our work focus on absolute positioning of a single robot.
 % Nevertheless, our approach is also fully distributed and therefore scales perfectly.
 
-Solving localization problem with only one cheap robot with limited sensor information is even more challenging.
-% The first sentence of this paragraph is not strong enough. Need to be polished....
-Dias and Ventura~\cite{dias2013absolute} use barcode on the wall of an arena and apply an Extended Kalman Filter algorithm to localize an e-puck robot.
-Their system reaches precision in the order of cm and 5°, but requires wall around the arena to place the bar codes.
-Gutmann et al.~\cite{gutmann2013challenges} design a low-cost indoor localization system using 3-diode and 4-diode sensors. 
-The average accuracy is from 7 to 12 cm.
-However, this method request installation of projector to project infrared light spots on the ceiling.
-Zug et al.~\cite{zug2011design} have developed an algorithm using an array of triangulation-based infrared distance sensors.
-A Kalman filter algorithm is applied to localize the robot within a 2 by 1 meter box.  
-However, experimental result is not provided. 
-The simulation show the estimated error to be within 2\, cm. 
-In \cite{pinto2012localization,singh2013map}, approaches are presented for solving localization problem with LEGO NXT.
-Pinto et al.~\cite{pinto2012localization} use an Extended Kalman Filter algorithm is conducted for the purpose of teaching undergraduate university students localization of mobile robots.
-The localization environment is with several white walls and EKF uses information from infra-red sensors equipped on the robot.
-Singh and Bedi~\cite{singh2013map} use a particle filter algorithm is used to solve robot localization problem with robot kidnapping using information from ultrasonic sensors.
-However, neither of these two works give experimental results, and they both depend on a very specific wall arrangement.
-% Also I haven't added the example from Francesco... I don't know where to add, maybe before Gutmann?
+Dias and Ventura~\cite{dias2013absolute} use two horizontal lines from a \textsc{vga} camera to read barcodes on the walls of an arena and localize an e-puck robot.
+Their system employ an Extended Kalman Filter algorithm and reaches a precision in the order of cm and 5°.
+As with the work of Singh and Bedi, it requires an enclosed arena with a specific wall arrangement and no obstacles between the robot and the walls.
+
 % Some summary need to be added...
 % While positioning in affordable mobile robots has been done before, no existing solution is as cheap and precise as the proposed system.
+
+Another line of research has approached the localization problem by using multiple robots and combining their perception.
+Prorok et al.~\cite{prorok2012low} is representative of this approach.
+These authors have used an infrared-based range and bearing hardware along with a distribute Monte Carlo Localization approach, allowing a group of robots to localize down to a precision of 20\,cm.
+However, this line of research focuses on scalability rather than absolute positioning, as the later would require fixed robots acting as beacons.
+When the cost of all robots is added, the system is far from cheap.
+
+% Maybe one example is not enough?
 
 
 \section{Material}
 \begin{figure}
-\includegraphics[width=.56\columnwidth]{thymio2-shadow}\hfill
-\includegraphics[width=.42\columnwidth]{thymio2-dimensions}
-\caption{The Thymio~II robot and the placement of its ground sensors.}
+\raisebox{.3cm}{\includegraphics[width=.53\columnwidth]{thymio2-dataset}}\hfill
+\includegraphics[width=.43\columnwidth]{thymio2-dimensions}
+\vspace{-.1cm}
+\caption{The Thymio~II robot with markers for tracking its ground-truth pose by a Vicon system, and the placement of its ground sensors.}
 \label{fig:thymio}
 \end{figure}
 
@@ -161,7 +165,7 @@ The map consists in a 150$\times$150\,cm pattern containing 50\,$\times$\,50 bla
 The pattern is generated randomly with an equal probability of black and white cells and without regularization.
 % TODO: what do you call regularization? no correlation between adjacent cells? can you clarify?
 
-To evaluate the performance of our localization algorithms, we record the ground-truth pose of the robot using a Vicon\footnote{\url{http://www.vicon.com/}} tracking system.
+To evaluate the performance of our localization algorithms, we record the ground-truth pose of the robot using a Vicon\footnote{\url{http://www.vicon.com/}} tracking system (\fig{thymio}, left).
 %to provide the ground-truth robot pose, consisting of $x$, $y$ coordinates and the heading $\theta$.
 We use \textsc{ros} to synchronously record these along with sensor values and odometry information from Thymio.
 During the dataset gathering, the robot moves on the map with a speed of 3--5\,cm/s.
