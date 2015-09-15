@@ -89,29 +89,47 @@ def plot_trajectories():
 	algos = ['ml', 'mcl']
 	algo_params = {'ml': 72, 'mcl': '400k'}
 
+	# create plot
+	fig, axs = plt.subplots(2, 3, sharex='row', sharey='row', squeeze=False, figsize=(3.3, 2.3))
+	#fig, axs = plt.subplots(2, 3, squeeze=False, figsize=(3, 2))
+
 	# process all runs
-	for run in runs:
-		for algo in algos:
+	for i, run in enumerate(runs):
+		# data
+		for j, algo in enumerate(algos):
 			param = algo_params[algo]
 			result_file = '{}_{}_{}'.format(run, algo, param)
 
 			data = np.loadtxt(os.path.join(result_base_dir, result_file))
 			xy = data[:,5:7]
 
-			# create plot
-			fig, ax = plt.subplots(figsize=(3, 3))
-			ax.set_xlim(0, 150)
-			ax.set_ylim(0, 150)
-
+			ax = axs[i,j]
+			ax.get_xaxis().set_visible(False)
+			ax.get_yaxis().set_visible(False)
+			#if i == 0:
+				#if algo == 'ml':
+					#ax.set_title('Markov Loc.')
+				#else:
+					#ax.set_title('Monte Carlo Loc.')
 			# draw
 			x = xy[20:,0]
 			y = xy[20:,1]
 			ppl.plot(ax, x, y)
 
-			# save
-			name = '{}-{}-{}-trajectory.svg'.format(algo, param, run)
-			fig.tight_layout(pad=0.02, rect=(0,0,1,1))
-			fig.savefig(os.path.join(dest_base_dir, name), pad_inches=0.02)
+		# ground truth
+		gt = np.loadtxt(os.path.join(data_base_dir, run, 'gt.txt'))
+		ax = axs[i,2]
+		ax.get_xaxis().set_visible(False)
+		ax.get_yaxis().set_visible(False)
+		#if i == 0:
+			#ax.set_title('Ground truth')
+		ppl.plot(ax, gt[:,0] * 100., gt[:,1] * 100.)
+
+
+	# save
+	name = 'trajectories.svg'.format(algo, param, run)
+	fig.tight_layout(pad=0.02, rect=(0,0,1,1))
+	fig.savefig(os.path.join(dest_base_dir, name), pad_inches=0.02)
 
 
 def plot_grayscale_images(run, show_dist_not_angle, name):

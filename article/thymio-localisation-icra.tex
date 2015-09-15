@@ -330,6 +330,14 @@ Setting the sensors apart also reduces the redundancy between their information 
 
 \subsection{Dataset collection}
 
+\begin{figure}
+\includegraphics{trajectories}
+\caption{The estimations along with the ground truth for the two first trajectories.
+For Markov Localization, the angle discretization is 72; for Monte Carlo Localization, therer are 400k particles.
+}
+\label{fig:trajectories}
+\end{figure}
+
 Our experiments are based on four datasets:
 \begin{itemize}
 \item \texttt{trajectory~1}: The robot goes forward, then backward, rotates on spot, and again forward and backward;
@@ -337,6 +345,7 @@ Our experiments are based on four datasets:
 \item \texttt{trajectory with kidnapping}: The robot alternates phases of forward movement and turning on spot, with kidnapping happening every minute;
 \item \texttt{linear trajectory}: The robot simply goes straight along the x-axis of the map.
 \end{itemize}
+\Fig{trajectories} shows the estimated trajectories for the first two runs using the two variants of the filter.
 
 \subsection{Parameter estimation}
 \label{sec:mle}
