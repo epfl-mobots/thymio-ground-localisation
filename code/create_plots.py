@@ -21,7 +21,12 @@ dest_base_dir = '../article/figures'
 
 plot_params = {'font.size' : 8,
 		  'legend.fontsize': 8,
+		  'font.family' : 'lmodern',
+		  'text.latex.preamble' : [r"\usepackage{lmodern}"],
+		  'text.usetex' : True,
 		  'legend.frameon': True }
+
+
 
 #colors = ['#2c7bb6', '#abd9e9', '#fdae61', '#d7191c']
 colors = ['#2cb67b', '#2c7bb6', '#fdae61', '#d7191c']
