@@ -187,9 +187,14 @@ To test the algorithm's ability of recovering from catastrophic localization fai
 
 \section{Model}
 
-\subsection{Variables}
+In this section, we start by presenting the generic Bayesian filter sued to estimate the pose of the robot in the environment.
+Then we discuss the specificities of the Markov Localization and Monte Carlo Localization approaches for its inference.
+Finally, we propose a theoretical analysis from the information theory point of view to give a lower bound on the time or distance to start achieving localization.
 
-The model uses the following variables:
+\subsection{Pose estimation filter}
+%\subsection{Variables}
+
+The generic model uses the following variables:
 \begin{itemize}
 \item $X_{1:t}$ 2-D pose at times $1..t$.
 The pose vector consists of $x,y$ coordinates and an angle $\theta$.
@@ -199,33 +204,29 @@ The observation consists of the output of two sensors located at the bottom of t
 The odometry consists of the left and right wheel speeds.
 \end{itemize}
 
-\subsection{Joint probability}
-
-We formulate the model as a recursive Bayesian filter.
-Its joint probability is:
+%\subsection{Joint probability}
+It is classically formulated as a recursive Bayesian filter with the following joint probability distribution:
 \begin{equation*}
 \begin{split}
 & p(X_{1:t}, Z_{1:t}, U_{1:t}) = \\
-& p(Z_t|X_t) p(X_t|X_{t-1}, U_{t}) p(U_t) p(X_{1:t-1}, Z_{1:t-1}, U_{1:t-1})
+& p(Z_t|X_t) p(X_t|X_{t-1}, U_{t}) p(U_t) p(X_{1:t-1}, Z_{1:t-1}, U_{1:t-1}).
 \end{split}
 \end{equation*}
 
-\subsection{Question}
-
-We want to estimate the pose $X_t$ at time $t$ knowing the observations $Z_{1:t}$ and the commands $U_{1:t}$:
+%\subsection{Question}
+This joint probability distribution allows to formulate the problem as the estimation of the pose $X_t$ at time $t$ given the observations $Z_{1:t}$ and the commands $U_{1:t}$:
 \begin{equation*}
 \begin{split}
 & p(X_t|Z_{1:t},U_{1:t}) = \frac{p(X_t,Z_t | Z_{1:t-1}, U_{1:t})}{p(Z_t|Z_{1:t-1}, U_{1:t})} \\
 % &\propto p(Z_t | X_t) p(X_t | Z_{1:t-1}, U_{1:t}) \\
 % &\propto p(Z_t | X_t) \sum_{X_{t-1}} p(X_t, X_{t-1} | Z_{1:t-1}, U_{1:t} ) \\
- &\propto p(Z_t | X_t) \sum_{X_{t-1}} p(X_t|X_{t-1}, U_t) p(X_{t-1} | Z_{1:t-1}, U_{1:t-1})
+ &\propto p(Z_t | X_t) \sum_{X_{t-1}} p(X_t|X_{t-1}, U_t) p(X_{t-1} | Z_{1:t-1}, U_{1:t-1}).
 \end{split}
 \end{equation*}
 %This is a recursive filter to estimate $X_t$ using the previous estimation $X_{t-1}$, the odometry $U_t$ and the observation $Z_t$.
 
-\subsection{Distributions}
-
-There are two distributions to specify, the \emph{observation model} $p(Z_t | X_t)$ and the \emph{motion model} $p(X_t|X_{t-1}, U_t)$.
+%\subsection{Distributions}
+This inference involves the two distributions to specify, the \emph{observation model} $p(Z_t | X_t)$ and the \emph{motion model} $p(X_t|X_{t-1}, U_t)$.
 
 \subsubsection{Observation model}
 
@@ -268,13 +269,17 @@ The parameters $\alpha_\mathrm{xy}$, $\alpha_\theta$ and $p_\mathrm{uniform}$ ar
 
 \subsection{Implementations}
 
-We provide two implementations of the model, both programmed in Python, with Cython\footnote{\url{http://www.cython.org}} used for time-critical inner loops, leading to overall performance similar to C code.
-The first implementation does Markov Localization using conditional probability tables to represent distributions~\cite{fox1999markov}.
-The $x,y$ cell resolution is 1\,cm and the angular resolution varies from 20° (18 discretization steps) to 5° (72 discretization steps).
-The second implementation does Monte Carlo Localization using a particle filter~\cite{dellaert1999monte}.
-The pose is estimated by averaging around a particle that has many neighbors, using \textsc{ransac}~\cite{Fischler1981ransac}.
-Both the search for the particle with most neighbors and the search for neighbors are done with 500 trials.
-The thresholds for a particle to be a neighbor are a distance of 1.5\,cm and an angular difference of 5°.
+We compare two variants of this filter.
+In Markov Localization, the distributions are discretized using regular grids~\cite{fox1999markov}.
+For our experiments, the $x,y$ cell resolution is 1\,cm and the angular resolution varies from 20° (18 discretization steps) to 5° (72 discretization steps).
+
+The second variant, called Monte Carlo Localization~\cite{dellaert1999monte}, is a particle filter approach, which represents the distributions using samples.
+In order to extract a single pose estimate out of the many particles, we find a maximum density area in which we average the particles.
+It is similar to a 1-point \textsc{ransac} scheme~\cite{Fischler1981ransac}.
+%Both the search for the particle with most neighbors and the search for neighbors are done with 500 trials.
+%The thresholds for a particle to be a neighbor are a distance of 1.5\,cm and an angular difference of 5°.
+
+We implemented both algorithms in Python with some Cython\footnote{\url{http://www.cython.org}} procedures used for time-critical inner loops.
 
 \subsection{Theoretical analysis of convergence}
 \label{sec:theoreticalconv}
@@ -282,11 +287,7 @@ The thresholds for a particle to be a neighbor are a distance of 1.5\,cm and an 
 % TODO text could be adapted, some equations removed, etc. in case it's too long.
 It is possible to estimate the time required for the robot to localize itself in a given known space.
 For the Markov Localization approach, we can see that there is a given number of discrete cells.
-The amount of information needed to unambiguously specify one among them all is:
-\begin{displaymath}
-	H_\mathrm{loc} = \log_2(N_\mathrm{cells}) = \log_2\left(\frac{L\times W\times N_{\theta}}{h^2}\right),
-\end{displaymath}
-with $N_\mathrm{cells}$ the number of cells, $L$ and $W$ the length and width of the environment, $h$ the size of the cell, and $N_{\theta}$ the number of discretization steps of the angle $\theta$ of the robot.
+The amount of information needed to unambiguously specify one among them all is $H_\mathrm{loc} = \log_2(N_\mathrm{cells})$, with $N_\mathrm{cells}$ the number of cells.
 In our example with a 150\,cm$\times$150\,cm environment discretized with cells of 1\,cm and 5° angle, the amount of information needed for the localization is around 20.6\,bit.
 
 A binary sensor ideally yields 1\,bit of information per measurement.
@@ -319,8 +320,10 @@ The probability that they see the same cell based on the distance between them i
 On our small robots, the sensors are 2.2\,cm apart so their redundancy causes a loss of information of 0.041\,bit.
 
 If we combine all these effects, we can bound the information that our robot gathers at each timestep to at most 1.05\,bit and a time to localize of at least 6\,s, which corresponds to a distance traveled of at least 18\,cm.
-In order to have a faster localization, the greatest changes could be to move faster, in order to reduce redundancy in the successive measurements, or to have better sensors. % FIXME: SM: what do you mean?
-Setting the sensors apart also reduces the redundancy between their information but given our grid size, they are sufficiently separated.
+
+In the design of a new robot, if the aim is to have a faster localization, the greatest changes needed could be to move faster, in order to reduce redundancy in the successive measurements, or to have better sensors to reduce cross-over noise.
+Setting the sensors apart also reduces the redundancy between their information but, for our specific grid size, they are sufficiently separated.
+
 
 \section{Experiments}
 
