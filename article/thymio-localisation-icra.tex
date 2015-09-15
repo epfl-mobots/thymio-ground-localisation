@@ -118,7 +118,7 @@ Focusing on a low cost, Gutmann et al.~\cite{gutmann2013challenges} have develop
 Their system is based on detecting a known pattern projected on the ceiling and fusing this information with odometry.
 However, this method demands the installation of a projector and requires empty space over it.
 
-Part and Hashimoto~\cite{park2009approach} proposed to localize a mobile robot over a ground equipped with randomly distributed passive \textsc{rfid} tags.
+Park and Hashimoto~\cite{park2009approach} proposed to localize a mobile robot over a ground equipped with randomly distributed passive \textsc{rfid} tags.
 The average localization error of this method is lower than 10\,cm.
 However, this approach requires the ground to be equipped, and is only applicable when the starting position of the robot is known.
 
@@ -319,7 +319,7 @@ Setting the sensors apart would also reduce the redundancy between their informa
 \begin{figure}
 \includegraphics{trajectories}
 \caption{The estimations (after convergence) along with the ground truth for the two first trajectories.
-For Markov Localization, the angle discretization is 72; for Monte Carlo Localization, therer are 400k particles.
+For Markov Localization, the angle discretization is 72; for Monte Carlo Localization, there are 400k particles.
 }
 \label{fig:trajectories}
 \end{figure}
@@ -427,7 +427,7 @@ We see that, with the Markov Localization approach, the correct pose is found af
 This corresponds well to the ideal theoretical distance of 18\,cm computed in \sect{theoreticalconv}.
 However, there are outliers: this happens when the robot is turning on spot, in which case there is not enough information to localize the robot.
 The convergence is slower with Monte Carlo Localization approach, except with 400k particles, in which case it is roughly similar.
-Decreasing the number of particles quickly increases the distance neede for convergence, reaching 60\,cm for 100k particles.
+Decreasing the number of particles quickly increases the distance needed for convergence, reaching 60\,cm for 100k particles.
 Using only 50k particles, some trajectory segments fail to converge, even after 80\,cm length.
 
 \Fig{small-maps} shows the effect on convergence distance when the map size is reduced.
@@ -570,7 +570,7 @@ This opens the way to user-created maps, for instance for a child making a pictu
 
 These contributions to the state of the art enable absolute positioning of inexpensive mobile robots costing less than 100\,\$.
 In the context of educational robotics, this opens many opportunities in the field of spatial reasoning, but also for art and storytelling.
-Hence, by enabling a new range of educational activites, our solution also strongly increases the value of robots for education.
+Hence, by enabling a new range of educational activities, our solution also strongly increases the value of robots for education.
 
 \section{Acknowledgements}
 
