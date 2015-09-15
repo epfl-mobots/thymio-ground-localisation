@@ -63,12 +63,12 @@ Recent progress in electronics has allowed the construction of affordable mobile
 These open many new opportunities, in particular in the educational context.
 However, these robots have little long range sensing abilities, as they are still more expensive than shorter range ones, such as infrared sensors.
 This lack has prevented these robots from performing global localization without external aids.
-This severely limits their use, for example to create advanced educational activities.
+This severely limits their use, for example to teach spatial reasoning or develop artistic activities.
 In this paper, we propose a solution to this problem, using only infrared ground sensors, approximate dead-reckoning, and a visual pattern on the ground.
 Our approach builds on a recursive Bayesian filter, of which we demonstrate two implementations, a dense Markov Localization and a particle-based Monte Carlo Localization.
 We show that both implementations allow accurate localization on a large variety of patterns, from pseudo-random black and white matrices to grayscale drawings by children.
 We discuss the optimal parameters and the real-time applicability of our algorithms.
-Our solution to the localization of inexpensive mobile robots enables a new dimension of educational activities, strongly increasing the value of robots for education.
+These result show that by enabling a new dimension of educational activities, our solution to the localization of inexpensive robots strongly increases the value of robots for education.
 \end{abstract}
 
 \section{Introduction}
@@ -349,7 +349,7 @@ Markov Localization, \texttt{trajectory~1}, for different \emph{number of discre
 \includegraphics{ml-whole_random_1-xy}\hfill
 \includegraphics{ml-whole_random_1-theta}
 
-\vspace{.5em}
+\vspace{.3em}
 
 \begin{center}
 Markov Localization, \texttt{trajectory~2}, for different \emph{number of discretization angles}
@@ -357,7 +357,7 @@ Markov Localization, \texttt{trajectory~2}, for different \emph{number of discre
 \includegraphics{ml-whole_random_2-xy}\hfill
 \includegraphics{ml-whole_random_2-theta}
 
-\vspace{.5em}
+\vspace{.3em}
 
 \begin{center}
 Monte Carlo Localization, \texttt{trajectory~1}, for different \emph{number of particles}
@@ -365,7 +365,7 @@ Monte Carlo Localization, \texttt{trajectory~1}, for different \emph{number of p
 \includegraphics{mcl-whole_random_1-xy}\hfill
 \includegraphics{mcl-whole_random_1-theta}
 
-\vspace{.5em}
+\vspace{.3em}
 
 \begin{center}
 Monte Carlo Localization, \texttt{trajectory~2}, for different \emph{number of particles}
@@ -409,7 +409,7 @@ Markov Localization, 10 segments from the first two trajectories, for different 
 \end{center}
 \includegraphics{ml-small_runs_random_12-xy}
 
-\vspace{.5em}
+\vspace{.3em}
 
 \begin{center}
 Monte Carlo Localization, 10 segments from the first two trajectories, for different \emph{number of particles}
@@ -453,7 +453,7 @@ Markov Localization, \texttt{trajectory with kidnapping}, for different \emph{nu
 \end{center}
 \includegraphics{ml-whole_random_long-xy}
 
-\vspace{.5em}
+\vspace{.3em}
 
 \begin{center}
 Monte Carlo Localization, \texttt{trajectory with kidnapping}, for different \emph{number of particles}
@@ -525,7 +525,7 @@ While similar optimization is possible, some parts are harder to optimize, in pa
 \includegraphics{ml-grayscale_images-random_1-xy}\hfill
 \includegraphics{ml-grayscale_images-random_1-theta}
 
-\vspace{.5em}
+%\vspace{.3em}
 
 \begin{center}
 \texttt{trajectory~2}
