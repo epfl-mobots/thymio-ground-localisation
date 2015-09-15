@@ -103,48 +103,39 @@ Finally, we show how grayscale images can be used as ground maps that allow the 
 \section{Related work}
 
 The main challenge of solving the localization problem on affordable mobile robots is the limited information content typical inexpensive sensors provide.
-In particular, we did not find any work using only short-range intensity-based infrared sensors to provide absolute localization.
 
 Zug et al.~\cite{zug2011design} have developed an algorithm using an array of triangulation-based infrared distance sensors.
-A Kalman filter algorithm is applied to localize the robot within a 2 by 1 meter box.
-However, no experimental result is provided, but a simulation shows the estimated error to be within 2\, cm.
+A Kalman filter algorithm is applied to localize the robot within a 2 by 1\,m box.
+No experimental result is provided, but a simulation shows the estimated error to be within 2\,cm.
 Pinto et al.~\cite{pinto2012localization} have developed a localization system using only one of these sensors, in the context of education.
 They mount the sensor on a platform built around a LEGO Mindstorms NXT and use an Extended Kalman Filter for localization.
-However, they do not provide experimental results.
+However, they do not provide experimental result either.
 
-Focusing on a low cost, Gutmann et al.~\cite{gutmann2013challenges} have developed a system using only 3 or 4 light detectors, and able to localize a mobile robot in a room with an accuracy of 10\,cm.
+Focusing on a low cost, Gutmann et al.~\cite{gutmann2013challenges} have developed a system using only 3 or 4 light detectors, able to localize a mobile robot in a room with an accuracy of 10\,cm.
 Their system is based on detecting a known pattern projected on the ceiling and fusing this information with odometry.
 However, this method demands the installation of a projector and requires empty space over it.
-Part and Hashimoto~\cite{park2009approach} proposed an approach which localize a mobile robot in an environment equipped with randomly distributed passive RFID tag.
-The average localization error of this method is between 7 to 9\, cm.
-However, this approach is only feasible with localization problem with knowledge of starting position.
-% FIXME: I would add Francesco's paper here
-% Also I haven't added the example from Francesco... I don't know where to add, maybe before Gutmann?
+
+Part and Hashimoto~\cite{park2009approach} proposed to localize a mobile robot over a ground equipped with randomly distributed passive \textsc{rfid} tags.
+The average localization error of this method is lower than 10\,cm.
+However, this approach requires the group to be equipped, and is only applicable when the starting position of the robot is known.
 
 In the context of education, Singh and Bedi~\cite{singh2013map} have used the ultrasound sensor of the LEGO Mindstorms NXT to localize a robot in a room.
 They use a Monte Carlo Localization approach based on a particle filter.
 However, they do not provide quantitative results.
 
-% Here need to add some opening sentence like we are doing cheap robots not very well equipped robots, bla bla bla.... One sentence is enough
-
-% In opposition to this line of research, our work focus on absolute positioning of a single robot.
-% Nevertheless, our approach is also fully distributed and therefore scales perfectly.
-
 Dias and Ventura~\cite{dias2013absolute} use two horizontal lines from a \textsc{vga} camera to read barcodes on the walls of an arena and localize an e-puck robot.
 Their system employ an Extended Kalman Filter algorithm and reaches a precision in the order of cm and 5°.
 As with the work of Singh and Bedi, it requires an enclosed arena with a specific wall arrangement and no obstacles between the robot and the walls.
-
-% Some summary need to be added...
-% While positioning in affordable mobile robots has been done before, no existing solution is as cheap and precise as the proposed system.
 
 Another line of research has approached the localization problem by using multiple robots and combining their perception.
 Prorok et al.~\cite{prorok2012low} is representative of this approach.
 These authors have used an infrared-based range and bearing hardware along with a distribute Monte Carlo Localization approach, allowing a group of robots to localize down to a precision of 20\,cm.
 However, this line of research focuses on scalability rather than absolute positioning, as the later would require fixed robots acting as beacons.
-When the cost of all robots is added, the system is far from cheap.
+In addition, both radio and infrared-based range and bearing systems require complex electronics.
+Finally, when the cost of all robots is added, the system is far from cheap.
 
-% Maybe one example is not enough?
-
+To the best of our knowledge, there exist no onboard localization system able to use a low number of (or a single) inexpensive local infrared sensors, and able to provide absolute positioning in a distributed way.
+The system proposed in this paper meets these requirements.
 
 \section{Material}
 \begin{figure}
@@ -180,7 +171,7 @@ To test the algorithm's ability of recovering from catastrophic localization fai
 
 \section{Model}
 
-In this section, we start by presenting the generic Bayesian filter sued to estimate the pose of the robot in the environment.
+In this section, we start by presenting the generic Bayesian filter used to estimate the pose of the robot in the environment.
 Then we discuss the specificities of the Markov Localization and Monte Carlo Localization approaches for its inference.
 Finally, we propose a theoretical analysis from the information theory point of view to give a lower bound on the time or distance to start achieving localization.
 
