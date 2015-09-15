@@ -63,12 +63,12 @@ Recent progress in electronics has allowed the construction of affordable mobile
 These open many new opportunities, in particular in the educational context.
 However, these robots have little long range sensing abilities, as they are still more expensive than shorter range ones, such as infrared sensors.
 This lack has prevented these robots from performing global localization without external aids.
-This severely limits their use, for example to create advanced educational activities.
+This severely limits their use, for example to teach spatial reasoning or develop artistic activities.
 In this paper, we propose a solution to this problem, using only infrared ground sensors, approximate dead-reckoning, and a visual pattern on the ground.
 Our approach builds on a recursive Bayesian filter, of which we demonstrate two implementations, a dense Markov Localization and a particle-based Monte Carlo Localization.
 We show that both implementations allow accurate localization on a large variety of patterns, from pseudo-random black and white matrices to grayscale drawings by children.
 We discuss the optimal parameters and the real-time applicability of our algorithms.
-Our solution to the localization of inexpensive mobile robots enables a new dimension of educational activities, strongly increasing the value of robots for education.
+These result show that by enabling a new dimension of educational activities, our solution to the localization of inexpensive robots strongly increases the value of robots for education.
 \end{abstract}
 
 \section{Introduction}
@@ -90,10 +90,12 @@ When dead-reckoning is provided, such as on the Thymio~II, it builds on approxim
 % But this robot can only follow pre-programmed trajectories, it is not able to react to external events.
 
 The combined lack of long-range sensors and quality dead-reckoning prevents these robots from using state of the art localization algorithms, such as simultaneous localization and mapping.
-This lack of absolute positioning limits their educational use, in particular for the study of geometry, physics, and engineering; but also the building of advanced behaviors, such as robots playing a theater piece.
-% TODO ???robots playing a theater piece??? that's not a typical robot behaviour
+This lack of absolute positioning limits their educational use, in particular for the study of geometry, physics, and engineering.
+This is especially a pity when following a constructivist/constructionist approach to education, which is the case in most robot-based educational material, because spatial reasoning has been recognized as a critical element for learning about the world~\cite{lesh2003beyond}.
+In addition, while robots have the potential to reach minorities currently underrepresented in technical fields, they typically achieve so through art and storytelling~\cite{szecsei2015girls}.
+Such educational activities, such as staging a theater play with robots, typically demand absolute positioning.
 
-This paper tackles this issue by providing an absolute positioning system using only approximate dead-reckoning and inexpensive infrared sensors measuring the grayscale intensity of the ground.
+This paper answers this need by providing an absolute positioning system using only approximate dead-reckoning and inexpensive infrared sensors measuring the grayscale intensity of the ground.
 Our solution is based on the classical Markov~\cite{fox1999markov} and Monte Carlo~\cite{dellaert1999monte} Localization frameworks that can be seen as respectively a dense and a sampling-based implementation of a recursive Bayesian filter.
 %Our solution builds on a recursive Bayesian filter, of which we propose both a dense and a sampling-based implementation.
 We evaluate these using the Thymio~II mobile robot on a known black and white pseudo-random pattern, with ground truth provided by a Vicon tracking system.
@@ -103,48 +105,39 @@ Finally, we show how grayscale images can be used as ground maps that allow the 
 \section{Related work}
 
 The main challenge of solving the localization problem on affordable mobile robots is the limited information content typical inexpensive sensors provide.
-In particular, we did not find any work using only short-range intensity-based infrared sensors to provide absolute localization.
 
 Zug et al.~\cite{zug2011design} have developed an algorithm using an array of triangulation-based infrared distance sensors.
-A Kalman filter algorithm is applied to localize the robot within a 2 by 1 meter box.
-However, no experimental result is provided, but a simulation shows the estimated error to be within 2\, cm.
+A Kalman filter algorithm is applied to localize the robot within a 2 by 1\,m box.
+No experimental result is provided, but a simulation shows the estimated error to be within 2\,cm.
 Pinto et al.~\cite{pinto2012localization} have developed a localization system using only one of these sensors, in the context of education.
 They mount the sensor on a platform built around a LEGO Mindstorms NXT and use an Extended Kalman Filter for localization.
-However, they do not provide experimental results.
+However, they do not provide experimental result either.
 
-Focusing on a low cost, Gutmann et al.~\cite{gutmann2013challenges} have developed a system using only 3 or 4 light detectors, and able to localize a mobile robot in a room with an accuracy of 10\,cm.
+Focusing on a low cost, Gutmann et al.~\cite{gutmann2013challenges} have developed a system using only 3 or 4 light detectors, able to localize a mobile robot in a room with an accuracy of 10\,cm.
 Their system is based on detecting a known pattern projected on the ceiling and fusing this information with odometry.
 However, this method demands the installation of a projector and requires empty space over it.
-Part and Hashimoto~\cite{park2009approach} proposed an approach which localize a mobile robot in an environment equipped with randomly distributed passive RFID tag.
-The average localization error of this method is between 7 to 9\, cm.
-However, this approach is only feasible with localization problem with knowledge of starting position.
-% FIXME: I would add Francesco's paper here
-% Also I haven't added the example from Francesco... I don't know where to add, maybe before Gutmann?
+
+Part and Hashimoto~\cite{park2009approach} proposed to localize a mobile robot over a ground equipped with randomly distributed passive \textsc{rfid} tags.
+The average localization error of this method is lower than 10\,cm.
+However, this approach requires the group to be equipped, and is only applicable when the starting position of the robot is known.
 
 In the context of education, Singh and Bedi~\cite{singh2013map} have used the ultrasound sensor of the LEGO Mindstorms NXT to localize a robot in a room.
 They use a Monte Carlo Localization approach based on a particle filter.
 However, they do not provide quantitative results.
 
-% Here need to add some opening sentence like we are doing cheap robots not very well equipped robots, bla bla bla.... One sentence is enough
-
-% In opposition to this line of research, our work focus on absolute positioning of a single robot.
-% Nevertheless, our approach is also fully distributed and therefore scales perfectly.
-
 Dias and Ventura~\cite{dias2013absolute} use two horizontal lines from a \textsc{vga} camera to read barcodes on the walls of an arena and localize an e-puck robot.
 Their system employ an Extended Kalman Filter algorithm and reaches a precision in the order of cm and 5°.
 As with the work of Singh and Bedi, it requires an enclosed arena with a specific wall arrangement and no obstacles between the robot and the walls.
-
-% Some summary need to be added...
-% While positioning in affordable mobile robots has been done before, no existing solution is as cheap and precise as the proposed system.
 
 Another line of research has approached the localization problem by using multiple robots and combining their perception.
 Prorok et al.~\cite{prorok2012low} is representative of this approach.
 These authors have used an infrared-based range and bearing hardware along with a distribute Monte Carlo Localization approach, allowing a group of robots to localize down to a precision of 20\,cm.
 However, this line of research focuses on scalability rather than absolute positioning, as the later would require fixed robots acting as beacons.
-When the cost of all robots is added, the system is far from cheap.
+In addition, both radio and infrared-based range and bearing systems require complex electronics.
+Finally, when the cost of all robots is added, the system is far from cheap.
 
-% Maybe one example is not enough?
-
+To the best of our knowledge, there exist no onboard localization system able to use a low number of (or a single) inexpensive local infrared sensors, and able to provide absolute positioning in a distributed way.
+The system proposed in this paper meets these requirements.
 
 \section{Material}
 \begin{figure}
@@ -180,9 +173,9 @@ To test the algorithm's ability of recovering from catastrophic localization fai
 
 \section{Model}
 
-In this section, we start by presenting the generic Bayesian filter sued to estimate the pose of the robot in the environment.
+In this section, we start by presenting the generic Bayesian filter used to estimate the pose of the robot in the environment.
 Then we discuss the specificities of the Markov Localization and Monte Carlo Localization approaches for its inference.
-Finally, we propose a theoretical analysis from the information theory point of view to give a lower bound on the time or distance to start achieving localization.
+Finally, we propose a theoretical analysis from an information theoretic point of view to give a lower bound on the time or distance to start achieving localization.
 
 \subsection{Pose estimation filter}
 %\subsection{Variables}
@@ -356,7 +349,7 @@ Markov Localization, \texttt{trajectory~1}, for different \emph{number of discre
 \includegraphics{ml-whole_random_1-xy}\hfill
 \includegraphics{ml-whole_random_1-theta}
 
-\vspace{.5em}
+\vspace{.3em}
 
 \begin{center}
 Markov Localization, \texttt{trajectory~2}, for different \emph{number of discretization angles}
@@ -364,7 +357,7 @@ Markov Localization, \texttt{trajectory~2}, for different \emph{number of discre
 \includegraphics{ml-whole_random_2-xy}\hfill
 \includegraphics{ml-whole_random_2-theta}
 
-\vspace{.5em}
+\vspace{.3em}
 
 \begin{center}
 Monte Carlo Localization, \texttt{trajectory~1}, for different \emph{number of particles}
@@ -372,7 +365,7 @@ Monte Carlo Localization, \texttt{trajectory~1}, for different \emph{number of p
 \includegraphics{mcl-whole_random_1-xy}\hfill
 \includegraphics{mcl-whole_random_1-theta}
 
-\vspace{.5em}
+\vspace{.3em}
 
 \begin{center}
 Monte Carlo Localization, \texttt{trajectory~2}, for different \emph{number of particles}
@@ -416,7 +409,7 @@ Markov Localization, 10 segments from the first two trajectories, for different 
 \end{center}
 \includegraphics{ml-small_runs_random_12-xy}
 
-\vspace{.5em}
+\vspace{.3em}
 
 \begin{center}
 Monte Carlo Localization, 10 segments from the first two trajectories, for different \emph{number of particles}
@@ -460,7 +453,7 @@ Markov Localization, \texttt{trajectory with kidnapping}, for different \emph{nu
 \end{center}
 \includegraphics{ml-whole_random_long-xy}
 
-\vspace{.5em}
+\vspace{.3em}
 
 \begin{center}
 Monte Carlo Localization, \texttt{trajectory with kidnapping}, for different \emph{number of particles}
@@ -503,7 +496,7 @@ However, the Monte Carlo Localization approach might be preferred if a high angu
 At a computation duration of 1.5\,s per step, the Monte Carlo Localization approach with a discretization angle of 36 is far from real time.
 However, this computation duration corresponding to a map size of 150\,cm.
 If the map was smaller, for instance 50\,cm, the algorithm would be 9 times faster.
-Therefore, at 150\,ms per step, it would be suitable for real-time operations.
+Therefore, at 0.15\,s per step, it would be suitable for real-time operations.
 Moreover, the code could be further optimized by using multimedia instructions such as \textsc{sse}, implementing it in the \textsc{gpu}, or parallelizing it.
 Conditional probability tables are well suited for such optimizations.
 The Monte Carlo Localization approach requires at least 100k particle for proper localization, at a computation duration of 2\,s per step.
@@ -532,7 +525,7 @@ While similar optimization is possible, some parts are harder to optimize, in pa
 \includegraphics{ml-grayscale_images-random_1-xy}\hfill
 \includegraphics{ml-grayscale_images-random_1-theta}
 
-\vspace{.5em}
+%\vspace{.3em}
 
 \begin{center}
 \texttt{trajectory~2}
@@ -569,17 +562,15 @@ This shows that with our model, the robot can localize successfully on maps draw
 In this paper, we have conducted an empirical evaluation of Markov- and Monte Carlo-based approaches for localizing a mobile robot, equipped with two inexpensive ground sensors, on a known map.
 We have shown that both approaches allow successful localization, and that their performances and computational requirements are of a similar order of magnitude.
 With current implementations, Markov localization with 36 discretization steps for angle is the most promising choice for deployment in educational activities.
-In addition, we have outlined, and empirically validated, a theoretical analysis method to estimate the localization performance in function of the sensor configuration.
+In addition, we have outlined, and empirically validated, a method to estimate the localization performance in function of the sensor configuration.
 This method provides a guide for taking decisions about the placement of sensors in a future robot:
 localization performance can be improved by placing the sensors far apart on a line perpendicular to the direction of movement of the robot; in addition, more sensors allow to collect more information, if they are separated by the size of the smallest visual structure in the map.
 Finally, we have demonstrated that our model allows successful localization on a large variety of grayscale images, from well-known paintings to drawings made by children.
 This opens the way to user-created maps, for instance for a child making a picture with her mobile phone of her own drawing, printing this picture on a poster, and using it as map.
 
 These contributions to the state of the art enable absolute positioning of inexpensive mobile robots costing less than 100\,\$.
-In the context of educational robotics, this opens many opportunities, such as the study of geometry, puzzles based on the physical space, and robots playing a theater piece, for instance in the context of language education.
-By creating a new dimension of educational activites, our solution also strongly increases the value of robots for education.
-%These new possibilities are key elements for robots to answer the need for embodied computational thinking education.
-% TODO: finish on constructionism?
+In the context of educational robotics, this opens many opportunities in the field of spatial reasoning, but also for art and storytelling.
+Hence, by enabling a new dimension of educational activites, our solution also strongly increases the value of robots for education.
 
 \section{Acknowledgements}
 
