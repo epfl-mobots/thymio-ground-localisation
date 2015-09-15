@@ -328,7 +328,7 @@ Our experiments are based on four datasets:
 \item \texttt{trajectory~1}: The robot goes forward, then backward, rotates on spot, and again forward and backward;
 \item \texttt{trajectory~2}: The robot goes forward, turns on spot for a long duration, then goes forward and backward;
 \item \texttt{trajectory with kidnapping}: The robot alternates phases of forward movement and turning on spot, with kidnapping happening every minute;
-\item \texttt{linear trajectory}: The robot simply goes straight along the x-axis of the map.
+\item \texttt{linear trajectory}: The robot simply goes straight ahead along the x-axis of the map.
 \end{itemize}
 \Fig{trajectories} shows the estimated trajectories for the first two runs using the two variants of the filter.
 
@@ -383,17 +383,17 @@ In these plots, \emph{distance traveled} represents the cumulative distance trav
 The error is clamped at 50\,cm for position and 90° for orientation.
 
 For Markov Localization approach, all discretization resolutions allow the robot to localize with a precision of 3\,cm and 5°.
-In \texttt{trajectory~1}, the resolution of 18 is not enough to keep tracking the orientation at a distance traveled of 50\,cm and 80\,cm.
+In \texttt{trajectory~1}, the resolution of 18 discretization steps is not enough to keep tracking the orientation at a distance traveled of 50\,cm and 80\,cm.
 These both correspond to the robot rotating on spot.
 We see that an angular discretization of 36 (10° resolution) is sufficient to provide accurate tracking, and that a finer resolution only provides minor improvements in angular precision, and no improvement in position precision.
 In \texttt{trajectory~2}, we see that a resolution of 54 allows for a better angular precision than 36, but 72 does not improve over 54.
 All resolutions provide equal position precision.
 
-For Monte Carlo Localization approach, we see that on \texttt{trajectory~1}, the robot localizes already with 50k particles, but twice later than with 100k particles.
-Increasing the number of particles over this value only provides minor decrease in localization time.
-While 50k particles allow to localize on this run in average, there are some trials (restart of the run) in which the robot looses orientation, when it turns on spot.
-On \texttt{trajectory~2}, 50k particles is not enough for localizing the robot.
-Increasing this number to 100k leads to a good localization, excepted after the robot has traveled 80\,cm; which corresponds to a long moment during which the robot rotates on spot, leading to less information acquisition, and therefore degraded precision.
+For Monte Carlo Localization approach, we see that on \texttt{trajectory~1}, the robot localizes already with 50k particles, but in twice the time it takes with 100k particles.
+Increasing the number of particles beyond this value only marginally decreases localization time.
+While 50k particles are sufficient to localize on this run on average, in some runs, the robot looses orientation, when it turns on spot.
+On \texttt{trajectory~2}, 50k particles is not enough to localize the robot.
+Increasing this number to 100k leads to a good localization, except after the robot has traveled 80\,cm; which corresponds to a long moment during which the robot rotates on spot, leading to less information acquisition, and therefore degraded precision.
 
 Overall, both approaches have similar localization accuracy.
 When angular precision is critical, the Monte Carlo Localization approach might achieve better performance, as the Markov Localization approach is limited in precision by its discretization.
@@ -423,12 +423,11 @@ The solid lines show the median while the light dots show the individual trials.
 \end{figure}
 
 \Fig{small-runs} shows the error in position for 5 different locations in the two first trajectories.
-We see that, with Markov Localization approach, the correct pose is found after about 20\,cm.
+We see that, with the Markov Localization approach, the correct pose is found after about 20\,cm.
 This corresponds well to the ideal theoretical distance of 18\,cm computed in \sect{theoreticalconv}.
-However, there are outliers.
-This happens when the robot is turning on spot, in which case there is not enough information to localize the robot.
+However, there are outliers: this happens when the robot is turning on spot, in which case there is not enough information to localize the robot.
 The convergence is slower with Monte Carlo Localization approach, except with 400k particles, in which case it is roughly similar.
-Decreasing the number of particles quickly increases the distance to converge, reaching 60\,cm for 100k particles.
+Decreasing the number of particles quickly increases the distance neede for convergence, reaching 60\,cm for 100k particles.
 Using only 50k particles, some trajectory segments fail to converge, even after 80\,cm length.
 
 \Fig{small-maps} shows the effect on convergence distance when the map size is reduced.
@@ -565,7 +564,7 @@ We have shown that both approaches allow successful localization, and that their
 With current implementations, Markov localization with 36 discretization steps for angle is the most promising choice for deployment in educational activities.
 In addition, we have outlined, and empirically validated, a method to estimate the localization performance in function of the sensor configuration.
 This method provides a guide for taking decisions about the placement of sensors in a future robot:
-localization performance can be improved by placing the sensors far apart on a line perpendicular to the direction of movement of the robot; in addition, more sensors allow to collect more information, if they are separated by the size of the smallest visual structure in the map.
+localization performance can be improved by placing the sensors far apart on a line perpendicular to the direction of movement of the robot; in addition, more sensors allow for collecting more information, if they are separated by the size of the smallest visual structure in the map.
 Finally, we have demonstrated that our model allows successful localization on a large variety of grayscale images, from well-known paintings to drawings made by children.
 This opens the way to user-created maps, for instance for a child making a picture with her mobile phone of her own drawing, printing this picture on a poster, and using it as map.
 
