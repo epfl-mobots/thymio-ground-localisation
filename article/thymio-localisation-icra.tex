@@ -174,16 +174,6 @@ We use \textsc{ros} to synchronously record these along with sensor values and o
 During the dataset gathering, the robot moves on the map with a speed of 3--5\,cm/s.
 The data are gathered with a high enough frequency of 100\,Hz (ground-truth) and 10\,Hz (robot) and subsequently down-sampled to a period of 0.3\,s.
 To fully explore the performance of the algorithm, we remotely control the robot along several trajectories covering all possible motions.
-An example trajectory is shown in \fig{dataset}.
-% TODO is this figure really necessary?
-
-\begin{figure}
-\begin{center}
-\includegraphics[width=0.4\textwidth]{dataset}
-\caption{An example trajectory of the robot. The robot moves on the map with random black and white pattern with three different motions: going forward, going backward and rotating on spot.}
-\label{fig:dataset}
-\end{center}
-\end{figure}
 
 The motions of the robot can be classified into two different types, namely moving forward or backward (possibly in arcs) and rotating on spot.
 To test the algorithm's ability of recovering from catastrophic localization failures, we also conduct experiments with ``robot kidnapping'' by lifting the robot and moving it to another part of the map.
