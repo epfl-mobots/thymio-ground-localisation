@@ -7,3 +7,5 @@ article/build
 article/*.aux
 article/*.log
 article/synctex.gz
+article/thymio-localisation-icra-emb.pdf
+article/thymio-localisation-icra.pdf
