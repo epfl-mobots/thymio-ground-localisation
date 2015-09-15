@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib
 matplotlib.use("PDF") # do this before pylab so you don't get the default back end.
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 import prettyplotlib as ppl
 #plt.style.use('ggplot')
 import os.path
@@ -306,6 +307,19 @@ def draw_plot(algo, runs, params, show_dist_not_angle, name, path_length, **kwar
 		ylim = 90
 	ax.set_ylim(0, ylim)
 
+	# add rectangles
+	if 'kidnappings' in kwargs:
+		for kidnapping in kwargs['kidnappings']:
+			ax.add_patch(
+				patches.Rectangle(
+					(kidnapping[0],0),
+					kidnapping[1],
+					ylim,
+					facecolor="#d0d0d0",
+					edgecolor="none"
+				)
+			)
+
 	# for every parameter
 	x_ticks = np.arange(0., path_length)
 	for i, param in enumerate(params):
@@ -409,11 +423,12 @@ if __name__ == '__main__':
 
 	elif args.whole_range_random_long:
 		# random_long, ML and MCL whole range
-		draw_plot('ml', ['random_long'], [18, 36, 54, 72], True, 'ml-whole_random_long-xy.pdf', 1400.)
-		draw_plot('ml', ['random_long'], [18, 36, 54, 72], False, 'ml-whole_random_long-theta.pdf', 1400.)
+		kidnappings = [(544,89),(983,69)]
+		draw_plot('ml', ['random_long'], [18, 36, 54, 72], True, 'ml-whole_random_long-xy.pdf', 1400., kidnappings=kidnappings)
+		draw_plot('ml', ['random_long'], [18, 36, 54, 72], False, 'ml-whole_random_long-theta.pdf', 1400., kidnappings=kidnappings)
 		mcl_results = {'random_long': ['multiple_mcl/random_long_0', 'multiple_mcl/random_long_1', 'multiple_mcl/random_long_2', 'multiple_mcl/random_long_3', 'multiple_mcl/random_long_4', 'multiple_mcl/random_long_5', 'multiple_mcl/random_long_6', 'multiple_mcl/random_long_7', 'multiple_mcl/random_long_8', 'multiple_mcl/random_long_9' ]}
-		draw_plot('mcl', ['random_long'], ['50k', '100k', '200k', '400k'], True, 'mcl-whole_random_long-xy.pdf', 1400., custom_results = mcl_results)
-		draw_plot('mcl', ['random_long'], ['50k', '100k', '200k', '400k'], False, 'mcl-whole_random_long-theta.pdf', 1400., custom_results = mcl_results)
+		draw_plot('mcl', ['random_long'], ['50k', '100k', '200k', '400k'], True, 'mcl-whole_random_long-xy.pdf', 1400., custom_results = mcl_results, kidnappings=kidnappings)
+		draw_plot('mcl', ['random_long'], ['50k', '100k', '200k', '400k'], False, 'mcl-whole_random_long-theta.pdf', 1400., custom_results = mcl_results, kidnappings=kidnappings)
 
 	elif args.small_runs:
 		# small runs
