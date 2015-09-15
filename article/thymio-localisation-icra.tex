@@ -101,7 +101,7 @@ Our solution is based on the classical Markov~\cite{fox1999markov} and Monte Car
 %Our solution builds on a recursive Bayesian filter, of which we propose both a dense and a sampling-based implementation.
 We evaluate these using the Thymio~II mobile robot on a known black and white pseudo-random pattern, with ground truth provided by a Vicon tracking system.
 In addition, we provide a theoretical contribution predicting the traveled distance necessary to localize the robot.
-Finally, we show how grayscale images can be used as ground maps that allow the robot to localize.
+Finally, we show how grayscale images can be used as ground patterns that allow the robot to localize.
 
 \section{Related work}
 
@@ -149,7 +149,7 @@ The system proposed in this paper meets these requirements.
 \label{fig:thymio}
 \end{figure}
 
-We run empirical experiments with the Thymio~II mobile robot localizing on a printed map.
+We run empirical experiments with the Thymio~II mobile robot localizing on a printed pattern, which forms its map.
 
 Thymio~II is an open-source differential-wheeled mobile robot (\fig{thymio}).
 Its footprint is approximately $10 \times 10$ cm and it costs about 120\,\$.
@@ -158,13 +158,13 @@ It features many sensors such as a set of infrared sensors, a small acceleromete
 This project uses only its two ground infrared sensors (\fig{thymio}, right) and the measurement of the back electromotive force, which is proportional to the speed of the wheels.
 Thymio~II is programmed through the Aseba framework~\cite{aseba2011tmech}, which connects to the \textsc{ros} framework\footnote{ROS (Robot Operating System): \url{http://www.ros.org/}}.
 
-The map consists in a 150$\times$150\,cm pattern containing 50\,$\times$\,50 black and white random cells of 3$\times$3\,cm.
-The pattern is generated randomly with an equal probability of black and white cells (\fig{thymio}, left).
+The map consists of a 150$\times$150\,cm pattern containing 50\,$\times$\,50 black and white random cells of 3$\times$3\,cm.
+It is generated randomly with an equal probability of black and white cells (\fig{thymio}, left).
 
 To evaluate the performance of our localization algorithms, we record the ground-truth pose of the robot using a Vicon\footnote{\url{http://www.vicon.com/}} tracking system.
 %to provide the ground-truth robot pose, consisting of $x$, $y$ coordinates and the heading $\theta$.
 We use \textsc{ros} to synchronously record these along with sensor values and odometry information from Thymio.
-During the dataset gathering, the robot moves on the map with a speed of 3--5\,cm/s.
+During the dataset gathering, the robot moves with a speed of 3--5\,cm/s.
 The data are gathered with a frequency of 100\,Hz (ground-truth) and 10\,Hz (robot) and subsequently down-sampled to a period of 0.3\,s.
 To fully explore the performance of the algorithm, we remotely control the robot along several trajectories covering all possible motions.
 
@@ -221,7 +221,7 @@ Our observation model assumes these to be independent, so $p(Z_t | X_t) = \prod_
 Moreover, we assume the ground color to be in the range $[0,1]$ with $0$ being black and $1$ being white.
 Hence, if sensor $i$ for robot pose $X_t$ should see a ground intensity $v$ according to the map, $p(Z_t^{i} | X_t) \sim \mathcal{N}(v,\sigma_\mathrm{obs})$.
 The parameter $\sigma_\mathrm{obs}$ is selected based on the knowledge of the sensor.
-For black and white maps, we set it to $0.5$, giving a probability of $p_\mathrm{correct} = 0.95$ when the value of the sensor matches the one of the map.
+For black and white patterns, we set it to $0.5$, giving a probability of $p_\mathrm{correct} = 0.95$ when the value measured by the sensor corresponds to the one in the map.
 For grayscale images, based on measurement on a real Thymio, we set it to $0.1$.
 
 \subsubsection{Motion model}
@@ -502,7 +502,7 @@ Conditional probability tables are well suited for such optimizations.
 The Monte Carlo Localization approach requires at least 100k particle for proper localization, at a computation duration of 2\,s per step.
 While similar optimization is possible, some parts are harder to optimize, in particular the re-sampling step and the \textsc{ransac} step.
 
-\subsection{Maps as grayscale images}
+\subsection{Grayscale images as maps}
 
 \begin{figure*}
 \includegraphics[width=.15\textwidth]{maps/breugel_babel} \hfill
@@ -559,7 +559,7 @@ This shows that with our model, the robot can localize successfully on maps draw
 
 \section{Conclusion}
 
-In this paper, we have conducted an empirical evaluation of Markov- and Monte Carlo-based approaches for localizing a mobile robot, equipped with two inexpensive ground sensors, on a known map.
+In this paper, we have conducted an empirical evaluation of Markov- and Monte Carlo-based approaches for localizing a mobile robot, equipped with two inexpensive ground sensors, on a known pattern.
 We have shown that both approaches allow successful localization without knowing the initial pose of the robot, and that their performances and computational requirements are of a similar order of magnitude.
 With current implementations, Markov localization with 36 discretization steps for angle is the most promising choice for deployment in educational activities.
 In addition, we have outlined, and empirically validated, a method to estimate the localization performance in function of the sensor configuration.
