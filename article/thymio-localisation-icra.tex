@@ -4,7 +4,8 @@
 \documentclass[letterpaper, 10pt, conference]{ieeeconf}
 
 \IEEEoverridecommandlockouts
-\overrideIEEEmargins   
+\overrideIEEEmargins
+\pdfminorversion=4
 
 % packages
 \usepackage[mathletters]{ucs}
@@ -62,12 +63,12 @@ Recent progress in electronics has allowed the construction of affordable mobile
 These open many new opportunities, in particular in the educational context.
 However, these robots have little long range sensing abilities, as they are still more expensive than shorter range ones, such as infrared sensors.
 This lack has prevented these robots from performing global localization without external aids.
-This severly limits their use, for example to create advanced educational activities.
+This severely limits their use, for example to create advanced educational activities.
 In this paper, we propose a solution to this problem, using only infrared ground sensors, approximate dead-reckoning, and a visual pattern on the ground.
 Our approach builds on a recursive Bayesian filter, of which we demonstrate two implementations, a dense Markov Localization and a particle-based Monte Carlo Localization.
 We show that both implementations allow accurate localization on a large variety of patterns, from pseudo-random black and white matrices to grayscale drawings by children.
 We discuss the optimal parameters and the real-time applicability of our algorithms.
-Our solution to the localization of inexpensive mobile robots enables a new dimension of educational activites, strongly increasing the value of robots for education.
+Our solution to the localization of inexpensive mobile robots enables a new dimension of educational activities, strongly increasing the value of robots for education.
 \end{abstract}
 
 \section{Introduction}
@@ -147,8 +148,8 @@ When the cost of all robots is added, the system is far from cheap.
 \begin{figure}
 \raisebox{.3cm}{\includegraphics[width=.53\columnwidth]{thymio2-dataset}}\hfill
 \includegraphics[width=.43\columnwidth]{thymio2-dimensions}
-\vspace{-.1cm}
-\caption{The Thymio~II robot with markers for tracking its ground-truth pose by a Vicon system, and the placement of its ground sensors.}
+\vspace{-.07cm}
+\caption{The Thymio~II robot with markers for tracking its ground-truth pose by a Vicon system (left), and the placement of its ground sensors (right).}
 \label{fig:thymio}
 \end{figure}
 
