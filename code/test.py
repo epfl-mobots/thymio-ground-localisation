@@ -230,11 +230,7 @@ def eval_data(args):
 
 		# do movement
 		localizer.apply_command(odom_d_x, odom_d_y, odom_d_theta)
-		if args.debug_dump:
-			localizer.dump_PX(os.path.join(args.debug_dump, 'PX-{:0>4d}-A_mvt'.format(i)), gt_x, gt_y, gt_theta)
-			print '  d_odom (local frame): ', odom_d_x, odom_d_y, odom_d_theta
-			print '  d_gt (local frame):   ', gt_d_x, gt_d_y, gt_d_theta
-
+		
 		# have we been asked to fake observation?
 		if args.fake_observations:
 			# if so, regenerate it from map and ground-truth position
@@ -255,7 +251,7 @@ def eval_data(args):
 		# apply observation
 		localizer.apply_obs(sensor_left, sensor_right)
 		if args.debug_dump:
-			localizer.dump_PX(os.path.join(args.debug_dump, 'PX-{:0>4d}-B_obs'.format(i)), gt_x, gt_y, gt_theta)
+			localizer.dump_PX(os.path.join(args.debug_dump, 'PX-{:0>4d}'.format(i)), gt_x, gt_y, gt_theta)
 
 		# end time
 		duration = time.time() - start_time
