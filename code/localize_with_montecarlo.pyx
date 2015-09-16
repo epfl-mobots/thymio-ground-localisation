@@ -275,8 +275,8 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 		for (x, y, theta) in self.particles:
 			ax.arrow(x, y, math.cos(theta), math.sin(theta), head_width=0.8, head_length=1, fc='k', ec='k', alpha=0.3)
 
-		ax.arrow(gt_x, gt_y, math.cos(gt_theta)*2, math.sin(gt_theta)*2, head_width=1, head_length=1.2, fc='blue', ec='blue')
+		ax.arrow(gt_x, gt_y, math.cos(gt_theta)*2, math.sin(gt_theta)*2, head_width=1, head_length=1.2, fc='green', ec='green')
 
-		ax.arrow(self.estimated_particle[0], self.estimated_particle[1], math.cos(self.estimated_particle[2])*2, math.sin(self.estimated_particle[2])*2, head_width=1, head_length=1.2, fc='green', ec='green')
+		ax.arrow(self.estimated_particle[0], self.estimated_particle[1], math.cos(self.estimated_particle[2])*2, math.sin(self.estimated_particle[2])*2, head_width=1, head_length=1.2, fc='blue', ec='blue')
 
 		canvas.print_figure(base_filename+'.png', dpi=300)

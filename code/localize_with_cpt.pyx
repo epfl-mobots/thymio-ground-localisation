@@ -66,6 +66,7 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 
 	# probability distribution for latent space
 	cdef double[:,:,:] PX
+	cdef long [:] estimated
 
 	# constructor
 
@@ -84,6 +85,7 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 		# initialize PX
 		cdef shape = [angle_N, ground_map.shape[0], ground_map.shape[1]]
 		self.PX = np.ones(shape, np.double) / float(np.prod(shape))
+		self.estimated = np.zeros([3], dtype=int)
 
 
 	# main methods
@@ -280,7 +282,11 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 	def estimate_state(self):
 		""" return a (x,y,theta) numpy array representing the estimated state """
 
+		cdef int x_i, y_i, theta_i
 		theta_i, x_i, y_i = np.unravel_index(np.asarray(self.PX).argmax(), (<object>self.PX).shape)
+		self.estimated[0] = x_i
+		self.estimated[1] = y_i
+		self.estimated[2] = theta_i
 		return np.array([self.xyC2W(x_i), self.xyC2W(y_i), self.thetaC2W(theta_i)])
 
 	def estimate_logratio(self, double x, double y, double theta):
@@ -302,28 +308,31 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 			scipy.misc.imsave(base_filename+'-'+str(i)+'-right_black.png', self.obs_right_black[i])
 			scipy.misc.imsave(base_filename+'-'+str(i)+'-right_white.png', self.obs_right_white[i])
 
-	def dump_PX(self, str base_filename, float x = -1, float y = -1, float theta = -1):
+	def dump_PX(self, str base_filename, float gt_x = -1, float gt_y = -1, float gt_theta = -1):
 		""" Write images of latent space """
 
 		# dump image in RGB
 		def write_image(np.ndarray[double, ndim=2] array_2D, str filename):
 			cdef np.ndarray[double, ndim=3] zeros = np.zeros([self.PX.shape[1], self.PX.shape[2], 1], np.double)
-			array_rgb = np.concatenate((array_2D[:,:,np.newaxis], zeros, zeros), axis = 2)
-			cdef int i_x = self.xyW2C(x)
-			cdef int i_y = self.xyW2C(y)
+			array_rgb = np.concatenate((array_2D[:,:,np.newaxis], array_2D[:,:,np.newaxis], array_2D[:,:,np.newaxis]), axis = 2)
+			# ground truth
+			cdef int i_x = self.xyW2C(gt_x)
+			cdef int i_y = self.xyW2C(gt_y)
 			if self.is_in_bound_cell(i_x, i_y):
 				#array_rgb[i_x,i_y,1] = array_rgb[i_x,i_y,0]
 				#array_rgb[i_x,i_y,2] = array_rgb[i_x,i_y,0]
 				max_value = array_2D.max()
-				array_rgb[i_x,i_y,:] = [0,max_value,max_value]
+				array_rgb[i_x,i_y,:] = [0,max_value,0]
 			else:
-				print 'WARNING: ground-truth position {},{} is outside map bounds'.format(x,y)
+				print 'WARNING: ground-truth position {},{} is outside map bounds'.format(gt_x, gt_y)
+			# estimated position
+			array_rgb[self.estimated[0],self.estimated[1],:] = [0,0,max_value]
 			scipy.misc.imsave(filename, array_rgb)
 
 		# for every angle
-		cdef int i
-		for i in range(self.angle_N):
-			write_image(np.asarray(self.PX[i]), base_filename+'-'+str(i)+'.png')
+		#cdef int i
+		#for i in range(self.angle_N):
+		#	write_image(np.asarray(self.PX[i]), base_filename+'-'+str(i)+'.png')
 
 		# and the sum
 		write_image(np.asarray(self.PX).sum(axis=0), base_filename+'-sum.png')
