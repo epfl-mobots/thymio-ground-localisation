@@ -9,7 +9,7 @@ This lack has prevented these robots from performing global localization without
 	robot hitting walls
 
 This severely limits their use, for example to teach spatial reasoning or develop artistic activities.
-	drawing child (female) robot mathemaics, robot playing theater piece  (male children)
+	drawing child (female) robot mathematics, robot playing theater piece  (male children)
 
 In this paper, we propose a solution to this problem, using only infrared ground sensors, approximate dead-reckoning, and a visual pattern on the ground.
 	schematics of the robot
