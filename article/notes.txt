@@ -65,3 +65,26 @@ How often to run filter:
 
 random_1 and random_2, with prob_uniform = 0
 random_long, with prob_uniform = 0.1
+
+
+
+Notes about plotting for paper
+------------------------------
+
+Time to converge x/y, theta
+random_1-18		broken
+random_1-36		13, 13
+random_1-54		13, 13
+random_1-72		13, 13
+random_2-18		16, 16
+random_2-36		15, 15
+random_2-54		14, 12
+random_2-72		16, 16
+random_long_ml_18	
+
+
+
+Sources of documents
+--------------------
+
+https://upload.wikimedia.org/wikipedia/commons/4/40/Child's_Drawing_of_the_Tooth_Fairy.jpg
