@@ -96,12 +96,22 @@ This has negative effects for the study of geometry, physics, and engineering;
 In addition, while robots have the potential to reach minorities currently under-represented in technical fields, they typically do so through art and storytelling~\cite{szecsei2015girls}.
 Such educational activities, for example staging a theater play with robots, typically demand absolute positioning.
 
+\begin{figure}
+\includegraphics[width=\columnwidth]{process_creation_col_small}
+\caption{The process of creating a ground drawing serving as the map.}
+\label{fig:process}
+\end{figure}
+
 This paper answers this need by providing an absolute positioning system using only approximate dead-reckoning and inexpensive infrared sensors measuring the grayscale intensity of the ground, without knowing the initial pose of the robot.
+The ground can be an existing image or a drawing created by the child herself (\fig{process}).
 Our solution is based on the classical Markov~\cite{fox1999markov} and Monte Carlo~\cite{dellaert1999monte} Localization frameworks that can be seen as respectively a dense and a sampling-based implementation of a recursive Bayesian filter.
+While these approaches are commonly deployed in robots with extensive sensing capabilities such as laser scanners, their implementation on extremly low bandwidth sensors is novel, and rises specific questions, such as which distance the robot must travel for the localisation to converge.
 %Our solution builds on a recursive Bayesian filter, of which we propose both a dense and a sampling-based implementation.
+% FIXME: improve link
 We evaluate these using the Thymio~II mobile robot on a known black and white pseudo-random pattern, with ground truth provided by a Vicon tracking system.
 In addition, we provide a theoretical contribution predicting the traveled distance necessary to localize the robot.
 Finally, we show how grayscale images can be used as ground patterns that allow the robot to localize.
+% FIXME: rewrite, highlight final process
 
 \section{Related work}
 
@@ -127,12 +137,12 @@ They use a Monte Carlo Localization approach based on a particle filter.
 However, they do not provide quantitative results.
 
 Dias and Ventura~\cite{dias2013absolute} use two horizontal lines from a \textsc{vga} camera to read barcodes on the walls of an arena and localize an e-puck robot.
-Their system employ an Extended Kalman Filter algorithm and reaches a precision of 1\,cm and 5°.
+Their system employs an Extended Kalman Filter algorithm and reaches a precision of 1\,cm and 5°.
 As with the work of Singh and Bedi, it requires an enclosed arena with a specific wall arrangement and no obstacles between the robot and the walls.
 
 Another line of research has approached the localization problem by using multiple robots and combining their perception.
 Prorok et al.~\cite{prorok2012low} is representative of this approach.
-These authors have used an infrared-based range and bearing hardware along with a distribute Monte Carlo Localization approach, allowing a group of robots to localize down to a precision of 20\,cm.
+These authors have used an infrared-based range and bearing hardware along with a distributed Monte Carlo Localization approach, allowing a group of robots to localize down to a precision of 20\,cm.
 However, this line of research focuses on scalability rather than absolute positioning, as the later would require fixed robots acting as beacons.
 In addition, both radio and infrared-based range and bearing systems require complex electronics.
 Finally, when the cost of all robots is added, the system is far from cheap.
@@ -156,7 +166,7 @@ Its footprint is approximately $10 \times 10$ cm and it costs about 120\,\$.
 Thousands of units have been sold to date and are used in the context of computational thinking and engineering education~\cite{riedo2015thymio}.
 It features many sensors such as a set of infrared sensors, a small accelerometer, and a microphone.
 This project uses only its two ground infrared sensors (\fig{thymio}, right) and the measurement of the back electromotive force, which is proportional to the speed of the wheels.
-Thymio~II is programmed through the Aseba framework~\cite{aseba2011tmech}, which connects to the \textsc{ros} framework\footnote{ROS (Robot Operating System): \url{http://www.ros.org/}}.
+Thymio~II is programmed through the \textsc{aseba} framework~\cite{aseba2011tmech}, which connects to the \textsc{ros} framework\footnote{ROS (Robot Operating System): \url{http://www.ros.org/}}.
 
 The map consists of a 150$\times$150\,cm pattern containing 50\,$\times$\,50 black and white random cells of 3$\times$3\,cm.
 It is generated randomly with an equal probability of black and white cells (\fig{thymio}, left).
@@ -166,6 +176,7 @@ To evaluate the performance of our localization algorithms, we record the ground
 We use \textsc{ros} to synchronously record these along with sensor values and odometry information from Thymio.
 During the dataset gathering, the robot moves with a speed of 3--5\,cm/s.
 The data are gathered with a frequency of 100\,Hz (ground-truth) and 10\,Hz (robot) and subsequently down-sampled to a period of 0.3\,s.
+This value is chosen so that at maximum recorded speed, the robot travels approximately the length of one cell.
 To fully explore the performance of the algorithm, we remotely control the robot along several trajectories covering all possible motions.
 
 The motions of the robot can be classified into two different types, namely moving forward or backward (possibly in arcs) and rotating on spot.
@@ -217,7 +228,7 @@ This inference involves the two distributions to specify, the \emph{observation 
 \subsubsection{Observation model}
 
 The robot has two infrared ground sensors measuring the grayscale value of the ground.
-Our observation model assumes these to be independent, so $p(Z_t | X_t) = \prod_{i=0,1} p(Z_t^{i} | X_t)$.
+Despites the observations being coupled through the known map, our model assumes them to be independent, so $p(Z_t | X_t) = \prod_{i=0,1} p(Z_t^{i} | X_t)$.
 Moreover, we assume the ground color to be in the range $[0,1]$ with $0$ being black and $1$ being white.
 Hence, if sensor $i$ for robot pose $X_t$ should see a ground intensity $v$ according to the map, $p(Z_t^{i} | X_t) \sim \mathcal{N}(v,\sigma_\mathrm{obs})$.
 The parameter $\sigma_\mathrm{obs}$ is selected based on the knowledge of the sensor.
@@ -576,7 +587,7 @@ Hence, by enabling a new range of educational activities, our solution also stro
 
 \section{Acknowledgements}
 
-The authors thank Emmanuel Eckard for insightful comments on the manuscript.
+The authors thank Emmanuel Eckard for insightful comments on the manuscript and Ramiz Morina for his drawings.
 
 \bibliographystyle{IEEEtran}
 \bibliography{thymio-localisation-iros}
