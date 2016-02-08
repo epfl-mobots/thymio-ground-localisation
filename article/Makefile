@@ -1,4 +1,4 @@
-name=thymio-localisation-icra
+name=thymio-localisation-iros
 targetpdf=$(name).pdf
 source=$(name).tex
 bib=$(name).bib
