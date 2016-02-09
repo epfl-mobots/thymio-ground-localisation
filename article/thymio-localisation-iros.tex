@@ -79,7 +79,8 @@ They are now widely available at prices making affordable mobile robots a realit
 This opens many new opportunities, in particular in the educational context.
 Robots have been shown to be effective in supporting the teaching of knowledge in fields such as mathematics, physics, computer science and engineering; and of skills such as problem solving and introduction to the scientific method~\cite{benitti2012explorin}.
 
-Programmable platforms such as the LEGO Mindstorms, in the 300--400\,\$ price range, have been successfully used in classrooms worldwide, especially to teach engineering.
+Programmable platforms in the 300--400\,\$ price range, such as the LEGO Mindstorms, have been successfully used in classrooms worldwide, especially to teach engineering.
+% FIXME: fuzzy grammar in link
 Yet, despite its high price tag, this platform has little perception capabilities: its longest-range sensor is a single ultrasound unit.
 Cheaper products such as the Thymio~II (120\,\$) and Dash \& Dot (160\,\$) even lack such long-range perception capability, and only provide local infrared sensors.
 These are limited to sensing distances up to 15\,cm and measuring the grayscale intensity of a close object or the ground.
@@ -90,7 +91,7 @@ When dead-reckoning is provided, such as on the Thymio~II, it builds on approxim
 % A notable exception is the BeeBot, which uses proper dead-reckoning as its only sensor.
 % But this robot can only follow pre-programmed trajectories, it is not able to react to external events.
 
-The combined lack of long-range sensors and poor quality dead-reckoning prevent these robots from using state of the art localization algorithms, such as simultaneous localization and mapping.
+The combined lack of long-range sensors and poor quality dead-reckoning prevents these robots from using state of the art localization algorithms, such as simultaneous localization and mapping.
 This lack of absolute positioning hinders their educational use, especially with constructivist or constructionist approaches (the most commons in robot-based educational material), because spatial reasoning has been recognized as a critical element for learning about the world~\cite{lesh2003beyond}.
 This has negative effects for the study of geometry, physics, and engineering;
 In addition, while robots have the potential to reach minorities currently under-represented in technical fields, they typically do so through art and storytelling~\cite{szecsei2015girls}.
@@ -147,7 +148,7 @@ However, this line of research focuses on scalability rather than absolute posit
 In addition, both radio and infrared-based range and bearing systems require complex electronics.
 Finally, when the cost of all robots is added, the system is far from cheap.
 
-To the best of our knowledge, there exist no onboard localization system able to use a low number of (or a single) inexpensive local infrared sensors, and able to provide absolute positioning in a distributed way.
+To the best of our knowledge, there exist no onboard localization system able to use a low number of\,--\,or a single\,--\,inexpensive local infrared sensor(s), and able to provide absolute positioning in a distributed way.
 The system proposed in this paper meets these requirements.
 
 \section{Material}
@@ -165,7 +166,7 @@ Thymio~II is an open-source differential-wheeled mobile robot (\fig{thymio}).
 Its footprint is approximately $10 \times 10$ cm and it costs about 120\,\$.
 Thousands of units have been sold to date and are used in the context of computational thinking and engineering education~\cite{riedo2015thymio}.
 It features many sensors such as a set of infrared sensors, a small accelerometer, and a microphone.
-This project uses only its two ground infrared sensors (\fig{thymio}, right) and the measurement of the back electromotive force, which is proportional to the speed of the wheels.
+This project uses only its two ground infrared sensors (\fig{thymio}, right, circled red) and the measurement of the back electromotive force, which is proportional to the speed of the wheels.
 Thymio~II is programmed through the \textsc{aseba} framework~\cite{aseba2011tmech}, which connects to the \textsc{ros} framework\footnote{ROS (Robot Operating System): \url{http://www.ros.org/}}.
 
 The map consists of a 150$\times$150\,cm pattern containing 50\,$\times$\,50 black and white random cells of 3$\times$3\,cm.
@@ -176,13 +177,15 @@ To evaluate the performance of our localization algorithms, we record the ground
 We use \textsc{ros} to synchronously record these along with sensor values and odometry information from Thymio.
 During the dataset gathering, the robot moves with a speed of 3--5\,cm/s.
 The data are gathered with a frequency of 100\,Hz (ground-truth) and 10\,Hz (robot) and subsequently down-sampled to a period of 0.3\,s.
-This value is chosen so that at maximum recorded speed, the robot travels approximately the length of one cell.
+We chose this period so that at maximum speed, the robot travels approximately half the length of one cell between every sample.
 To fully explore the performance of the algorithm, we remotely control the robot along several trajectories covering all possible motions.
 
 The motions of the robot can be classified into two different types, namely moving forward or backward (possibly in arcs) and rotating on spot.
 To test the algorithm's ability of recovering from catastrophic localization failures, we also conduct experiments with ``robot kidnapping'' by lifting the robot and moving it to another part of the map.
 
 \section{Model}
+
+% FIXME: this hat can be compressed...
 
 In this section, we start by presenting the generic Bayesian filter used to estimate the pose of the robot in the environment.
 Then we discuss the specificities of the Markov Localization and Monte Carlo Localization approaches for its inference.
@@ -386,6 +389,7 @@ Monte Carlo Localization, \texttt{trajectory~2}, for different \emph{number of p
 
 \caption{The error between the estimation by the localization algorithm and the ground truth on \texttt{trajectory~1} (top) and \texttt{trajectory~2} (bottom).
 For Monte Carlo Localization, the solid lines show the average over 10 trials, while the light dots show the individual trials.}
+% FIXME: I (Steph) is not convinced the legend is correct
 \label{fig:whole-runs-random12}
 \end{figure*}
 
@@ -408,6 +412,7 @@ Increasing this number to 100k leads to a good localization, except after the ro
 
 Overall, both approaches have similar localization accuracy.
 When angular precision is critical, the Monte Carlo Localization approach might achieve better performance, as the Markov Localization approach is limited in precision by its discretization.
+%FIXME: move this into conclusion
 
 %TODO: explain why this does not appear in ML
 
@@ -503,6 +508,7 @@ With the Monte Carlo Localization approach, the scaling is linear but amortized 
 This is due to the selection of pose estimate, which uses a \textsc{ransac} approach and is therefore independent of the number of particles.
 For similar localization accuracy, the Monte Carlo Localization approach is slower than the Markov Localization approach, and therefore we suggest to use the former with a discretization angle of 36 in practical applications.
 However, the Monte Carlo Localization approach might be preferred if a high angular precision is required.
+%FIXME: move this into conclusion
 
 At a computation duration of 1.5\,s per step, the Monte Carlo Localization approach with a discretization angle of 36 is far from real time.
 However, this computation duration corresponding to a map size of 150\,cm.
@@ -512,6 +518,7 @@ Moreover, the code could be further optimized by using multimedia instructions s
 Conditional probability tables are well suited for such optimizations.
 The Monte Carlo Localization approach requires at least 100k particle for proper localization, at a computation duration of 2\,s per step.
 While similar optimization is possible, some parts are harder to optimize, in particular the re-sampling step and the \textsc{ransac} step.
+% FIXME: implement real-time and get rid of this last paragraph
 
 \subsection{Grayscale images as maps}
 
@@ -549,6 +556,8 @@ While similar optimization is possible, some parts are harder to optimize, in pa
 \caption{The error between the estimation and the ground truth, using Markov Localization with 36 angle discretization, for different grayscale maps.}
 \label{fig:grayscale}
 \end{figure*}
+
+% FIXME: consider replacing this section with the real-time experiments
 
 In addition to random black and white patterns, our localization model can also work on grayscale images.
 While we have not recorded datasets with such images, we simulate these scenarios by using the ground-truth data to look up the corresponding pixel on the image, adding some noise ($\pm$ 0.1, uniform distribution, found using a real Thymio).
