@@ -50,15 +50,16 @@ def dump_error(localizer, i, duration, text, gt_x, gt_y, gt_theta, performance_l
 	dist_xy = np.linalg.norm(estimated_state[0:2]-(gt_x,gt_y))
 	dist_theta = math.degrees(normalize_angle(estimated_state[2]-gt_theta))
 	logratio_P = localizer.estimate_logratio(gt_x, gt_y, gt_theta)
+	confidence = estimated_state[3]
 	if abs(dist_xy) < math.sqrt(2)*2 and abs(dist_theta) < 15:
 		color = 'green'
 	elif abs(dist_xy) < math.sqrt(2)*4 and abs(dist_theta) < 30:
 		color = 'yellow'
 	else:
 		color = 'red'
-	print colored('{} {} - x,y dist: {}, theta dist: {}, log ratio P: {}, duration: {} [s]'.format(i, text, dist_xy, dist_theta, logratio_P, duration), color)
+	print colored('{} {} - x,y dist: {}, theta dist: {}, log ratio P: {}, duration: {} [s], confidence: {:.2%}'.format(i, text, dist_xy, dist_theta, logratio_P, duration, confidence), color)
 	if performance_log:
-		performance_log.write('{} {} {} {} {} {} {} {} {} {} {}\n'.format(\
+		performance_log.write('{} {} {} {} {} {} {} {} {} {} {} {}\n'.format(\
 			i, \
 			duration, \
 			gt_x, \
@@ -69,7 +70,8 @@ def dump_error(localizer, i, duration, text, gt_x, gt_y, gt_theta, performance_l
 			estimated_state[2], \
 			dist_xy, \
 			dist_theta, \
-			logratio_P
+			logratio_P,
+			confidence
 		))
 
 
@@ -230,7 +232,7 @@ def eval_data(args):
 
 		# do movement
 		localizer.apply_command(odom_d_x, odom_d_y, odom_d_theta)
-		
+
 		# have we been asked to fake observation?
 		if args.fake_observations:
 			# if so, regenerate it from map and ground-truth position

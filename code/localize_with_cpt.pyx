@@ -280,14 +280,41 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 		self.PX = PX_new
 
 	def estimate_state(self):
-		""" return a (x,y,theta) numpy array representing the estimated state """
+		""" return a (x,y,theta,self_confidence) numpy array representing the estimated state """
 
+		# find best index
 		cdef int x_i, y_i, theta_i
 		theta_i, x_i, y_i = np.unravel_index(np.asarray(self.PX).argmax(), (<object>self.PX).shape)
 		self.estimated[0] = x_i
 		self.estimated[1] = y_i
 		self.estimated[2] = theta_i
-		return np.array([self.xyC2W(x_i), self.xyC2W(y_i), self.thetaC2W(theta_i)])
+
+		# compute probability mass around it
+		# first see which range we must explore
+		cdef int best_range_theta = 0
+		cdef double theta_half_CinW = self.dthetaC2W(1) / 2.
+		if theta_half_CinW < self.conf_theta:
+			best_range_theta = self.dthetaW2C(self.conf_theta - theta_half_CinW)
+		cdef int best_range_xy = 0
+		cdef double xy_half_CinW = self.dxyC2W(1) / 2.
+		if xy_half_CinW < self.conf_xy:
+			best_range_xy = self.dxyW2C(self.conf_xy - xy_half_CinW)
+		# then sum around it
+		cdef int i, j, k
+		cdef int w = self.ground_map.shape[0]
+		cdef int h = self.ground_map.shape[1]
+		cdef double sum_p = 0.
+		for i in range(theta_i - best_range_theta, theta_i + best_range_theta + 1):
+			i = (i + self.angle_N) % self.angle_N
+			for j in range(x_i - best_range_xy, x_i + best_range_xy + 1):
+				if j >= 0 and j < w:
+					for k in range(y_i - best_range_xy, y_i + best_range_xy + 1):
+						if k >= 0 and k < h:
+							sum_p += self.PX[i,j,k]
+		# then divide by all probability mass
+		cdef double confidence = sum_p / np.asarray(self.PX).sum()
+
+		return np.array([self.xyC2W(x_i), self.xyC2W(y_i), self.thetaC2W(theta_i), confidence])
 
 	def estimate_logratio(self, double x, double y, double theta):
 		""" return the log ratio between the probability at estimate and at given location (x,y,theta).

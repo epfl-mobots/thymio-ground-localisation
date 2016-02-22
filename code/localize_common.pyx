@@ -8,6 +8,7 @@ import numpy as np
 from libc.math cimport floor
 cimport numpy as np
 cimport cython
+import math
 
 # support functions
 
@@ -30,6 +31,10 @@ cdef class AbstractLocalizer:
 		self.alpha_xy = alpha_xy
 		self.alpha_theta = alpha_theta
 		self.sigma_obs = sigma_obs
+
+		# setup limits
+		self.conf_theta = math.radians(10)
+		self.conf_xy = 3
 
 	# support methods
 
