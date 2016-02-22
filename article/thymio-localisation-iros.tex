@@ -61,13 +61,13 @@ Localization of inexpensive robots with low-bandwidth sensors
 \begin{abstract}
 Recent progress in electronics has allowed the construction of affordable mobile robots.
 This opens many new opportunities, in particular in the educational context.
-However, these robots have little long-range sensing abilities, as they are still more expensive than shorter range ones, and bad dead-reckoning capabilities.
-This lack has prevented these robots from performing global localization without external aids.
+However, for cost reasons these robots have little long-range sensing abilities and bad dead-reckoning capabilities.
+This limitation has prevented them from performing global localization without external aids.
 This severely limits their use, for example to teach spatial reasoning or develop artistic activities.
 In this paper, we propose a solution to this problem, using only infrared ground sensors, approximate dead-reckoning, and a visual pattern on the ground.
 Our approach builds on a recursive Bayesian filter, of which we demonstrate two implementations: a dense Markov Localization and a particle-based Monte Carlo Localization.
 We show that both implementations allow accurate localization on a large variety of patterns, from pseudo-random black and white matrices to grayscale drawings by children.
-We discuss the optimal parameters and the real-time applicability of our algorithms.
+We demonstrate the real-time localization of a Thymio robot on these patterns.
 These results show that by enabling a new range of educational activities, our solution to the localization of inexpensive robots strongly increases the value of robots for education.
 
 \end{abstract}
@@ -82,26 +82,29 @@ Robots have been shown to be effective in supporting the teaching of knowledge i
 Programmable platforms in the 300--400\,\$ price range, such as the LEGO Mindstorms, have been successfully used in classrooms worldwide, especially to teach engineering.
 % FIXME: fuzzy grammar in link
 Yet, despite its high price tag, this platform has little perception capabilities: its longest-range sensor is a single ultrasound unit.
-Cheaper products such as the Thymio~II (130\,\$) and Dash \& Dot (160\,\$) even lack such long-range perception capability, and only provide local infrared sensors.
+The much cheaper hobbyist mBot platform (75\,\$) is also equipped with a similar ultrasound device as its sole exteroceptive sensor.
+Cheaper general public products such as the Thymio~II (130\,\$) and Dash \& Dot (160\,\$) even lack such long-range perception capability, and only provide local infrared sensors.
 These are limited to sensing distances up to 15\,cm and measuring the grayscale intensity of a close object or the ground.
-The even cheaper mBot (75\,\$), based on an Arduino board, is equipped with a long range ultrasound sensor, but this is nearly the only exteroceptive sensors available.
 These products also lack a camera, because processing images would require extended memory and processing resources, which would increase their price significantly.
-In addition, dead-reckoning on these platforms is bad to non-existent, as proper wheel encoders are still too expensive on platforms that must already provide a variety of programming and sensing modalities to meet educational needs.
-When dead-reckoning is provided, such as on the Thymio~II, it builds on approximate methods such as measuring the back electromotive force.
-A notable exception is the BeeBot (90\,\$), which uses proper dead-reckoning as its only sensor.
-% But this robot can only follow pre-programmed trajectories, it is not able to react to external events.
+Therefore, all affordable general-public educational robots (in the 100\,\$ range) lack long-range sensing capabilities.
+In addition, dead-reckoning on these platforms is bad to non-existent.
+An exception is the BeeBot (90\,\$), which uses proper dead-reckoning as its only sensor, and so has only a narrow set of possible use.
+On platforms that must already provide a variety of programming and sensing modalities to meet general educational needs, proper wheel encoders are still too expensive.
+Hence when dead-reckoning is provided, such as on the Thymio~II, it builds on approximate methods such as measuring the back electromotive force.
 
-The combined lack of long-range sensors and poor quality dead-reckoning prevents these robots from using state of the art localization algorithms, such as simultaneous localization and mapping.
-This lack of absolute positioning hinders their educational use, especially with constructivist or constructionist approaches (the most commons in robot-based educational material), because spatial reasoning has been recognized as a critical element for learning about the world~\cite{lesh2003beyond}.
-This has negative effects for the study of geometry, physics, and engineering;
-In addition, while robots have the potential to reach minorities currently under-represented in technical fields, they typically do so through art and storytelling~\cite{szecsei2015girls}.
-Such educational activities, for example staging a theater play with robots, would typically benefit from having absolute positioning.
+% But this robot can only follow pre-programmed trajectories, it is not able to react to external events.
 
 \begin{figure}
 \includegraphics[width=\columnwidth]{process_creation_col_small}
 \caption{The process of creating a ground drawing serving as the map.}
 \label{fig:process}
 \end{figure}
+
+The combined lack of long-range sensors and poor quality dead-reckoning prevents affordable educational robots from using state of the art localization algorithms such as simultaneous localization and mapping.
+This lack of absolute positioning hinders their educational use, especially with constructivist or constructionist approaches (the most commons in robot-based educational material), because spatial reasoning has been recognized as a critical element for learning about the world~\cite{lesh2003beyond}.
+This has negative effects for the study of geometry, physics, and engineering;
+In addition, while robots have the potential to reach minorities currently under-represented in technical fields, they typically do so through art and storytelling~\cite{szecsei2015girls}.
+Such educational activities, for example staging a theater play with robots, would typically benefit from having absolute positioning.
 
 This paper answers this need by providing an absolute positioning system using only approximate dead-reckoning and inexpensive infrared sensors measuring the grayscale intensity of the ground, without knowing the initial pose of the robot.
 The ground can be an existing image or a drawing created by the child herself (\fig{process}).
