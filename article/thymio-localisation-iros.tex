@@ -270,6 +270,10 @@ In addition, to cope for the possibility of the robot being kidnapped and theref
 
 The parameters $\alpha_\mathrm{xy}$, $\alpha_\theta$ and $p_\mathrm{uniform}$ are estimated using maximum likelihood (see \sect{mle}).
 
+\subsubsection{Self-confidence}
+
+We define a self-confidence term that corresponds to the ratio of the probability mass of $p(X_t)$ that is within a distance $d_\mathrm{xy}$ and an angle error $d_\theta$ of the mode.
+
 \subsection{Implementations}
 
 We compare two variants of this filter.
@@ -327,7 +331,6 @@ If we combine all these effects, we can bound the information that our robot gat
 Faster localization can be achieved by moving at a greater speed to reduce redundancy in the successive measurements.
 If designing a new robot, better sensors would reduce cross-over noise.
 Setting the sensors apart would also reduce the redundancy between their information but, for our specific grid size, they are sufficiently separated in Thymio~II.
-
 
 \section{Experiments}
 
