@@ -166,25 +166,24 @@ The system proposed in this paper meets these requirements.
 We run empirical experiments with the Thymio~II mobile robot localizing on a printed pattern, which forms its map.
 
 Thymio~II is an open-source differential-wheeled mobile robot (\fig{thymio}).
-Its footprint is approximately $10 \times 10$ cm and it costs about 120\,\$.
+Its footprint is approximately $10 \times 10$ cm and it costs about 130\,\$.
 Thousands of units have been sold to date and are used in the context of computational thinking and engineering education~\cite{riedo2015thymio}.
 It features many sensors such as a set of infrared sensors, a small accelerometer, and a microphone.
 This project uses only its two ground infrared sensors (\fig{thymio}, right, circled red) and the measurement of the back electromotive force, which is proportional to the speed of the wheels.
 Thymio~II is programmed through the \textsc{aseba} framework~\cite{aseba2011tmech}, which connects to the \textsc{ros} framework\footnote{ROS (Robot Operating System): \url{http://www.ros.org/}}.
 
-The map consists of a 150$\times$150\,cm pattern containing 50\,$\times$\,50 black and white random cells of 3$\times$3\,cm.
-It is generated randomly with an equal probability of black and white cells (\fig{thymio}, left).
-
-To evaluate the performance of our localization algorithms, we record the ground-truth pose of the robot using a Vicon\footnote{\url{http://www.vicon.com/}} tracking system.
+To evaluate the performance of our localization algorithms, we create a dataset.
+The robot moves with a speed of 3--5\,cm/s on a 150$\times$150\,cm ground pattern containing 50\,$\times$\,50 cells of 3$\times$3\,cm, each randomly black or white (\fig{thymio}, left).
+We record the ground-truth pose of the robot using a Vicon\footnote{\url{http://www.vicon.com/}} tracking system.
 %to provide the ground-truth robot pose, consisting of $x$, $y$ coordinates and the heading $\theta$.
 We use \textsc{ros} to synchronously record these along with sensor values and odometry information from Thymio.
-During the dataset gathering, the robot moves with a speed of 3--5\,cm/s.
 The data are gathered with a frequency of 100\,Hz (ground-truth) and 10\,Hz (robot) and subsequently down-sampled to a period of 0.3\,s.
 We chose this period so that at maximum speed, the robot travels approximately half the length of one cell between every sample.
-To fully explore the performance of the algorithm, we remotely control the robot along several trajectories covering all possible motions.
-
 The motions of the robot can be classified into two different types, namely moving forward or backward (possibly in arcs) and rotating on spot.
+To fully explore the performance of the algorithm, we remotely control the robot along several trajectories covering all possible motions.
 To test the algorithm's ability of recovering from catastrophic localization failures, we also conduct experiments with ``robot kidnapping'' by lifting the robot and moving it to another part of the map.
+
+% TODO: add protocol for the final experiment
 
 \section{Model}
 
