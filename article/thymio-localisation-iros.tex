@@ -270,9 +270,10 @@ In addition, to cope for the possibility of the robot being kidnapped and theref
 
 The parameters $\alpha_\mathrm{xy}$, $\alpha_\theta$ and $p_\mathrm{uniform}$ are estimated using maximum likelihood (see \sect{mle}).
 
-\subsubsection{Self-confidence}
+\subsubsection{Self confidence}
 
-We define a self-confidence term that corresponds to the ratio of the probability mass of $p(X_t)$ that is within a distance $d_\mathrm{xy}$ and an angle error $d_\theta$ of the mode.
+We define a self-confidence term that corresponds to the ratio of the probability mass of $p(X_t)$ that is within a distance $d_\mathrm{xy}$ and an angle difference $d_\theta$ to the mode.
+In the result section, we use $d_\mathrm{xy} = 3$\,cm and $d_\theta = 10$°.
 
 \subsection{Implementations}
 
