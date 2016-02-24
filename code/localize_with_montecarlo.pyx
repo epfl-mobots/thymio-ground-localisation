@@ -231,6 +231,7 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 		cdef double xs = 0.
 		cdef double ys = 0.
 		cdef int count = 0
+		cdef int conf_count = 0
 		for j in range(tests_count):
 			o_index = test_indices[j]
 			o_x = particles_view[o_index, 0]
@@ -244,6 +245,8 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 				xs += o_x
 				ys += o_y
 				count += 1
+			if dist_xy < self.conf_xy and dist_theta < self.conf_theta:
+				conf_count += 1
 
 		assert count > 0, count
 		cdef double x_m = xs / count
@@ -255,12 +258,13 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 		self.estimated_particle[1] = y_m
 		self.estimated_particle[2] = theta_m
 
-		return np.array([x_m, y_m, theta_m])
+		return np.array([x_m, y_m, theta_m, float(conf_count) / float(tests_count)])
 
 
 	def estimate_logratio(self, double x, double y, double theta):
 		# TODO
 		return 0
+
 
 	# debug methods
 

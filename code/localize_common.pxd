@@ -25,6 +25,10 @@ cdef class AbstractLocalizer:
 	# observation model
 	cdef double sigma_obs
 
+	# distance until which prob. mass is considered for confidence computation
+	cdef double conf_theta
+	cdef double conf_xy
+
 	# support methods
 	cpdef bint is_in_bound_cell(self, int x, int y)
 	cpdef bint is_in_bound(self, double[:] pos)
