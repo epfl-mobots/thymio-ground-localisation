@@ -462,8 +462,13 @@ The solid lines show the median while the light dots show the individual trials.
 
 \Fig{small-runs} shows the error in position for 5 different locations in the two first trajectories.
 We see that, with the Markov Localization approach, the correct pose is found after about 20\,cm.
-This corresponds well to the ideal theoretical distance of 18\,cm computed in \sect{theoreticalconv}.
-However, there are outliers: this happens when the robot is turning on spot, in which case there is not enough information to localize the robot.
+% TODO check that
+%This corresponds well to the ideal theoretical distance of 18\,cm computed in \sect{theoreticalconv}.
+This is shorter than the 26\,cm distance computed in \sect{theoreticalconv}.
+This is probably due to the overestimation of the cross-over noise of the sensor.
+A distance of 20,cm would correspond to noise lower than 3\% instead of 5\% as assumed.
+% end TODO
+There are also outliers: this happens when the robot is turning on spot, in which case there is not enough information to localize the robot.
 The convergence is slower with Monte Carlo Localization approach, except with 400k particles, in which case it is roughly similar.
 Decreasing the number of particles quickly increases the distance needed for convergence, reaching 60\,cm for 100k particles.
 Using only 50k particles, some trajectory segments fail to converge, even after 80\,cm length.
