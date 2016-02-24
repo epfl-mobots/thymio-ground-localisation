@@ -32,6 +32,7 @@
 \newcommand{\Algo}[1]{Algorithm~\ref{algo:#1}}
 \newcommand{\eq}[1]{Equation~\ref{eq:#1}}
 \newcommand{\Eq}[1]{Equation~\ref{eq:#1}}
+\newcommand{\ent}[1]{\mathrm{H}_\mathrm{#1}} % entropy (\H already exists :/)
 
 % title and authors
 
@@ -291,42 +292,63 @@ We implemented both algorithms in Python with some Cython\footnote{\url{http://w
 \subsection{Theoretical analysis of convergence}
 \label{sec:theoreticalconv}
 
-% TODO text could be adapted, some equations removed, etc. in case it's too long.
 It is possible to estimate the time required for the robot to localize itself in a given known space.
 For the Markov Localization approach, there is a given number of discrete cells.
-The amount of information needed to unambiguously specify one among them all is $H_\mathrm{loc} = \log_2(N_\mathrm{cells})$, with $N_\mathrm{cells}$ the number of cells.
-In our example with a 150\,cm$\times$150\,cm environment discretized with cells of 1\,cm and 5° angle, the amount of information needed for the localization is around 20.6\,bit.
+The amount of information needed to unambiguously specify one among them all is $\ent{loc} = \log_2(N_\mathrm{cells})$, with $N_\mathrm{cells}$ the number of cells.
 
-A binary sensor ideally yields 1\,bit of information per measurement.
+We can also compute the information gain at each time step.
+Indeed, a binary sensor ideally yields 1\,bit of information per measurement.
 However in practice, there is a loss in information due to the sensor noise, characterized by the $p_\mathrm{correct}$ probability of the sensor to be correct:
 \begin{displaymath}
-	H_\mathrm{noise} = H_{\text{b}}(1 - p_\mathrm{correct}),
+	\ent{noise} = \ent{b}(1 - p_\mathrm{correct}),
 \end{displaymath}
-where $H_{\text{b}}$ is the binary entropy function: $H_{\text{b}}(p) = -p\log_2(p) - (1-p)\log_2(1-p)$.
-With $p_\mathrm{correct}=0.95$ the loss in information is around 0.29\,bit per measurement.
+where $\ent{b}$ is the binary entropy function: $\ent{b}(p) = -p\log_2(p) - (1-p)\log_2(1-p)$.
 
-In addition to the noise, we need to take into account that our sensor measurements are not completely independent.
+In addition, we need to take into account that our sensor measurements are not completely independent.
 For example, when not moving, we always observe the same place and thus cannot really gain additional information besides being sure of the intensity of the current pixel.
 In a discretized world, we thus need to estimate the probability of having changed cell in order to observe something new, which depends on the distance traveled and the size of the cells.
 This problem is equivalent to the Buffon-Laplace needle problem of finding the probability for a needle thrown randomly on a grid to actually intersect the grid~\cite{laplace1820prob}.
-In our case, the probability of not changing cell is given by:
+In our case, the probability of changing cell is given by:
 \begin{displaymath}
-	p_\mathrm{same} = \frac{4d h - d^2}{\pi h^2},
+	p_\mathrm{diff} = \frac{4d h - d^2}{\pi h^2},
 \end{displaymath}
-with $d$ the distance traveled.
+with $d$ the distance traveled and $h$ the size of the cells.
 
-We can then compute the conditional entropy for two successive ideal measurements separated by $d$:
+We can then compute the conditional entropy for two successive ideal measurements separated by $d$ based on the conditional probability:
+\begin{align*}
+	&P(O_t | O_{t-1})\\
+	&= \begin{pmatrix}
+		(1 - p_\mathrm{diff}) + 1/2 p_\mathrm{diff} & 1/2 p_\mathrm{diff}\\
+		1/2 p_\mathrm{diff} & (1 - p_\mathrm{diff}) + 1/2 p_\mathrm{diff}
+	\end{pmatrix}.
+\end{align*}
+Therefore the loss of information due to redundancy in the travelled distance is:
 \begin{displaymath}
-	H(O_t | O_{t-1}) = H(O_t, O_{t-1}) - H(O_{t-1}).
-	% That's a really generic formula, but giving the 2x2 matrix or the expression with the logs is probably too much
+	\ent{loss,d} = 1 - \ent{b}(1/2 p_\mathrm{diff}).
 \end{displaymath}
-With a robot moving at around 3\,cm/s with a timestep of 0.3\,s with 3\,cm cells, we have $d=0.9$\,cm and the loss of information due to the redundancy of around 0.33\,bit.
 
-The computation is similar with a second sensor placed on the robot.
-The probability that they see the same cell based on the distance between them is exactly the same.
-On our small robots, the sensors are 2.2\,cm apart so their redundancy causes a loss of information of 0.041\,bit.
+There is also redundancy between several sensors placed on the same robot.
+The probability that they see the same cell based on the distance between them is exactly the same as the probability of a sensor to see the same cell after a displacement of the same distance.
+The information loss due to the redundancy from the sensor placement is noted $\ent{sensors}$ and follows the same formula as $\ent{loss,d}$ for the given distance.
 
-If we combine all these effects, we can bound the information that our robot gathers at each timestep to at most 1.05\,bit and a time to localize of at least 6\,s, which corresponds to a distance traveled of at least 18\,cm.
+Finally, we can approximate the information that our robot gathers at each time step in the following manner:
+\begin{align*}
+	&\ent{}(O^1_t, O^2_t | O^1_{1:t-1}, O^2_{1:t-1})\\
+	&= \ent{}(O^1_t, O^2_t | O^1_{t-1}, O^2_{t-1}) \\
+	&= \ent{}(O^1_t | O^1_{t-1}) + \ent{}(O^2_t | O^2_{t-1}) - \ent{}(O^2_t | O^1_t) \\
+	&= 2*(1-\ent{noise}-\ent{loss,d}) - \ent{sensors}%. The full stop here is ugly.
+\end{align*}
+This approximation assumes that the trajectory of the robot is ideal (no longer time redundancy) and that the trajectories of the sensors are independent.
+It also ignores the uncertainty in the robot motion.
+As such, it is therefore an upper bound on the average information gain.
+
+In our example, we have assumed $p_\mathrm{correct}=0.95$, that is $\ent{noise}=0.29$.
+Our robot moves at 3\,cm/s with a time step of 0.3\,s and 3\,cm cells in which the color is know to be similar; this yields $p_\mathrm{diff}=0.35$ and $\ent{loss,d}=0.33$.
+Finally the sensors are 2.2\,cm apart which yields $p_\mathrm{diff}=0.76$ and $\ent{sensors}=0.041$.
+As such the robot gathers on average at most 0.72\,bit per time step, or 0.8\,bit/cm.
+
+With a 150\,cm$\times$150\,cm environment discretized with cells of 1\,cm and 5° angle, the amount of information needed for the localization is $\ent{loc}=20.6$.
+This means that, on average, the robot should not be localized before traveling around 26\,cm.
 
 Faster localization can be achieved by moving at a greater speed to reduce redundancy in the successive measurements.
 If designing a new robot, better sensors would reduce cross-over noise.
@@ -446,8 +468,13 @@ The solid lines show the median while the light dots show the individual trials.
 
 \Fig{small-runs} shows the error in position for 5 different locations in the two first trajectories.
 We see that, with the Markov Localization approach, the correct pose is found after about 20\,cm.
-This corresponds well to the ideal theoretical distance of 18\,cm computed in \sect{theoreticalconv}.
-However, there are outliers: this happens when the robot is turning on spot, in which case there is not enough information to localize the robot.
+% TODO check that
+%This corresponds well to the ideal theoretical distance of 18\,cm computed in \sect{theoreticalconv}.
+This is shorter than the 26\,cm distance computed in \sect{theoreticalconv}.
+This is probably due to the overestimation of the cross-over noise of the sensor.
+A distance of 20,cm would correspond to noise lower than 3\% instead of 5\% as assumed.
+% end TODO
+There are also outliers: this happens when the robot is turning on spot, in which case there is not enough information to localize the robot.
 The convergence is slower with Monte Carlo Localization approach, except with 400k particles, in which case it is roughly similar.
 Decreasing the number of particles quickly increases the distance needed for convergence, reaching 60\,cm for 100k particles.
 Using only 50k particles, some trajectory segments fail to converge, even after 80\,cm length.
