@@ -364,6 +364,9 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 		# and the sum
 		write_image(np.asarray(self.PX).sum(axis=0), base_filename+'-sum.png')
 
+	def get_PX(self):
+		return np.asarray(self.PX)
+
 	# support methods
 
 	cpdef double thetaC2W(self, int angle):
