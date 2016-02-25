@@ -24,7 +24,7 @@
 
 
 <!--list of constants-->
-<constant value="100" name="MAX_SPEED"/>
+<constant value="80" name="MAX_SPEED"/>
 <constant value="400" name="SPEED_COEF"/>
 <constant value="6600" name="BASE_WIDTH"/>
 
@@ -96,7 +96,7 @@ if do_calibration == 1 then
 end
 
 ground_values_counter += 1
-if ground_values_counter == 5 then
+if ground_values_counter == 4 then
 	call math.sub(corrected_ground_values, prox.ground.delta, min_gray_intensity)
 	call math.muldiv(corrected_ground_values, corrected_ground_values, [1000, 1000], gray_intensity_range)
 	emit ground_values [corrected_ground_values, x, y, th]

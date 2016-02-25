@@ -109,7 +109,7 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 		cdef double d_obs
 		cdef double sigma = self.sigma_obs
 		cdef double ground_val
-		cdef double lowest_prob_upate = _norm(1., 0., sigma)
+		cdef double lowest_prob_upate = _norm(np.max(self.ground_map), np.min(self.ground_map), sigma)
 
 		# iterate on all angles
 		for i in range(self.angle_N):

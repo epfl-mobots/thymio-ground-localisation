@@ -37,10 +37,11 @@ def ground_values_received(id, name, values):
 	global localizer
 	global prob_img
 	global orient_plot
+	global performance_log
 	if name == 'ground_values':
 		# sensors
-		sensor_left = float(values[0]) * 0.001 # input to the localizer is within 0 to 1
-		sensor_right = float(values[1]) * 0.001 # input to the localizer is within 0 to 1
+		sensor_left = float(values[0]) # input to the localizer is within 0 to 1000
+		sensor_right = float(values[1]) # input to the localizer is within 0 to 1000
 		# odometry
 		dx_local = float(values[2]) * 0.01 * 0.1 # input to the localizer is in cm
 		dy_local = float(values[3]) * 0.01 * 0.1 # input to the localizer is in cm
@@ -55,31 +56,51 @@ def ground_values_received(id, name, values):
 		#odom_plot.set_ydata(numpy.append(odom_plot.get_ydata(), y))
 
 		# localization
-		print 'a'
+		start_time = time.time()
 		localizer.apply_command(dx_local, dy_local, dth_local)
-		print 'b'
 		localizer.apply_obs(sensor_left, sensor_right)
-		print 'c'
+		est_x, est_y, est_theta, confidence = localizer.estimate_state()
+		duration = time.time() - start_time
+
+		# update plot
 		PX = localizer.get_PX().sum(axis=0)
 		PX = PX * 255. / PX.max()
-		print PX.shape
 		prob_img.set_data(numpy.transpose(PX))
-		print 'd'
-		est_x, est_y, est_theta, conf = localizer.estimate_state()
-		#print PX
 		orient_plot.set_offsets(numpy.column_stack((
-			[est_x, est_x + 3 * math.cos(est_theta)],
-			[est_y, est_y + 3 * math.sin(est_theta)]
+			[est_x, est_x + 2 * math.cos(est_theta)],
+			[est_y, est_y + 2 * math.sin(est_theta)]
 		)))
 		plt.draw()
 
+		# dump data
+		performance_log.write('{} {} {} {} {}\n'.format(\
+			duration, \
+			est_x, \
+			est_y, \
+			est_theta, \
+			confidence
+		))
+
+
+def unitToSensor(value):
+	if value < 0.6:
+		return value * 950. / 0.6
+	else:
+		return 950. + (value - 0.6) * 50. / 0.4
 
 if __name__ == '__main__':
 
 	# load stuff
+	vUnitToSensor = numpy.vectorize(unitToSensor)
 	ground_map = numpy.flipud(scipy.misc.imread(sys.argv[1]).astype(float))
 	#scipy.misc.imsave('/tmp/dump.png', numpy.transpose(ground_map))
-	localizer = localize_with_cpt.CPTLocalizer(numpy.transpose(ground_map) / 255., 24, 0.15, 0.01, 0, 0.1, 0.1)
+	localizer = localize_with_cpt.CPTLocalizer(vUnitToSensor(numpy.transpose(ground_map) / 255.), 36, 150., 0.01, 0, 0.1, 0.1)
+
+	# log
+	if sys.argv > 2:
+		performance_log = open(sys.argv[2], 'w')
+	else:
+		performance_log = None
 
 	# Glib main loop
 	DBusGMainLoop(set_as_default=True)
@@ -102,13 +123,14 @@ if __name__ == '__main__':
 
 	# matplotlib init
 	plt.ion()
-	plt.figure()
+	plt.figure(figsize=(17,7))
+	plt.subplots_adjust(left=0.05, right=0.95, top=0.95, bottom=0.05, wspace=0.1, hspace=0)
 	# maps
 	plt.subplot(1, 2, 1)
-	plt.imshow(ground_map, origin='lower', interpolation="nearest", cmap='gray')
+	plt.imshow(vUnitToSensor(ground_map / 255.), origin='lower', interpolation="nearest", cmap='gray')
 	plt.subplot(1, 2, 2)
 	prob_img = plt.imshow(ground_map, origin='lower', interpolation="nearest", cmap='gray')
-	orient_plot = plt.scatter([0,3],[0,0], c=['#66ff66', '#ff4040'])
+	orient_plot = plt.scatter([0,2],[0,0], c=['#66ff66', '#ff4040'], s=40)
 	#plt.subplot(1, 3, 3)
 	plt.draw()
 
