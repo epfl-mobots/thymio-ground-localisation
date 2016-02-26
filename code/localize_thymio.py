@@ -73,13 +73,14 @@ def ground_values_received(id, name, values):
 		plt.draw()
 
 		# dump data
-		performance_log.write('{} {} {} {} {}\n'.format(\
-			duration, \
-			est_x, \
-			est_y, \
-			est_theta, \
-			confidence
-		))
+		if performance_log:
+			performance_log.write('{} {} {} {} {}\n'.format(\
+				duration, \
+				est_x, \
+				est_y, \
+				est_theta, \
+				confidence
+			))
 
 
 def unitToSensor(value):
@@ -97,7 +98,7 @@ if __name__ == '__main__':
 	localizer = localize_with_cpt.CPTLocalizer(vUnitToSensor(numpy.transpose(ground_map) / 255.), 36, 150., 0.01, 0, 0.1, 0.1)
 
 	# log
-	if sys.argv > 2:
+	if len(sys.argv) > 2:
 		performance_log = open(sys.argv[2], 'w')
 	else:
 		performance_log = None
