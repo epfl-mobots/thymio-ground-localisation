@@ -115,8 +115,7 @@ While these approaches are commonly deployed in robots with extensive sensing ca
 % FIXME: improve link
 We evaluate these using the Thymio~II mobile robot on a known black and white pseudo-random pattern, with ground truth provided by a Vicon tracking system.
 In addition, we provide a theoretical contribution predicting the traveled distance necessary to localize the robot.
-Finally, we show how grayscale images can be used as ground patterns that allow the robot to localize.
-% FIXME: rewrite, highlight final process
+Finally, we demonstrate the real-time localisation of a Thymio robot on grayscale images used as ground patterns.
 
 \section{Related work}
 
@@ -183,8 +182,7 @@ We chose this period so that at maximum speed, the robot travels approximately h
 The motions of the robot can be classified into two different types, namely moving forward or backward (possibly in arcs) and rotating on spot.
 To fully explore the performance of the algorithm, we remotely control the robot along several trajectories covering all possible motions.
 To test the algorithm's ability of recovering from catastrophic localization failures, we also conduct experiments with ``robot kidnapping'' by lifting the robot and moving it to another part of the map.
-
-% TODO: add protocol for the final experiment
+Finally, we demonstrate the real-time localisation of the Thymio using different grayscale images, printed on A2 paper sheets.
 
 \section{Model}
 
