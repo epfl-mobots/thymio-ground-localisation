@@ -135,7 +135,7 @@ The main challenge of solving the localization problem on affordable mobile robo
 Zug et al.~\cite{zug2011design} have developed an algorithm using an array of triangulation-based infrared distance sensors.
 A Kalman filter algorithm is applied to localize the robot within a 2 by 1\,m box.
 No experimental result is provided, but a simulation shows the estimated error to be within 2\,cm.
-Pinto et al.~\cite{pinto2012localization} have developed a localization system using only one of these sensors, in the context of education.
+Pinto et al.~\cite{pinto2012localization} have developed a localization system using wheel encoders and infrared distance sensors, in the context of education.
 They mount the sensor on a platform built around a LEGO Mindstorms NXT and use an Extended Kalman Filter for localization.
 However, they do not provide experimental result either.
 
@@ -156,6 +156,7 @@ Their system employs an Extended Kalman Filter algorithm and reaches a precision
 As with the work of Singh and Bedi, it requires an enclosed arena with a specific wall arrangement and no obstacles between the robot and the walls.
 
 Another line of research has approached the localization problem by using multiple robots and combining their perception.
+To exploit the combination of individual perception of multiple robots, Kurazume and Nagata~\cite{kurazume1994cooperative} first raise the idea of cooperative positioning with multiple robots. 
 Prorok et al.~\cite{prorok2012low} is representative of this approach.
 These authors have used an infrared-based range and bearing hardware along with a distributed Monte Carlo Localization approach, allowing a group of robots to localize down to a precision of 20\,cm.
 However, this line of research focuses on scalability rather than absolute positioning, as the later would require fixed robots acting as beacons.
@@ -278,7 +279,8 @@ For the Markov Localization approach, there is a given number of discrete cells.
 The amount of information needed to unambiguously specify one among them all is $\ent{loc} = \log_2(N_\mathrm{cells})$, with $N_\mathrm{cells}$ the number of cells.
 
 We can also compute the information gain at each time step.
-Indeed, a binary sensor ideally yields 1\,bit of information per measurement.
+Let us consider the case of a binary map and a binary sensor.
+This sensor ideally yields 1\,bit of information per measurement.
 However in practice, there is a loss in information due to the sensor noise, characterized by the $p_\mathrm{correct}$ probability of the sensor to be correct:
 \begin{displaymath}
 	\ent{noise} = \ent{b}(1 - p_\mathrm{correct}),
@@ -295,33 +297,35 @@ In our case, the probability of changing cell is given by:
 \end{displaymath}
 with $d$ the distance traveled and $h$ the size of the cells.
 
-We can then compute the conditional entropy for two successive ideal measurements separated by $d$ based on the conditional probability:
+We can then compute the conditional entropy for two successive ideal binary measurements $O_{t-1}$ and $O_t$ separated by $d$ based on the conditional probability.
+There are two cases: either the robot has not moved enough to change cell (with probability $1 - p_\mathrm{diff}$) and the new observation is the same as the old, or the robot has changed cell (with probability $p_\mathrm{diff}$) and the new observation as the same probability to be the same or the opposite of the old.
+This can be summarized by the following conditional probability distribution:
 \begin{align*}
-	&P(O_t | O_{t-1})\\
+	&p(O_t=\{black/white\} \mid O_{t-1}=\{black/white\})\\
 	&= \begin{pmatrix}
-		(1 - p_\mathrm{diff}) + 1/2 p_\mathrm{diff} & 1/2 p_\mathrm{diff}\\
-		1/2 p_\mathrm{diff} & (1 - p_\mathrm{diff}) + 1/2 p_\mathrm{diff}
+		(1 - p_\mathrm{diff}) + p_\mathrm{diff}/2 & p_\mathrm{diff}/2\\
+		p_\mathrm{diff}/2 & (1 - p_\mathrm{diff}) + p_\mathrm{diff}/2
 	\end{pmatrix}.
 \end{align*}
-Therefore the loss of information due to redundancy in the travelled distance is:
+After rearranging the terms of the conditional entropy, the loss of information due to redundancy in the travelled distance is:
 \begin{displaymath}
-	\ent{loss,d} = 1 - \ent{b}(1/2 p_\mathrm{diff}).
+	\ent{loss,d} = 1 - \ent{b}(p_\mathrm{diff}/2).
 \end{displaymath}
 
 There is also redundancy between several sensors placed on the same robot.
 The probability that they see the same cell based on the distance between them is exactly the same as the probability of a sensor to see the same cell after a displacement of the same distance.
 The information loss due to the redundancy from the sensor placement is noted $\ent{sensors}$ and follows the same formula as $\ent{loss,d}$ for the given distance.
 
-Finally, we can approximate the information that our robot gathers at each time step in the following manner:
+Finally, we can approximate the information that our robot gathers at each time step by assuming that the trajectory of the robot does not loop (no redundancy between distant time steps) and that the trajectories of the sensors are independent. 
+The information gathered in a time step in then:
 \begin{align*}
-	&\ent{}(O^1_t, O^2_t | O^1_{1:t-1}, O^2_{1:t-1})\\
-	&= \ent{}(O^1_t, O^2_t | O^1_{t-1}, O^2_{t-1}) \\
-	&= \ent{}(O^1_t | O^1_{t-1}) + \ent{}(O^2_t | O^2_{t-1}) - \ent{}(O^2_t | O^1_t) \\
-	&= 2*(1-\ent{noise}-\ent{loss,d}) - \ent{sensors}%. The full stop here is ugly.
+	&\ent{}(O^1_t, O^2_t \mid O^1_{1:t-1}, O^2_{1:t-1})\\
+	&= \ent{}(O^1_t, O^2_t \mid O^1_{t-1}, O^2_{t-1}) \\
+	&= \ent{}(O^1_t \mid O^1_{t-1}) + \ent{}(O^2_t \mid O^2_{t-1}) - \ent{}(O^2_t \mid O^1_t) \\
+	&= 2\cdot(1-\ent{noise}-\ent{loss,d}) - \ent{sensors}%. The full stop here is ugly.
 \end{align*}
-This approximation assumes that the trajectory of the robot is ideal (no longer time redundancy) and that the trajectories of the sensors are independent.
 It also ignores the uncertainty in the robot motion.
-As such, it is therefore an upper bound on the average information gain.
+With these assumptions, it is an upper bound on the average information gain.
 
 In our example, we have assumed $p_\mathrm{correct}=0.95$, that is $\ent{noise}=0.29$.
 Our robot moves at 3\,cm/s with a time step of 0.3\,s and 3\,cm cells in which the color is know to be similar; this yields $p_\mathrm{diff}=0.35$ and $\ent{loss,d}=0.33$.
@@ -455,7 +459,7 @@ We see that, with the Markov Localization approach, the correct pose is found af
 %This corresponds well to the ideal theoretical distance of 18\,cm computed in \sect{theoreticalconv}.
 This is shorter than the 26\,cm distance computed in \sect{theoreticalconv}.
 This is probably due to the overestimation of the cross-over noise of the sensor.
-A distance of 20,cm would correspond to noise lower than 3\% instead of 5\% as assumed.
+A distance of 20\,cm would correspond to noise lower than 3\% instead of 5\% as assumed.
 % end TODO
 There are also outliers: this happens when the robot is turning on spot, in which case there is not enough information to localize the robot.
 The convergence is slower with Monte Carlo Localization approach, except with 400k particles, in which case it is roughly similar.
