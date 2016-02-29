@@ -564,19 +564,46 @@ However, the Monte Carlo Localization approach might be preferred if a high angu
 \section{Real-time localization}
 
 \begin{figure*}
-\includegraphics[width=.15\textwidth]{maps/breugel_babel} \hfill
-\includegraphics[width=.15\textwidth]{maps/van-gogh_starry-night} \hfill
-\includegraphics[width=.15\textwidth]{maps/kandinsky_comp-8} \hfill
-\includegraphics[width=.15\textwidth]{maps/vermeer_girl-pearl} \hfill
-\includegraphics[width=.15\textwidth]{maps/babar} \hfill
-\includegraphics[width=.15\textwidth]{maps/childs-drawing_tooth-fairy}
-
 \makebox[.15\textwidth][c]{Breugel}\hfill
 \makebox[.15\textwidth][c]{Van Gogh}\hfill
 \makebox[.15\textwidth][c]{Kandinsky}\hfill
 \makebox[.15\textwidth][c]{Vermeer}\hfill
 \makebox[.15\textwidth][c]{Babar}\hfill
 \makebox[.15\textwidth][c]{Child's drawing}
+
+\vspace{.5em}
+
+\includegraphics[width=.15\textwidth,interpolate=false]{maps/breugel_babel_A2} \hfill
+\includegraphics[width=.15\textwidth,interpolate=false]{maps/van-gogh_starry-night_A2} \hfill
+\includegraphics[width=.15\textwidth,interpolate=false]{maps/kandinsky_comp-8_A2} \hfill
+\includegraphics[width=.15\textwidth,interpolate=false]{maps/vermeer_girl-pearl_A2} \hfill
+\includegraphics[width=.15\textwidth,interpolate=false]{maps/babar_A2} \hfill
+\includegraphics[width=.15\textwidth,interpolate=false]{maps/child-drawing_tooth-fairy_A2}
+
+\vspace{.5em}
+
+\includegraphics[width=.15\textwidth]{breugel_babel-traj} \hfill
+\includegraphics[width=.15\textwidth]{van-gogh_starry-night-traj} \hfill
+\includegraphics[width=.15\textwidth]{kandinsky_comp-8-traj} \hfill
+\includegraphics[width=.15\textwidth]{vermeer_girl-pearl-traj} \hfill
+\includegraphics[width=.15\textwidth]{babar-traj} \hfill
+\includegraphics[width=.15\textwidth]{child-drawing_tooth-fairy-traj}
+
+\vspace{.5em}
+
+\includegraphics[width=.15\textwidth]{breugel_babel-conf} \hfill
+\includegraphics[width=.15\textwidth]{van-gogh_starry-night-conf} \hfill
+\includegraphics[width=.15\textwidth]{kandinsky_comp-8-conf} \hfill
+\includegraphics[width=.15\textwidth]{vermeer_girl-pearl-conf} \hfill
+\includegraphics[width=.15\textwidth]{babar-conf} \hfill
+\includegraphics[width=.15\textwidth]{child-drawing_tooth-fairy-conf}
+
+\caption{The image, estimated trajectory and self-confidence for different 59\,$\times$\,42\,cm grayscale patterns printed on A2 papers.
+The robot is remotely controlled to draw a 8-shape figure, with similar motor commands for each image.
+Markov Localization with 36 discretization angles used.
+The color of the lines vary from red (confidence 0) to green (confidence 1).
+Trajectories are plotted starting from a confidence level of 0.2.}
+\label{fig:a2_drawings}
 
 \end{figure*}
 

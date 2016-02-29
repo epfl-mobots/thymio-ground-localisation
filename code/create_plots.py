@@ -10,6 +10,7 @@ import matplotlib
 matplotlib.use("PDF") # do this before pylab so you don't get the default back end.
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+from matplotlib.collections import LineCollection
 import prettyplotlib as ppl
 #plt.style.use('ggplot')
 import os.path
@@ -132,6 +133,71 @@ def plot_trajectories():
 	fig.tight_layout(pad=0.02, rect=(0,0,1,1))
 	fig.savefig(os.path.join(dest_base_dir, name), pad_inches=0.02)
 
+def plot_images_2D():
+
+	# setup parameters
+	plt.rcParams.update(plot_params)
+
+	# for different map
+	map_names = ['breugel_babel', 'van-gogh_starry-night', 'kandinsky_comp-8', 'vermeer_girl-pearl', 'babar', 'child-drawing_tooth-fairy']
+	for map_name in map_names:
+		# load data
+		result_file = 'real_A2/{}.txt'.format(map_name)
+		data = np.loadtxt(os.path.join(result_base_dir, result_file))
+		enough_confidence_pos = 0
+		confidence_threshold = 0.2
+		while data[enough_confidence_pos,-1] < confidence_threshold:
+			enough_confidence_pos += 1
+		print 'Trajectory for image {} has {} confidence at step {}'.format(map_name, confidence_threshold, enough_confidence_pos)
+
+		# create figure for trajectory
+		fig, ax = plt.subplots(figsize=(1, 42./59.))
+		ax.set_xlim(0, 59)
+		ax.set_ylim(0, 42)
+		ax.axis('off')
+		ax.get_xaxis().set_visible(False)
+		ax.get_yaxis().set_visible(False)
+
+		# plot trajectory
+		x = data[enough_confidence_pos:,1]
+		y = data[enough_confidence_pos:,2]
+		conf = data[enough_confidence_pos:,-1]
+		points = np.array([x, y]).T.reshape(-1, 1, 2)
+		segments = np.concatenate([points[:-1], points[1:]], axis=1)
+		lc = LineCollection(segments, cmap=plt.get_cmap('brg'), norm=plt.Normalize(0, 1))
+		lc.set_array(conf / 2 + 0.5)
+		lc.set_linewidth(.5)
+		ax.add_collection(lc)
+		ax.add_patch(patches.Rectangle((0,0),59,42,fill=False))
+		fig.savefig(os.path.join(dest_base_dir, '{}-traj.pdf'.format(map_name)), bbox_inches='tight', pad_inches=0.0)
+
+		# create figure for confidence
+		fig, ax = plt.subplots(figsize=(1, 0.7))
+		ax.set_xlim(0, 70)
+		ax.set_ylim(0, 1)
+
+		# plot confidence
+		x = np.arange(0, 70, 0.4)
+		y = conf
+		l = min(x.shape[0], y.shape[0])
+		x_l = x[0:l]
+		y_l = y[0:l]
+		points = np.array([x_l, y_l]).T.reshape(-1, 1, 2)
+		segments = np.concatenate([points[:-1], points[1:]], axis=1)
+		lc = LineCollection(segments, cmap=plt.get_cmap('brg'), norm=plt.Normalize(0, 1))
+		lc.set_array(y_l / 2 + 0.5)
+		lc.set_linewidth(.5)
+		ax.add_collection(lc)
+		ax.spines['top'].set_visible(False)
+		ax.spines['left'].set_linewidth(0.5)
+		ax.spines['right'].set_visible(False)
+		ax.spines['bottom'].set_linewidth(0.5)
+		ax.get_xaxis().tick_bottom()
+		ax.get_yaxis().tick_left()
+		ax.xaxis.set_ticks([0,30,60])
+		ax.yaxis.set_ticks([0,0.5,1])
+		ax.set_xlabel('time [s]')
+		fig.savefig(os.path.join(dest_base_dir, '{}-conf.pdf'.format(map_name)), bbox_inches='tight', pad_inches=0.0)
 
 def plot_grayscale_images(run, show_dist_not_angle, name):
 
@@ -410,6 +476,8 @@ if __name__ == '__main__':
 	parser.add_argument('--cpu_load', help='plot CPU load for different methods and paramters on random_1 and random_2', action='store_true')
 	parser.add_argument('--grayscale_images', help='various grayscale images using random_1 and random_2', action='store_true')
 	parser.add_argument('--trajectories', help='trajectories for random_1 and random_2', action='store_true')
+	parser.add_argument('--images_2D', help='trajectories and confidence 2D images', action='store_true')
+
 
 	args = parser.parse_args()
 
@@ -466,6 +534,9 @@ if __name__ == '__main__':
 
 	elif args.trajectories:
 		plot_trajectories()
+
+	elif args.images_2D:
+		plot_images_2D()
 
 	else:
 		parser.print_help()
