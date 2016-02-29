@@ -124,7 +124,7 @@ The main challenge of solving the localization problem on affordable mobile robo
 Zug et al.~\cite{zug2011design} have developed an algorithm using an array of triangulation-based infrared distance sensors.
 A Kalman filter algorithm is applied to localize the robot within a 2 by 1\,m box.
 No experimental result is provided, but a simulation shows the estimated error to be within 2\,cm.
-Pinto et al.~\cite{pinto2012localization} have developed a localization system using only one of these sensors, in the context of education.
+Pinto et al.~\cite{pinto2012localization} have developed a localization system using wheel encoders and infrared distance sensors, in the context of education.
 They mount the sensor on a platform built around a LEGO Mindstorms NXT and use an Extended Kalman Filter for localization.
 However, they do not provide experimental result either.
 
@@ -145,6 +145,7 @@ Their system employs an Extended Kalman Filter algorithm and reaches a precision
 As with the work of Singh and Bedi, it requires an enclosed arena with a specific wall arrangement and no obstacles between the robot and the walls.
 
 Another line of research has approached the localization problem by using multiple robots and combining their perception.
+To exploit the combination of individual perception of multiple robots, Kurazume and Nagata~\cite{kurazume1994cooperative} first raise the idea of cooperative positioning with multiple robots. 
 Prorok et al.~\cite{prorok2012low} is representative of this approach.
 These authors have used an infrared-based range and bearing hardware along with a distributed Monte Carlo Localization approach, allowing a group of robots to localize down to a precision of 20\,cm.
 However, this line of research focuses on scalability rather than absolute positioning, as the later would require fixed robots acting as beacons.
