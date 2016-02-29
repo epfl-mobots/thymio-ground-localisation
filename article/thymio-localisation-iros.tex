@@ -496,21 +496,23 @@ Monte Carlo Localization, \texttt{trajectory with kidnapping}, for different \em
 \includegraphics{mcl-whole_random_long-xy}
 \includegraphics{mcl-whole_random_long-conf}
 
-\caption{The error between the estimation by the localization algorithm and the ground truth on the run with kidnapping.
+\caption{The error between the estimation by the localization algorithm and the ground truth, and the self confidence, on the run with kidnapping.
 For Monte Carlo Localization, the solid lines show the median over 10 trials, while the light dots show the individual trials.
 The gray areas show the time during the robot is being held in the air at the occasion of kidnapping.}
 \label{fig:whole-runs-random-long}
 \end{figure}
 
-\Fig{whole-runs-random-long} shows the error in position for the run with kidnapping.
+\Fig{whole-runs-random-long} shows the error in position and the self confidence for the run with kidnapping.
 In this run, the robot is kidnapped twice, after having traveled 550\,cm and 1000\,cm.
-It takes the robot approximately 50\,cm to re-localize, and does so successfully with both Markov and Monte Carlo Localization approaches.
-% FIXME: check on the video for numbers, edit plots
-With Markov Localization approach, discretization resolutions of 36, 54 and 72 are approximately equivalent in performance, while 18 performs clearly worst, but only for angular resolution.
+It takes the robot approximately 100\,cm to re-localize, and does so successfully with both Markov and Monte Carlo Localization approaches.
+This difference of distance with previous runs is mostly due to the speed of the robot, which is about 5 times faster.
+With Markov Localization approach, all discretization resolutions are approximately equivalent in performance, but 18 leads to a lower self confidence, due to the large discretization step.
+Other resolutions have a confidence of about 0.5 when the robot is localized, and the this value drops to below 0.1 after kidnapping, clearly showing that the algorithm is able to assess its status of being lost.
+
 With Monte Carlo Localization approach, the robot localizes most of the time with 100k particle or more, and always with 200k particles or more.
 With 50k particles, the robot eventually localizes, but this might take more than 2 meters of traveled distance.
-%TODO: reanalyse MCL once we have 10 runs
-%FIXME: make more clear
+We see that the self confidence increases with more particles, and also drops after kidnapping, similarly to Markov Localization approach.
+This confirms the effectiveness of the self confidence measure.
 
 \subsection{Computational cost}
 
@@ -607,9 +609,11 @@ Trajectories are plotted starting from a confidence level of 0.2.}
 
 \end{figure*}
 
-In this section, we demonstrate the real-time localization of the Thymio using different grayscale images of 59\,$\times$\,42\,cm, printed on A2 paper sheets.
-We used Markov Localization with an angular discretization of 36 and a cell resolution of 1\,cm.
-The localization is performed every 0.4\,s.
+\Fig{a2_drawings} shows the performance of the real-time localization of the Thymio using different grayscale images of 59\,$\times$\,42\,cm, printed on A2 paper sheets.
+We used Markov Localization with an angular discretization of 36 and a cell resolution of 1\,cm; the localization is performed every 0.4\,s.
+The robot is able to globally localize itself on all images.
+The ones with more contrast lead to a more robust and faster localization, with the ones with lower contrast lead to more imprecise trajectories.
+The self confidence measure is effective in assessing the quality of the localization.
 
 % \subsection{Grayscale images as maps}
 % 
