@@ -173,7 +173,7 @@ This project uses only its two ground infrared sensors (\fig{thymio}, right, cir
 Thymio~II is programmed through the \textsc{aseba} framework~\cite{aseba2011tmech}, which connects to \textsc{ros}\footnote{ROS (Robot Operating System): \url{http://www.ros.org/}}.
 
 To evaluate the performance of our localization algorithms, we create datasets.
-The robot moves with a speed of 3--5\,cm/s on a 150$\times$150\,cm ground pattern containing 50\,$\times$\,50 cells of 3$\times$3\,cm, each randomly black or white (\fig{thymio}, left).
+The robot moves with a speed of 3--5\,cm/s on a 150$\times$150\,cm ground pattern containing 50\,$\times$\,50 cells of 3$\times$3\,cm, each randomly black or white (\fig{thymio}, left). %FIXME: random_long is faster
 We record the ground-truth pose of the robot using a Vicon\footnote{\url{http://www.vicon.com/}} tracking system.
 %to provide the ground-truth robot pose, consisting of $x$, $y$ coordinates and the heading $\theta$.
 We use \textsc{ros} to synchronously record these along with sensor values and odometry information from Thymio.
@@ -498,6 +498,7 @@ The solid lines show the median over 3 different sizes, while the light dots sho
 Markov Localization, \texttt{trajectory with kidnapping}, for different \emph{number of discretization angles}
 \end{center}
 \includegraphics{ml-whole_random_long-xy}
+\includegraphics{ml-whole_random_long-conf}
 
 \vspace{.3em}
 
@@ -505,6 +506,7 @@ Markov Localization, \texttt{trajectory with kidnapping}, for different \emph{nu
 Monte Carlo Localization, \texttt{trajectory with kidnapping}, for different \emph{number of particles}
 \end{center}
 \includegraphics{mcl-whole_random_long-xy}
+\includegraphics{mcl-whole_random_long-conf}
 
 \caption{The error between the estimation by the localization algorithm and the ground truth on the run with kidnapping.
 For Monte Carlo Localization, the solid lines show the median over 10 trials, while the light dots show the individual trials.

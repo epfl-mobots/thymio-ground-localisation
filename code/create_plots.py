@@ -278,8 +278,11 @@ def plot_small_maps(show_dist_not_angle, name):
 	fig.savefig(os.path.join(dest_base_dir, name), bbox_inches='tight', pad_inches=0.02)
 
 
+POSITION_ERROR = 1
+ROTATION_ERROR = 2
+CONFIDENCE = 3
 
-def draw_plot(algo, runs, params, show_dist_not_angle, name, path_length, **kwargs):
+def draw_plot(algo, runs, params, plot_type, name, path_length, **kwargs):
 
 	# setup parameters
 	plt.rcParams.update(plot_params)
@@ -297,14 +300,20 @@ def draw_plot(algo, runs, params, show_dist_not_angle, name, path_length, **kwar
 	ax.set_xlim(0, path_length)
 
 	# show dist or angle diff?
-	if show_dist_not_angle:
+	if plot_type == POSITION_ERROR:
 		dataCol = 8
 		ylabel = 'position error [cm]'
 		ylim = 50
-	else:
+	elif plot_type == ROTATION_ERROR:
 		dataCol = 9
 		ylabel = 'angular error [degrees]'
 		ylim = 90
+	elif plot_type == CONFIDENCE:
+		dataCol = 11
+		ylabel = 'confidence'
+		ylim = 1.0
+	else:
+		raise ValueError("Unknown plot type " + plot_type)
 	ax.set_ylim(0, ylim)
 
 	# add rectangles
@@ -409,46 +418,48 @@ if __name__ == '__main__':
 		whole_range_length = 180
 
 		# ML
-		draw_plot('ml', ['random_1'], [18, 36, 54, 72], True, 'ml-whole_random_1-xy.pdf', whole_range_length)
-		draw_plot('ml', ['random_1'], [18, 36, 54, 72], False, 'ml-whole_random_1-theta.pdf', whole_range_length)
-		draw_plot('ml', ['random_2'], [18, 36, 54, 72], True, 'ml-whole_random_2-xy.pdf', whole_range_length)
-		draw_plot('ml', ['random_2'], [18, 36, 54, 72], False, 'ml-whole_random_2-theta.pdf', whole_range_length)
+		draw_plot('ml', ['random_1'], [18, 36, 54, 72], POSITION_ERROR, 'ml-whole_random_1-xy.pdf', whole_range_length)
+		draw_plot('ml', ['random_1'], [18, 36, 54, 72], ROTATION_ERROR, 'ml-whole_random_1-theta.pdf', whole_range_length)
+		draw_plot('ml', ['random_2'], [18, 36, 54, 72], POSITION_ERROR, 'ml-whole_random_2-xy.pdf', whole_range_length)
+		draw_plot('ml', ['random_2'], [18, 36, 54, 72], ROTATION_ERROR, 'ml-whole_random_2-theta.pdf', whole_range_length)
 
 		# MCL
 		mcl_results = {'random_1': [ 'multiple_mcl/random_1_0', 'multiple_mcl/random_1_1', 'multiple_mcl/random_1_2', 'multiple_mcl/random_1_3', 'multiple_mcl/random_1_4', 'multiple_mcl/random_1_5', 'multiple_mcl/random_1_6', 'multiple_mcl/random_1_7', 'multiple_mcl/random_1_8', 'multiple_mcl/random_1_9'], 'random_2': [ 'multiple_mcl/random_2_0', 'multiple_mcl/random_2_1', 'multiple_mcl/random_2_2', 'multiple_mcl/random_2_3', 'multiple_mcl/random_2_4', 'multiple_mcl/random_2_5', 'multiple_mcl/random_2_6', 'multiple_mcl/random_2_7', 'multiple_mcl/random_2_8', 'multiple_mcl/random_2_9']}
-		draw_plot('mcl', ['random_1'], ['50k', '100k', '200k', '400k'], True, 'mcl-whole_random_1-xy.pdf', whole_range_length, custom_results = mcl_results)
-		draw_plot('mcl', ['random_1'], ['50k', '100k', '200k', '400k'], False, 'mcl-whole_random_1-theta.pdf', whole_range_length, custom_results = mcl_results)
-		draw_plot('mcl', ['random_2'], ['50k', '100k', '200k', '400k'], True, 'mcl-whole_random_2-xy.pdf', whole_range_length, custom_results = mcl_results)
-		draw_plot('mcl', ['random_2'], ['50k', '100k', '200k', '400k'], False, 'mcl-whole_random_2-theta.pdf', whole_range_length, custom_results = mcl_results)
+		draw_plot('mcl', ['random_1'], ['50k', '100k', '200k', '400k'], POSITION_ERROR, 'mcl-whole_random_1-xy.pdf', whole_range_length, custom_results = mcl_results)
+		draw_plot('mcl', ['random_1'], ['50k', '100k', '200k', '400k'], ROTATION_ERROR, 'mcl-whole_random_1-theta.pdf', whole_range_length, custom_results = mcl_results)
+		draw_plot('mcl', ['random_2'], ['50k', '100k', '200k', '400k'], POSITION_ERROR, 'mcl-whole_random_2-xy.pdf', whole_range_length, custom_results = mcl_results)
+		draw_plot('mcl', ['random_2'], ['50k', '100k', '200k', '400k'], ROTATION_ERROR, 'mcl-whole_random_2-theta.pdf', whole_range_length, custom_results = mcl_results)
 
 	elif args.whole_range_random_long:
 		# random_long, ML and MCL whole range
 		kidnappings = [(544,89),(983,69)]
-		draw_plot('ml', ['random_long'], [18, 36, 54, 72], True, 'ml-whole_random_long-xy.pdf', 1400., kidnappings=kidnappings)
-		draw_plot('ml', ['random_long'], [18, 36, 54, 72], False, 'ml-whole_random_long-theta.pdf', 1400., kidnappings=kidnappings)
+		draw_plot('ml', ['random_long'], [18, 36, 54, 72], POSITION_ERROR, 'ml-whole_random_long-xy.pdf', 1400., kidnappings=kidnappings)
+		draw_plot('ml', ['random_long'], [18, 36, 54, 72], ROTATION_ERROR, 'ml-whole_random_long-theta.pdf', 1400., kidnappings=kidnappings)
+		draw_plot('ml', ['random_long'], [18, 36, 54, 72], CONFIDENCE, 'ml-whole_random_long-conf.pdf', 1400., kidnappings=kidnappings)
 		mcl_results = {'random_long': ['multiple_mcl/random_long_0', 'multiple_mcl/random_long_1', 'multiple_mcl/random_long_2', 'multiple_mcl/random_long_3', 'multiple_mcl/random_long_4', 'multiple_mcl/random_long_5', 'multiple_mcl/random_long_6', 'multiple_mcl/random_long_7', 'multiple_mcl/random_long_8', 'multiple_mcl/random_long_9' ]}
-		draw_plot('mcl', ['random_long'], ['50k', '100k', '200k', '400k'], True, 'mcl-whole_random_long-xy.pdf', 1400., custom_results = mcl_results, kidnappings=kidnappings)
-		draw_plot('mcl', ['random_long'], ['50k', '100k', '200k', '400k'], False, 'mcl-whole_random_long-theta.pdf', 1400., custom_results = mcl_results, kidnappings=kidnappings)
+		draw_plot('mcl', ['random_long'], ['50k', '100k', '200k', '400k'], POSITION_ERROR, 'mcl-whole_random_long-xy.pdf', 1400., custom_results = mcl_results, kidnappings=kidnappings)
+		draw_plot('mcl', ['random_long'], ['50k', '100k', '200k', '400k'], ROTATION_ERROR, 'mcl-whole_random_long-theta.pdf', 1400., custom_results = mcl_results, kidnappings=kidnappings)
+		draw_plot('mcl', ['random_long'], ['50k', '100k', '200k', '400k'], CONFIDENCE, 'mcl-whole_random_long-conf.pdf', 1400., custom_results = mcl_results, kidnappings=kidnappings)
 
 	elif args.small_runs:
 		# small runs
 		small_runs_results = {'random_1': ['small_runs/random_1_0', 'small_runs/random_1_20', 'small_runs/random_1_40', 'small_runs/random_1_60', 'small_runs/random_1_80'], 'random_2': ['small_runs/random_2_0', 'small_runs/random_2_20', 'small_runs/random_2_40', 'small_runs/random_2_60', 'small_runs/random_2_80']}
-		draw_plot('ml', ['random_1', 'random_2'], [18, 36, 54, 72], True, 'ml-small_runs_random_12-xy.pdf', 77, custom_results = small_runs_results)
-		draw_plot('ml', ['random_1', 'random_2'], [18, 36, 54, 72], False, 'ml-small_runs_random_12-theta.pdf', 77, custom_results = small_runs_results)
-		draw_plot('mcl', ['random_1', 'random_2'], ['50k', '100k', '200k', '400k'], True, 'mcl-small_runs_random_12-xy.pdf', 77, custom_results = small_runs_results)
-		draw_plot('mcl', ['random_1', 'random_2'], ['50k', '100k', '200k', '400k'], False, 'mcl-small_runs_random_12-theta.pdf', 77, custom_results = small_runs_results)
+		draw_plot('ml', ['random_1', 'random_2'], [18, 36, 54, 72], POSITION_ERROR, 'ml-small_runs_random_12-xy.pdf', 77, custom_results = small_runs_results)
+		draw_plot('ml', ['random_1', 'random_2'], [18, 36, 54, 72], ROTATION_ERROR, 'ml-small_runs_random_12-theta.pdf', 77, custom_results = small_runs_results)
+		draw_plot('mcl', ['random_1', 'random_2'], ['50k', '100k', '200k', '400k'], POSITION_ERROR, 'mcl-small_runs_random_12-xy.pdf', 77, custom_results = small_runs_results)
+		draw_plot('mcl', ['random_1', 'random_2'], ['50k', '100k', '200k', '400k'], ROTATION_ERROR, 'mcl-small_runs_random_12-theta.pdf', 77, custom_results = small_runs_results)
 
 	elif args.small_maps:
 		# small maps, same run
-		plot_small_maps(True, 'ml-small_maps-xy.pdf')
-		plot_small_maps(False, 'ml-small_maps-theta.pdf')
+		plot_small_maps(POSITION_ERROR, 'ml-small_maps-xy.pdf')
+		plot_small_maps(ROTATION_ERROR, 'ml-small_maps-theta.pdf')
 
 	elif args.grayscale_images:
 		# various grayscale images
-		plot_grayscale_images('random_1', True, 'ml-grayscale_images-random_1-xy.pdf')
-		plot_grayscale_images('random_1', False, 'ml-grayscale_images-random_1-theta.pdf')
-		plot_grayscale_images('random_2', True, 'ml-grayscale_images-random_2-xy.pdf')
-		plot_grayscale_images('random_2', False, 'ml-grayscale_images-random_2-theta.pdf')
+		plot_grayscale_images('random_1', POSITION_ERROR, 'ml-grayscale_images-random_1-xy.pdf')
+		plot_grayscale_images('random_1', ROTATION_ERROR, 'ml-grayscale_images-random_1-theta.pdf')
+		plot_grayscale_images('random_2', POSITION_ERROR, 'ml-grayscale_images-random_2-xy.pdf')
+		plot_grayscale_images('random_2', ROTATION_ERROR, 'ml-grayscale_images-random_2-theta.pdf')
 
 	elif args.cpu_load:
 		plot_cpu_load('cpu_load.pdf')
