@@ -110,12 +110,22 @@ Such educational activities, for example staging a theater play with robots, wou
 This paper answers this need by providing an absolute positioning system using only approximate dead-reckoning and inexpensive infrared sensors measuring the grayscale intensity of the ground, without knowing the initial pose of the robot.
 The ground can be an existing image or a drawing created by the child herself (\fig{process}).
 Our solution is based on the classical Markov~\cite{fox1999markov} and Monte Carlo~\cite{dellaert1999monte} Localization frameworks that can be seen as respectively a dense and a sampling-based implementation of a recursive Bayesian filter.
-While these approaches are commonly deployed in robots with extensive sensing capabilities such as laser scanners, their implementation on extremely low bandwidth sensors is novel, and rises specific questions, such as which distance the robot must travel for the localisation to converge.
-%Our solution builds on a recursive Bayesian filter, of which we propose both a dense and a sampling-based implementation.
-% FIXME: improve link
-We evaluate these using the Thymio~II mobile robot on a known black and white pseudo-random pattern, with ground truth provided by a Vicon tracking system.
-In addition, we provide a theoretical contribution predicting the traveled distance necessary to localize the robot.
-Finally, we demonstrate the real-time localisation of a Thymio robot on grayscale images used as ground patterns.
+While these approaches are commonly used in robots with extensive sensing capabilities such as laser scanners, their implementation on extremely low bandwidth sensors is novel, and rises specific questions, such as which distance the robot must travel for the localisation to converge.
+
+In this paper, we deploy these algorithms on the Thymio~II differential-wheeled mobile robot.
+The robot reads the intensity of the ground using two infrared sensors (\fig{thymio}, left, circled red) and estimates the speed of its wheels by measuring the back electromotive force.
+A Vicon tracking system\footnote{\url{http://www.vicon.com/}} provides the ground-truth pose (\fig{thymio}, right).
+Our first contribution is a predictive model of the necessary distance to travel to localize the robot.
+Our second contribution is a detailed analysis of the performances of the two implementations in comparison with ground-truth data.
+Our last contribution is a validation of real-time localization.
+
+\begin{figure}
+\includegraphics[width=.43\columnwidth]{thymio2-dimensions}\hfill
+\raisebox{.3cm}{\includegraphics[width=.53\columnwidth]{thymio2-dataset}}
+\vspace{-.07cm}
+\caption{The Thymio~II robot with the placement of its ground sensors (left), and markers for tracking its ground-truth pose by a Vicon system (right).}
+\label{fig:thymio}
+\end{figure}
 
 \section{Related work}
 
@@ -153,36 +163,6 @@ Finally, when the cost of all robots is added, the system is far from cheap.
 
 To the best of our knowledge, there exist no onboard localization system able to use a low number of\,--\,or a single\,--\,inexpensive local infrared sensor(s), and able to provide absolute positioning in a distributed way.
 The system proposed in this paper meets these requirements.
-
-\section{Material}
-\begin{figure}
-\raisebox{.3cm}{\includegraphics[width=.53\columnwidth]{thymio2-dataset}}\hfill
-\includegraphics[width=.43\columnwidth]{thymio2-dimensions}
-\vspace{-.07cm}
-\caption{The Thymio~II robot with markers for tracking its ground-truth pose by a Vicon system (left), and the placement of its ground sensors (right).}
-\label{fig:thymio}
-\end{figure}
-
-We run empirical experiments with the Thymio~II mobile robot localizing on a printed pattern, which forms its map.
-
-Thymio~II is an open-source differential-wheeled mobile robot (\fig{thymio}).
-Its footprint is approximately $10 \times 10$ cm and it costs about 130\,\$.
-Thousands of units have been sold to date and are used in the context of computational thinking and engineering education~\cite{riedo2015thymio}.
-It features many sensors such as a set of infrared sensors, a small accelerometer, and a microphone.
-This project uses only its two ground infrared sensors (\fig{thymio}, right, circled red) and the measurement of the back electromotive force, which is proportional to the speed of the wheels.
-Thymio~II is programmed through the \textsc{aseba} framework~\cite{aseba2011tmech}, which connects to \textsc{ros}\footnote{ROS (Robot Operating System): \url{http://www.ros.org/}}.
-
-To evaluate the performance of our localization algorithms, we create datasets.
-The robot moves with a speed of 3--5\,cm/s on a 150$\times$150\,cm ground pattern containing 50\,$\times$\,50 cells of 3$\times$3\,cm, each randomly black or white (\fig{thymio}, left). %FIXME: random_long is faster
-We record the ground-truth pose of the robot using a Vicon\footnote{\url{http://www.vicon.com/}} tracking system.
-%to provide the ground-truth robot pose, consisting of $x$, $y$ coordinates and the heading $\theta$.
-We use \textsc{ros} to synchronously record these along with sensor values and odometry information from Thymio.
-The data are gathered with a frequency of 100\,Hz (ground-truth) and 10\,Hz (robot) and subsequently down-sampled to a period of 0.3\,s.
-We chose this period so that at maximum speed, the robot travels approximately half the length of one cell between every sample.
-The motions of the robot can be classified into two different types, namely moving forward or backward (possibly in arcs) and rotating on spot.
-To fully explore the performance of the algorithm, we remotely control the robot along several trajectories covering all possible motions.
-To test the algorithm's ability of recovering from catastrophic localization failures, we also conduct experiments with ``robot kidnapping'' by lifting the robot and moving it to another part of the map.
-Finally, we demonstrate the real-time localisation of the Thymio using different grayscale images, printed on A2 paper sheets.
 
 \section{Model}
 
@@ -270,14 +250,15 @@ The parameters $\alpha_\mathrm{xy}$, $\alpha_\theta$ and $p_\mathrm{uniform}$ ar
 
 \subsubsection{Self confidence}
 
-We define a self-confidence term that corresponds to the ratio of the probability mass of $p(X_t)$ that is within a distance $d_\mathrm{xy}$ and an angle difference $d_\theta$ to the mode.
-In the result section, we use $d_\mathrm{xy} = 3$\,cm and $d_\theta = 10$°.
+We define a self-confidence term that corresponds to the ratio of the probability mass of $p(X_t)$ that is within a distance $d_\mathrm{xy}$ and an angle difference $d_\theta$ to the estimated pose.
+We use $d_\mathrm{xy} = 3$\,cm and $d_\theta = 10$°.
 
 \subsection{Implementations}
 
 We compare two variants of this filter.
 In Markov Localization, the distributions are discretized using regular grids~\cite{fox1999markov}.
 For our experiments, the $x,y$ cell resolution is 1\,cm and the angular resolution varies from 20° (18 discretization steps for 360°) to 5° (72 discretization steps for 360°).
+The estimated pose is the coordinates of the cell of maximum probability.
 
 In Monte Carlo Localization~\cite{dellaert1999monte}, the distributions are represented using samples in a particle filter.
 In order to extract a single pose estimate out of the many particles, we find a maximum density area in which we average the particles.
@@ -286,6 +267,7 @@ It is similar to a 1-point \textsc{ransac} scheme~\cite{Fischler1981ransac}.
 %The thresholds for a particle to be a neighbor are a distance of 1.5\,cm and an angular difference of 5°.
 
 We implemented both algorithms in Python with some Cython\footnote{\url{http://www.cython.org}} procedures used for time-critical inner loops.
+Thymio~II is programmed through the \textsc{aseba} framework~\cite{aseba2011tmech}, which connects to \textsc{ros}\footnote{ROS (Robot Operating System): \url{http://www.ros.org/}} to synchronize its sensor values and odometry information with ground-truth data from Vicon.
 
 \subsection{Theoretical analysis of convergence}
 \label{sec:theoreticalconv}
@@ -352,9 +334,7 @@ Faster localization can be achieved by moving at a greater speed to reduce redun
 If designing a new robot, better sensors would reduce cross-over noise.
 Setting the sensors apart would also reduce the redundancy between their information but, for our specific grid size, they are sufficiently separated in Thymio~II.
 
-\section{Experiments}
-
-\subsection{Dataset collection}
+\section{Analysis of performance}
 
 \begin{figure}
 \includegraphics{trajectories}
@@ -364,13 +344,19 @@ For Markov Localization, the angle discretization is 72; for Monte Carlo Localiz
 \label{fig:trajectories}
 \end{figure}
 
-Our experiments are based on four datasets:
+To evaluate the performance of our localization algorithms, we remotely controlled the robot and recorded datasets covering all possible robot motions:
 \begin{itemize}
-\item \texttt{trajectory 1} and \texttt{2}: The robot alternates forward and backward movements with rotations on spot;
-\item \texttt{trajectory with kidnapping}: The robot alternates phases of forward movement and turning on spot, with kidnapping happening every minute;
-\item \texttt{linear trajectory}: The robot simply goes straight ahead along the x-axis of the map.
+\item \texttt{trajectory 1} and \texttt{2}: The robot alternates forward and backward movements with rotations on spot, at a speed of 3--5\,cm/s (see \fig{trajectories}).
+\item \texttt{linear trajectory}: The robot simply goes straight ahead along the x-axis of the map, at a speed of 3--5\,cm/s.
+\item \texttt{trajectory with kidnapping}: The robot alternates phases of forward movement, at a speed of 15\,cm/s, and turning on spot.
+To test the algorithm's ability of recovering from catastrophic localization failures, we perform ``robot kidnapping'' by lifting the robot and moving it to another part of the map every minute.
 \end{itemize}
-\Fig{trajectories} shows the estimated trajectories for the first two runs using the two variants of the filter.
+The robot moves on a 150$\times$150\,cm ground pattern containing 50\,$\times$\,50 cells of 3$\times$3\,cm, each randomly black or white (\fig{thymio}, right).
+%to provide the ground-truth robot pose, consisting of $x$, $y$ coordinates and the heading $\theta$.
+The data are gathered with a frequency of 100\,Hz (ground-truth) and 10\,Hz (robot) and subsequently down-sampled to a period of 0.3\,s.
+We chose this period so that with basic trajectories, at maximum speed the robot travels approximately half the length of one cell between every sample.
+
+% Finally, we demonstrate the real-time localisation of the Thymio using different grayscale images, printed on A2 paper sheets.
 
 \subsection{Parameter estimation}
 \label{sec:mle}
