@@ -523,7 +523,7 @@ With 50k particles, the robot eventually localizes, but this might take more tha
 % \end{figure}
 
 %\Fig{cpuload} shows the duration of one step for the different algorithms and parameters, averaged over the two first trajectories.
-This table shows the duration in second of one step for the different algorithms and parameters, averaged over the two first trajectories:
+This table shows the execution duration (in second) of one step for the two algorithms with different parameters:
 
 \vspace{.5em}
 
@@ -545,11 +545,11 @@ This table shows the duration in second of one step for the different algorithms
 
 \vspace{.5em}
 
-These data were measured on a Lenovo laptop T450s with an Intel Core i7 5600U processor running at 2.6\,GHz.
+These data were measured on a Lenovo laptop T450s with an Intel Core i7 5600U processor running at 2.6\,GHz, and are averages over the two first trajectories.
 We see that with the Markov Localization approach, the duration scales linearly with the number of discretization angles.
 With the Monte Carlo Localization approach, the scaling is linear but amortized (50k particles is not twice faster as 100k).
 This is due to the selection of pose estimate, which uses a \textsc{ransac} approach and is therefore independent of the number of particles.
-For similar localization accuracy, the Monte Carlo Localization approach is slower than the Markov Localization approach, and therefore we suggest to use the former with a discretization angle of 36 in practical applications.
+For similar localization accuracy, the Monte Carlo Localization approach is slower than the Markov Localization approach, and therefore we suggest to use the former with an angular discretization of 36 in practical applications.
 However, the Monte Carlo Localization approach might be preferred if a high angular precision is required, but 100k particles are necessary for proper localization.
 
 % At a computation duration of 1.5\,s per step, the Markov Localization approach with a discretization angle of 36 is far from real time.
@@ -581,7 +581,7 @@ However, the Monte Carlo Localization approach might be preferred if a high angu
 \end{figure*}
 
 In this section, we demonstrate the real-time localization of the Thymio using different grayscale images of 59\,$\times$\,42\,cm, printed on A2 paper sheets.
-We used Markov Localization discretization angle of 36.
+We used Markov Localization with an angular discretization of 36 and a cell resolution of 1\,cm.
 The localization is performed every 0.4\,s.
 
 % \subsection{Grayscale images as maps}
