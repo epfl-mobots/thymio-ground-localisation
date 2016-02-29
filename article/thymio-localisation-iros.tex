@@ -155,9 +155,8 @@ Dias and Ventura~\cite{dias2013absolute} use two horizontal lines from a \textsc
 Their system employs an Extended Kalman Filter algorithm and reaches a precision of 1\,cm and 5°.
 As with the work of Singh and Bedi, it requires an enclosed arena with a specific wall arrangement and no obstacles between the robot and the walls.
 
-Another line of research has approached the localization problem by using multiple robots and combining their perception.
-To exploit the combination of individual perception of multiple robots, Kurazume and Nagata~\cite{kurazume1994cooperative} first raise the idea of cooperative positioning with multiple robots. 
-Prorok et al.~\cite{prorok2012low} is representative of this approach.
+The work of Kurazume and Nagata~\cite{kurazume1994cooperative} first raised the idea of performing inexpensive localization through the cooperative positioning of multiple robots.
+Prorok et al.~\cite{prorok2012low} is a modern work representative of this approach.
 These authors have used an infrared-based range and bearing hardware along with a distributed Monte Carlo Localization approach, allowing a group of robots to localize down to a precision of 20\,cm.
 However, this line of research focuses on scalability rather than absolute positioning, as the later would require fixed robots acting as beacons.
 In addition, both radio and infrared-based range and bearing systems require complex electronics.
@@ -528,11 +527,11 @@ This table shows the duration in second of one step for the different algorithms
 
 \vspace{.5em}
 
-\noindent \begin{tabularx}{\columnwidth}{cccccccc}
+\noindent \begin{tabularx}{\columnwidth}{cccc|cccc}
 \toprule
 \textbf{0.64} & \textbf{1.43} & \textbf{2.15} & \textbf{2.94} & \textbf{1.97} & \textbf{2.97} & \textbf{6.08} & \textbf{12.22} \\
-18 & 36 & 54 & 72 & 50k & 100k & 200k & 400k \\
 \multicolumn{4}{c}{Markov Localization} & \multicolumn{4}{c}{Monte Carlo Localization} \\
+18 & 36 & 54 & 72 & 50k & 100k & 200k & 400k \\
 \bottomrule
 \end{tabularx}
 % ml 18 0.644618824383
