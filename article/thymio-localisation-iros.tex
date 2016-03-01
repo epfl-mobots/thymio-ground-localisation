@@ -114,7 +114,7 @@ Our solution is based on the classical Markov~\cite{fox1999markov} and Monte Car
 While these approaches are commonly used in robots with extensive sensing capabilities such as laser scanners, their implementation on extremely low bandwidth sensors is novel, and rises specific questions, such as which distance the robot must travel for the localisation to converge.
 
 In this paper, we deploy these algorithms on the Thymio~II differential-wheeled mobile robot.
-The robot reads the intensity of the ground using two infrared sensors (\fig{thymio}, left, circled red) and estimates the speed of its wheels by measuring the back electromotive force.
+The robot reads the intensity of the ground using two infrared sensors (\fig{thymio}, left, circled red) and estimates the speed of its wheels by measuring the back electromotive force, which is less precise than encoder-based methods.
 A Vicon tracking system\footnote{\url{http://www.vicon.com/}} provides the ground-truth pose (\fig{thymio}, right).
 Our first contribution is a predictive model of the necessary distance to travel to localize the robot.
 Our second contribution is a detailed analysis of the performances of the two implementations in comparison with ground-truth data.
