@@ -66,10 +66,11 @@ This opens many new opportunities, in particular in the educational context.
 However, for cost reasons these robots have little long-range sensing abilities and bad dead-reckoning capabilities.
 This limitation has prevented them from performing global localization without external aids.
 This severely limits their use, for example to teach spatial reasoning or develop artistic activities.
-In this paper, we propose a solution to this problem, using only infrared ground sensors, approximate dead-reckoning, and a visual pattern on the ground.
+In this paper, we propose a solution to this problem, using only approximate dead-reckoning and infrared sensors measuring the grayscale intensity of a known ground visual pattern.
 Our approach builds on a recursive Bayesian filter, of which we demonstrate two implementations: a dense Markov Localization and a particle-based Monte Carlo Localization.
 We show that both implementations allow accurate localization on a large variety of patterns, from pseudo-random black and white matrices to grayscale drawings by children.
-We demonstrate the real-time localization of a Thymio robot on these patterns.
+We provide a theoretical estimate and an empirical validation of the necessary travelled distance for confergence.
+Finally, we demonstrate the real-time localization of a Thymio robot.
 These results show that by enabling a new range of educational activities, our solution to the localization of inexpensive robots strongly increases the value of robots for education.
 
 \end{abstract}
