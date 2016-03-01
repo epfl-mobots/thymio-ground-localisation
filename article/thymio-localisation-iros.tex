@@ -66,10 +66,10 @@ This opens many new opportunities, in particular in the educational context.
 However, for cost reasons these robots have little long-range sensing abilities and bad dead-reckoning capabilities.
 This limitation has prevented them from performing global localization without external aids.
 This severely limits their use, for example to teach spatial reasoning or develop artistic activities.
-In this paper, we propose a solution to this problem, using only approximate dead-reckoning and infrared sensors measuring the grayscale intensity of a known ground visual pattern.
+In this paper, we propose a solution to this problem, using only approximate dead-reckoning and infrared sensors measuring the grayscale intensity of a known visual pattern on the ground.
 Our approach builds on a recursive Bayesian filter, of which we demonstrate two implementations: a dense Markov Localization and a particle-based Monte Carlo Localization.
 We show that both implementations allow accurate localization on a large variety of patterns, from pseudo-random black and white matrices to grayscale drawings by children.
-We provide a theoretical estimate and an empirical validation of the necessary travelled distance for confergence.
+We provide a theoretical estimate and an empirical validation of the necessary traveled distance for convergence.
 We demonstrate the real-time localization of a Thymio~II robot.
 These results show that our system solves the problem of absolute localization of inexpensive robots.
 This enables a new range of educational activities, which strongly increases the value of robots for education.
@@ -87,7 +87,7 @@ Programmable platforms in the 300--400\,\$ price range, such as the LEGO Mindsto
 % FIXME: fuzzy grammar in link
 Yet, despite its high price tag, this platform has little perception capabilities: its longest-range sensor is a single ultrasound unit.
 The much cheaper hobbyist mBot platform (75\,\$) is also equipped with a similar ultrasound device as its sole exteroceptive sensor.
-Cheaper general public products such as the Thymio~II (130\,\$) and Dash \& Dot (160\,\$) even lack such long-range perception capability, and only provide local infrared sensors.
+General public products such as the Thymio~II (130\,\$) and Dash \& Dot (160\,\$), cheaper than the LEGO Mindstorms, even lack such long-range perception capability, and only provide local infrared sensors.
 These are limited to sensing distances up to 15\,cm and measuring the grayscale intensity of a close object or the ground.
 These products also lack a camera, because processing images would require extended memory and processing resources, which would increase their price significantly.
 Therefore, all affordable general-public educational robots (in the 100\,\$ range) lack long-range sensing capabilities.
@@ -113,7 +113,7 @@ Such educational activities, for example staging a theater play with robots, wou
 This paper answers the need of affordable absolute positioning by providing a system using only approximate dead-reckoning and inexpensive infrared sensors measuring the grayscale intensity of the ground, without knowing the initial pose of the robot.
 The ground can be an existing image or a drawing created by the child herself (\fig{process}).
 Our solution is based on the classical Markov~\cite{fox1999markov} and Monte Carlo~\cite{dellaert1999monte} Localization frameworks that can be seen as respectively a dense and a sampling-based implementation of a recursive Bayesian filter.
-While these approaches are commonly used in robots with extensive sensing capabilities such as laser scanners, their implementation on extremely low bandwidth sensors is novel, and rises specific questions, such as which distance the robot must travel for the localisation to converge.
+While these approaches are commonly used in robots with extensive sensing capabilities such as laser scanners, their implementation on extremely low bandwidth sensors is novel, and rises specific questions, such as which distance the robot must travel for the localization to converge.
 
 In this paper, we deploy these algorithms on the Thymio~II differential-wheeled mobile robot.
 The robot reads the intensity of the ground using two infrared sensors (\fig{thymio}, left, circled red) and estimates the speed of its wheels by measuring the back electromotive force, which is less precise than encoder-based methods.
@@ -183,7 +183,7 @@ The generic model uses the following variables:
 \item $X_{1:t}$ 2-D pose at times $1..t$.
 The pose vector consists of $x,y$ coordinates and an angle $\theta$.
 \item $Z_{1:t}$ observations at times $1..t$.
-The observation consists of the output of two sensors located at the bottom of the robot, measuring the grayscale intensity of the ground.
+The observation consists of the output of the sensors located at the bottom of the robot, measuring the grayscale intensity of the ground.
 \item $U_{1:t}$ odometry at times $1..t$.
 The odometry consists of the left and right wheel speeds.
 \end{itemize}
@@ -210,12 +210,12 @@ This joint probability distribution allows to formulate the problem as the estim
 %This is a recursive filter to estimate $X_t$ using the previous estimation $X_{t-1}$, the odometry $U_t$ and the observation $Z_t$.
 
 %\subsection{Distributions}
-This inference involves the two distributions to specify the \emph{observation model} $p(Z_t | X_t)$ and the \emph{motion model} $p(X_t|X_{t-1}, U_t)$.
+This inference involves two distributions to specify the \emph{observation model} $p(Z_t | X_t)$ and the \emph{motion model} $p(X_t|X_{t-1}, U_t)$.
 
 \subsubsection{Observation model}
 
 The robot has two infrared ground sensors measuring the grayscale value of the ground.
-Despite the observations being coupled through the known map, our model assumes them to be independent, so $p(Z_t | X_t) = \prod_{i=0,1} p(Z_t^{i} | X_t)$.
+Despite the observations being coupled through the known visual ground pattern serving as map, our model assumes them to be independent, so $p(Z_t | X_t) = \prod_{i=0,1} p(Z_t^{i} | X_t)$.
 Moreover, we assume the ground color to be in the range $[0,1]$ with $0$ being black and $1$ being white.
 Hence, if sensor $i$ for robot pose $X_t$ should see a ground intensity $v$ according to the map, $p(Z_t^{i} | X_t) \sim \mathcal{N}(v,\sigma_\mathrm{obs})$.
 The parameter $\sigma_\mathrm{obs}$ is selected based on the knowledge of the sensor.
@@ -299,7 +299,7 @@ In our case, the probability of changing cell is given by:
 with $d$ the distance traveled and $h$ the size of the cells.
 
 We can then compute the conditional entropy for two successive ideal binary measurements $O_{t-1}$ and $O_t$ separated by $d$ based on the conditional probability.
-There are two cases: either the robot has not moved enough to change cell (with probability $1 - p_\mathrm{diff}$) and the new observation is the same as the old, or the robot has changed cell (with probability $p_\mathrm{diff}$) and the new observation as the same probability to be the same or the opposite of the old.
+There are two cases: either the robot has not moved enough to change cell (with probability $1 - p_\mathrm{diff}$) and the new observation is the same as the old, or the robot has changed cell (with probability $p_\mathrm{diff}$) and the new observation has the same probability to be the same or the opposite of the old.
 This can be summarized by the following conditional probability distribution:
 \begin{align*}
 	&p(O_t=\{\mathrm{black}/\mathrm{white}\} \mid O_{t-1}=\{\mathrm{black}/\mathrm{white}\})\\
@@ -308,7 +308,7 @@ This can be summarized by the following conditional probability distribution:
 		p_\mathrm{diff}/2 & (1 - p_\mathrm{diff}) + p_\mathrm{diff}/2
 	\end{pmatrix}.
 \end{align*}
-After rearranging the terms of the conditional entropy, the loss of information due to redundancy in the travelled distance is:
+After rearranging the terms of the conditional entropy, the loss of information due to redundancy in the traveled distance is:
 \begin{displaymath}
 	\ent{loss,d} = 1 - \ent{b}(p_\mathrm{diff}/2).
 \end{displaymath}
@@ -318,18 +318,18 @@ The probability that they see the same cell based on the distance between them i
 The information loss due to the redundancy from the sensor placement is noted $\ent{sensors}$ and follows the same formula as $\ent{loss,d}$ for the distance between the two sensors.
 
 Finally, we can approximate the information that our robot gathers at each time step by assuming that the trajectory of the robot does not loop (no redundancy between distant time steps) and that the trajectories of the sensors are independent. 
-The information gathered in a time step in then:
+The information gathered in a time step is then:
 \begin{align*}
 	&\ent{}(O^1_t, O^2_t \mid O^1_{1:t-1}, O^2_{1:t-1})\\
 	&= \ent{}(O^1_t, O^2_t \mid O^1_{t-1}, O^2_{t-1}) \\
 	&= \ent{}(O^1_t \mid O^1_{t-1}) + \ent{}(O^2_t \mid O^2_{t-1}) - \ent{}(O^2_t \mid O^1_t) \\
 	&= 2\cdot(1-\ent{noise}-\ent{loss,d}) - \ent{sensors}%. The full stop here is ugly.
 \end{align*}
-It also ignores the uncertainty in the robot motion.
+This formula also ignores the uncertainty in the robot motion.
 With these assumptions, it is an upper bound on the average information gain.
 
 In our example, we have assumed $p_\mathrm{correct}=0.95$, that is $\ent{noise}=0.29$.
-Our robot moves at 3\,cm/s with a time step of 0.3\,s and 3\,cm cells in which the color is know to be similar; this yields $p_\mathrm{diff}=0.35$ and $\ent{loss,d}=0.33$.
+Our robot moves at 3\,cm/s with a time step of 0.3\,s and 3\,cm cells in which the color is known to be similar; this yields $p_\mathrm{diff}=0.35$ and $\ent{loss,d}=0.33$.
 Finally the sensors are 2.2\,cm apart which yields $p_\mathrm{diff}=0.76$ and $\ent{sensors}=0.041$.
 As such the robot gathers on average at most 0.72\,bit per time step, or 0.8\,bit/cm.
 
@@ -429,7 +429,7 @@ For Monte Carlo Localization, the solid lines show the average over 10 trials, w
 In these plots, \emph{distance traveled} represents the cumulative distance traveled by the center point between the two ground sensors of the robot.
 The error is clamped at 50\,cm for position and 90° for orientation.
 
-For Markov Localization approach, all discretization resolutions allow the robot to localize down to a precision of 3\,cm and 5°.
+For the Markov Localization approach, all discretization resolutions allow the robot to localize down to a precision of 3\,cm and 5°.
 However, in \texttt{trajectory~1}, the resolution of 18 discretization steps is not enough to keep tracking the orientation at a distance traveled of 50\,cm and 80\,cm.
 These both correspond to the robot rotating on spot.
 Better resolutions do not exhibit this problem and have similar precisions.
@@ -437,7 +437,7 @@ Therefore, we see that an angular discretization of 36 (10° resolution) is suff
 In \texttt{trajectory~2}, we see that a resolution of 54 allows for a better angular precision than 36, but 72 does not improve over 54.
 All resolutions provide equal position precision.
 
-For Monte Carlo Localization approach, we see that on \texttt{trajectory~1}, the robot localizes already with 50k particles, but in twice the time it takes with 100k particles.
+For the Monte Carlo Localization approach, we see that on \texttt{trajectory~1}, the robot localizes already with 50k particles, but in twice the time it takes with 100k particles.
 Increasing the number of particles beyond this value only marginally decreases localization time.
 While 50k particles are sufficient to localize on this run on average, in some runs, the robot looses orientation when it turns on spot.
 On \texttt{trajectory~2}, 50k particles is not enough to localize the robot.
@@ -451,14 +451,14 @@ When angular precision is critical, the Monte Carlo Localization approach might 
 \begin{figure}
 
 \begin{center}
-Markov Localization, 10 segments from the first two trajectories, for different \emph{number of discretization angles}
+Markov Localization\\for different \emph{number of discretization angles}
 \end{center}
 \includegraphics{ml-small_runs_random_12-xy}
 
 \vspace{.3em}
 
 \begin{center}
-Monte Carlo Localization, 10 segments from the first two trajectories, for different \emph{number of particles}
+Monte Carlo Localization\\for different \emph{number of particles}
 \end{center}
 \includegraphics{mcl-small_runs_random_12-xy}
 
@@ -477,7 +477,7 @@ This is probably due to the overestimation of the cross-over noise of the sensor
 A distance of 20\,cm would correspond to noise lower than 3\% instead of 5\% as assumed.
 % end TODO
 There are also outliers: this happens when the robot is turning on spot, in which case there is not enough information to localize the robot.
-The convergence is slower with Monte Carlo Localization approach, except with 400k particles, in which case it is roughly similar.
+The convergence is slower with the Monte Carlo Localization approach, except with 400k particles, in which case it is roughly similar.
 Decreasing the number of particles quickly increases the distance needed for convergence, reaching 60\,cm for 100k particles.
 Using only 50k particles, some trajectory segments fail to converge, even after 80\,cm length.
 
@@ -490,7 +490,7 @@ We see that reducing the map size does reduce the distance traveled necessary to
 %\vspace{.5em}
 %\includegraphics{ml-small_maps-theta}
 \caption{The error between the estimation by the localization algorithm and the ground truth, using Markov Localization, for different map sizes on \texttt{linear trajectory}.
-The solid lines show the median over 3 different sizes, while the light dots show the individual sizes.}
+The solid lines show the median over 3 different trajectory parts, while the light dots show the individual parts.}
 \label{fig:small-maps}
 \end{figure}
 
@@ -528,16 +528,16 @@ The gray areas show the time during the robot is being held in the air at the oc
 \label{fig:whole-runs-random-long}
 \end{figure*}
 
-\Fig{whole-runs-random-long} shows the error in position and the self confidence for the run with kidnapping.
+\Fig{whole-runs-random-long} shows the error in position, orientation and the self confidence for the run with kidnapping.
 In this run, the robot is kidnapped twice, after having traveled 550\,cm and 1000\,cm.
 It takes the robot approximately 100\,cm to re-localize, and does so successfully with both Markov and Monte Carlo Localization approaches.
 This difference of distance with previous runs is mostly due to the speed of the robot, which is about 5 times faster.
-With Markov Localization approach, all discretization resolutions are approximately equivalent in performance, but 18 leads to a lower self confidence, due to the large discretization step.
+With the Markov Localization approach, all discretization resolutions are approximately equivalent in position performance, but 18 leads to a lower orientation precision, as well as to a lower self confidence, due to the large discretization step.
 Other resolutions have a confidence of about 0.5 when the robot is localized, and this value drops to below 0.1 after kidnapping, clearly showing that the algorithm is able to assess its status of being lost.
 
-With Monte Carlo Localization approach, the robot localizes most of the time with 100k particle or more, and always with 200k particles or more.
+With the Monte Carlo Localization approach, the robot localizes most of the time with 100k particle or more, and always with 200k particles or more.
 With 50k particles, the robot eventually localizes, but this might take more than 2 meters of traveled distance.
-We see that the self confidence increases with more particles, and also drops after kidnapping, similarly to Markov Localization approach.
+We see that the self confidence increases with more particles, and also drops after kidnapping, similarly to the Markov Localization approach.
 This confirms the effectiveness of the self confidence measure.
 
 \subsection{Computational cost}
@@ -639,7 +639,7 @@ Trajectories are plotted starting from a confidence level of 0.2.}
 \Fig{a2_drawings} shows the performance of the real-time localization of a Wireless Thymio~II using different grayscale images of 59\,$\times$\,42\,cm, printed on A2 paper sheets with a resolution of 1\,pixel/cm.
 We used Markov Localization with an angular discretization of 36 and a spatial resolution of 1\,cm; the localization is performed every 0.4\,s.
 The localization algorithm runs on a Lenovo laptop X1 3rd generation with an Intel Core i7-5500U processor running at 2.4\,GHz, at a \textsc{cpu} load of approximately 80\,\%.
-It receives the sensor readings from the robot through a wireless connection.
+The laptop receives the sensor readings from the robot through a wireless connection.
 The algorithm localizes the robot globally on all images.
 The images with more contrast lead to a more robust and faster localization, while the ones with lower contrast lead to more imprecise trajectories.
 The parts of trajectories in red are typically less precise than the ones in green.
