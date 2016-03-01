@@ -70,7 +70,7 @@ In this paper, we propose a solution to this problem, using only approximate dea
 Our approach builds on a recursive Bayesian filter, of which we demonstrate two implementations: a dense Markov Localization and a particle-based Monte Carlo Localization.
 We show that both implementations allow accurate localization on a large variety of patterns, from pseudo-random black and white matrices to grayscale drawings by children.
 We provide a theoretical estimate and an empirical validation of the necessary travelled distance for confergence.
-We demonstrate the real-time localization of a Thymio robot.
+We demonstrate the real-time localization of a Thymio~II robot.
 These results show that our system solves the problem of absolute localization of inexpensive robots.
 This enables a new range of educational activities, which strongly increases the value of robots for education.
 
@@ -220,7 +220,7 @@ Moreover, we assume the ground color to be in the range $[0,1]$ with $0$ being b
 Hence, if sensor $i$ for robot pose $X_t$ should see a ground intensity $v$ according to the map, $p(Z_t^{i} | X_t) \sim \mathcal{N}(v,\sigma_\mathrm{obs})$.
 The parameter $\sigma_\mathrm{obs}$ is selected based on the knowledge of the sensor.
 For black and white patterns, we set it to $0.5$, giving a probability of $p_\mathrm{correct} = 0.95$ when the value measured by the sensor corresponds to the one in the map.
-For grayscale images, based on measurement on a real Thymio, we set it to $0.15$.
+For grayscale images, based on measurement on a real Thymio~II, we set it to $0.15$.
 
 \subsubsection{Motion model}
 
@@ -636,20 +636,22 @@ Trajectories are plotted starting from a confidence level of 0.2.}
 
 \end{figure*}
 
-\Fig{a2_drawings} shows the performance of the real-time localization of the Thymio using different grayscale images of 59\,$\times$\,42\,cm, printed on A2 paper sheets with a resolution of 1\,pixel/cm.
+\Fig{a2_drawings} shows the performance of the real-time localization of a Wireless Thymio~II using different grayscale images of 59\,$\times$\,42\,cm, printed on A2 paper sheets with a resolution of 1\,pixel/cm.
 We used Markov Localization with an angular discretization of 36 and a spatial resolution of 1\,cm; the localization is performed every 0.4\,s.
-The robot is able to globally localize itself on all images.
-The ones with more contrast lead to a more robust and faster localization, while the ones with lower contrast lead to more imprecise trajectories.
+The localization algorithm runs on a Lenovo laptop X1 3rd generation with an Intel Core i7-5500U processor running at 2.4\,GHz, at a \textsc{cpu} load of approximately 80\,\%.
+It receives the sensor readings from the robot through a wireless connection.
+The algorithm localizes the robot globally on all images.
+The images with more contrast lead to a more robust and faster localization, while the ones with lower contrast lead to more imprecise trajectories.
 The parts of trajectories in red are typically less precise than the ones in green.
 This shows that the self confidence measure is effective in assessing the quality of the localization.
 
 \section{Conclusion}
 
-In this paper, we have conducted an empirical evaluation of Markov- and Monte Carlo-based approaches for localizing a mobile robot, equipped with two inexpensive ground sensors, on a known pattern.
+In this paper, we have conducted an empirical evaluation of Markov- and Monte Carlo-based approaches for localizing a mobile robot on a known ground pattern.
+The robot requires only inexpensive infrared sensors and approximate odometry information.
 We have shown that both approaches allow successful localization without knowing the initial pose of the robot, and that their performances and computational requirements are of a similar order of magnitude.
-With current implementations, Markov localization with 36 discretization steps for angle is precise and fast enough to localize the robot on an A2 page printed with a large variety of grayscale images, from well-known paintings to drawings made by children.
-This configuration is the most promising choice for deployment in educational activities, and opens the way to user-created maps, for instance for a child making a drawing on her computer, printing this picture on a poster, and using it as map.
-Should larger maps be desired, the code could be further optimized by using multimedia instructions such as \textsc{sse}, implementing it in the \textsc{gpu}, or parallelizing it.
+Real-time localization was successful with a large variety of A2 grayscale images, using Markov localization with 36 discretization steps for angle.
+Should larger patterns be desired, the code could be further optimized by using multimedia instructions such as \textsc{sse}, implementing it in the \textsc{gpu}, or parallelizing it.
 %Conditional probability tables are well suited for such optimizations.
 
 In addition, we have outlined, and empirically validated, a method to estimate the localization performance in function of the sensor configuration.
@@ -658,6 +660,7 @@ localization performance can be improved by placing the sensors far apart on a l
 
 These contributions to the state of the art enable absolute positioning of inexpensive mobile robots costing in the 100\,\$ range.
 In the context of educational robotics, this opens many opportunities in the field of spatial reasoning, but also for art and storytelling.
+For instance, a child could make her own drawing on her computer, print this picture, and use it as ground pattern for the robot to localize.
 Hence, by enabling a new range of educational activities, our solution also strongly increases the value of robots for education.
 
 \section{Acknowledgements}
