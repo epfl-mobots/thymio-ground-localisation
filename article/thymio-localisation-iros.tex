@@ -104,7 +104,7 @@ Hence when dead-reckoning is provided, such as on the Thymio~II, it builds on ap
 
 The combined lack of long-range sensors and poor quality dead-reckoning prevents affordable educational robots from using state of the art localization algorithms such as simultaneous localization and mapping.
 This lack of absolute positioning hinders their educational use, especially with constructivist or constructionist approaches (the most commons in robot-based educational material), because spatial reasoning has been recognized as a critical element for learning about the world~\cite{lesh2003beyond}.
-This has negative effects for the study of geometry, physics, and engineering;
+This has negative effects for the study of geometry, physics, and engineering.
 In addition, while robots have the potential to reach minorities currently under-represented in technical fields, they typically do so through art and storytelling~\cite{szecsei2015girls}.
 Such educational activities, for example staging a theater play with robots, would typically benefit from having absolute positioning.
 
@@ -208,12 +208,12 @@ This joint probability distribution allows to formulate the problem as the estim
 %This is a recursive filter to estimate $X_t$ using the previous estimation $X_{t-1}$, the odometry $U_t$ and the observation $Z_t$.
 
 %\subsection{Distributions}
-This inference involves the two distributions to specify, the \emph{observation model} $p(Z_t | X_t)$ and the \emph{motion model} $p(X_t|X_{t-1}, U_t)$.
+This inference involves the two distributions to specify the \emph{observation model} $p(Z_t | X_t)$ and the \emph{motion model} $p(X_t|X_{t-1}, U_t)$.
 
 \subsubsection{Observation model}
 
 The robot has two infrared ground sensors measuring the grayscale value of the ground.
-Despites the observations being coupled through the known map, our model assumes them to be independent, so $p(Z_t | X_t) = \prod_{i=0,1} p(Z_t^{i} | X_t)$.
+Despite the observations being coupled through the known map, our model assumes them to be independent, so $p(Z_t | X_t) = \prod_{i=0,1} p(Z_t^{i} | X_t)$.
 Moreover, we assume the ground color to be in the range $[0,1]$ with $0$ being black and $1$ being white.
 Hence, if sensor $i$ for robot pose $X_t$ should see a ground intensity $v$ according to the map, $p(Z_t^{i} | X_t) \sim \mathcal{N}(v,\sigma_\mathrm{obs})$.
 The parameter $\sigma_\mathrm{obs}$ is selected based on the knowledge of the sensor.
@@ -277,7 +277,7 @@ It is possible to estimate the time required for the robot to localize itself in
 For the Markov Localization approach, there is a given number of discrete cells.
 The amount of information needed to unambiguously specify one among them all is $\ent{loc} = \log_2(N_\mathrm{cells})$, with $N_\mathrm{cells}$ the number of cells.
 
-We can also compute the information gain at each time step.
+We can also estimate the information gain at each time step.
 Let us consider the case of a binary map and a binary sensor.
 This sensor ideally yields 1\,bit of information per measurement.
 However in practice, there is a loss in information due to the sensor noise, characterized by the $p_\mathrm{correct}$ probability of the sensor to be correct:
@@ -313,7 +313,7 @@ After rearranging the terms of the conditional entropy, the loss of information 
 
 There is also redundancy between several sensors placed on the same robot.
 The probability that they see the same cell based on the distance between them is exactly the same as the probability of a sensor to see the same cell after a displacement of the same distance.
-The information loss due to the redundancy from the sensor placement is noted $\ent{sensors}$ and follows the same formula as $\ent{loss,d}$ for the given distance.
+The information loss due to the redundancy from the sensor placement is noted $\ent{sensors}$ and follows the same formula as $\ent{loss,d}$ for the distance between the two snesors.
 
 Finally, we can approximate the information that our robot gathers at each time step by assuming that the trajectory of the robot does not loop (no redundancy between distant time steps) and that the trajectories of the sensors are independent. 
 The information gathered in a time step in then:
@@ -459,13 +459,13 @@ Monte Carlo Localization, 10 segments from the first two trajectories, for diffe
 \end{center}
 \includegraphics{mcl-small_runs_random_12-xy}
 
-\caption{
+\caption{%
 The error between the estimation by the localization algorithm and the ground truth on 10 segments from the first two trajectories.
 The solid lines show the median while the light dots show the individual trials.}
 \label{fig:small-runs}
 \end{figure}
 
-\Fig{small-runs} shows the error in position for 5 different locations in the two first trajectories.
+\Fig{small-runs} shows the error in position for 5 different locations in each of the first two trajectories.
 We see that, with the Markov Localization approach, the correct pose is found after about 20\,cm.
 % TODO check that
 %This corresponds well to the ideal theoretical distance of 18\,cm computed in \sect{theoreticalconv}.
@@ -653,7 +653,7 @@ In addition, we have outlined, and empirically validated, a method to estimate t
 This method provides a guide for taking decisions about the placement of sensors in a future robot:
 localization performance can be improved by placing the sensors far apart on a line perpendicular to the direction of movement of the robot; in addition, more sensors allow for collecting more information, if they are separated by the size of the smallest visual structure in the map.
 
-These contributions to the state of the art enable absolute positioning of inexpensive mobile robots costing less than 100\,\$.
+These contributions to the state of the art enable absolute positioning of inexpensive mobile robots costing in the 100\,\$ range.
 In the context of educational robotics, this opens many opportunities in the field of spatial reasoning, but also for art and storytelling.
 Hence, by enabling a new range of educational activities, our solution also strongly increases the value of robots for education.
 
