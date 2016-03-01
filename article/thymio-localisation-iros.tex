@@ -647,10 +647,10 @@ This shows that the self confidence measure is effective in assessing the qualit
 
 \section{Conclusion}
 
-In this paper, we have conducted an empirical evaluation of Markov- and Monte Carlo-based approaches for localizing a mobile robot on a known ground pattern.
+In this paper, we have conducted an empirical evaluation of Markov- and Monte Carlo-based approaches for localizing a mobile robot on a known ground visual pattern.
 The robot requires only inexpensive infrared sensors and approximate odometry information.
 We have shown that both approaches allow successful localization without knowing the initial pose of the robot, and that their performances and computational requirements are of a similar order of magnitude.
-Real-time localization was successful with a large variety of A2 grayscale images, using Markov localization with 36 discretization steps for angle.
+Real-time localization was successful with a large variety of A2 grayscale images, using the Markov Localization approach with 36 discretization steps for angle.
 Should larger patterns be desired, the code could be further optimized by using multimedia instructions such as \textsc{sse}, implementing it in the \textsc{gpu}, or parallelizing it.
 %Conditional probability tables are well suited for such optimizations.
 
