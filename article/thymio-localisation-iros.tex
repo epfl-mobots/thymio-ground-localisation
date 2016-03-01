@@ -300,7 +300,7 @@ We can then compute the conditional entropy for two successive ideal binary meas
 There are two cases: either the robot has not moved enough to change cell (with probability $1 - p_\mathrm{diff}$) and the new observation is the same as the old, or the robot has changed cell (with probability $p_\mathrm{diff}$) and the new observation as the same probability to be the same or the opposite of the old.
 This can be summarized by the following conditional probability distribution:
 \begin{align*}
-	&p(O_t=\{black/white\} \mid O_{t-1}=\{black/white\})\\
+	&p(O_t=\{\mathrm{black}/\mathrm{white}\} \mid O_{t-1}=\{\mathrm{black}/\mathrm{white}\})\\
 	&= \begin{pmatrix}
 		(1 - p_\mathrm{diff}) + p_\mathrm{diff}/2 & p_\mathrm{diff}/2\\
 		p_\mathrm{diff}/2 & (1 - p_\mathrm{diff}) + p_\mathrm{diff}/2
