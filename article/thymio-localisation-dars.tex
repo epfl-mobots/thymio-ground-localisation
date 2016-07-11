@@ -340,9 +340,9 @@ We chose this period so that with basic trajectories, at maximum speed the robot
 \label{sec:mle}
 
 \textbf{Parameter estimation}.
-The noise parameters of the motion model were estimated using maximum likelihood, considering the error between the ground truth and the odometry data in the local frame between two time steps.
-Using \texttt{trajectory~1} and \texttt{trajectory~2}, the values for  $\alpha_\mathrm{xy}$ and $\alpha_\theta$ were found be in the order of 0.1.
-Similarly, using \texttt{trajectory with kidnapping}, the value for $p_\mathrm{uniform}$ was also found to be in the order of 0.1.
+We estimated the noise parameters of the motion model using maximum likelihood, considering the error between the ground truth and the odometry data in the local frame between two time steps.
+Using \texttt{trajectory~1} and \texttt{trajectory~2}, we found the values for $\alpha_\mathrm{xy}$ and $\alpha_\theta$ to be in the order of 0.1.
+Similarly, using \texttt{trajectory with kidnapping}, we found the value for $p_\mathrm{uniform}$ to be in the order of 0.1.
 
 %\subsection{Basic localization}
 
@@ -406,19 +406,20 @@ In these plots, \emph{distance traveled} represents the cumulative distance trav
 For the Markov Localization approach, all discretization resolutions allow the robot to localize down to a precision of 3\,cm and 5°.
 However, in \texttt{trajectory~1}, the resolution of 18 discretization steps is not enough to keep tracking the orientation at a distance traveled of 50\,cm and 80\,cm.
 These both correspond to the robot rotating on spot.
-Better resolutions do not exhibit this problem and have similar precisions.
-Therefore, we see that an angular discretization of 36 (10° resolution) is sufficient to provide accurate tracking, and that a finer resolution only provides minor improvements in angular precision, and no improvement in position precision.
-In \texttt{trajectory~2}, we see that a resolution of 54 allows for a better angular precision than 36, but 72 does not improve over 54.
-All resolutions provide equal position precision.
+Finer discretizations do not exhibit this problem, they are more robust and have similar precisions.
+Therefore, we see that an angular discretization of 36 (10° resolution) is sufficient to provide accurate tracking.
+In \texttt{trajectory~2}, we see that an angular discretization of 54 allows for a better angular precision than 36, but 72 does not improve over 54.
+All angular discretizations provide equal position precision.
 
-For the Monte Carlo Localization approach, we see that on \texttt{trajectory~1}, the robot localizes already with 50k particles, but in twice the time it takes with 100k particles.
+For the Monte Carlo Localization approach, we see that on \texttt{trajectory~1}, the robot localizes already with 50k particles, but in twice the distance it takes with 100k particles.
 Increasing the number of particles beyond this value only marginally decreases localization time.
-While 50k particles are sufficient to localize on this run on average, in some runs, the robot loses orientation when it turns on spot.
-On \texttt{trajectory~2}, 50k particles is not enough to localize the robot.
-Increasing this number to 100k leads to a good localization, except after the robot has traveled 130\,cm; which corresponds to a long moment during which the robot rotates on spot, leading to less information acquisition, and therefore degraded precision.
+While 50k particles are sufficient to localize on this run on average, in some trials, the robot loses orientation when it turns on spot.
+On \texttt{trajectory~2}, using 50k particles is not enough to localize the robot.
+Increasing this number to 100k leads to a good localization, except after the robot has traveled 130\,cm.
+This corresponds to a long moment during which the robot rotates on spot, leading to less information acquisition, and therefore degraded performances.
 
 Overall, both approaches have similar localization accuracy.
-When angular precision is critical, the Monte Carlo Localization approach might achieve better performance, as the Markov Localization approach is limited in precision by its discretization.
+When angular precision is critical, the Monte Carlo Localization approach might achieve better performance, as the Markov Localization approach is limited in precision by its angular discretization.
 
 %\subsection{Distance to converge}
 
