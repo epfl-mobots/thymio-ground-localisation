@@ -79,35 +79,27 @@ This enables a new range of educational activities, which strongly increases the
 
 Driven by consumer products, the technologies of electronics, motor and battery have made tremendous progress in the last decades.
 They are now widely available at prices making affordable mobile robots a reality.
-This opens many new opportunities, in particular in the educational context.
-Robots have been shown to be effective in supporting the teaching of knowledge in fields such as mathematics, physics, computer science and engineering; and of skills such as problem solving and introduction to the scientific method~\cite{benitti2012explorin, karim2015review}.
+This opens many new opportunities, in particular in the contexts of collective robotics and education.
 
-Programmable platforms in the 300--400\,\$ price range, such as the LEGO Mindstorms, have been successfully used in classrooms worldwide, especially to teach engineering.
-% FIXME: fuzzy grammar in link
-Yet, despite its high price tag, this platform has little perception capabilities: its longest-range sensor is a single ultrasound unit.
-The much cheaper hobbyist mBot platform (75\,\$) is also equipped with a similar ultrasound device as its sole exteroceptive sensor.
-General public products such as the Thymio~II (130\,\$) and Dash \& Dot (160\,\$), cheaper than the LEGO Mindstorms, even lack such long-range perception capability, and only provide local infrared sensors.
-These are limited to sensing distances up to 15\,cm and measuring the grayscale intensity of a close object or the ground.
-These products also lack a camera, because processing images would require extended memory and processing resources, which would increase their price significantly.
-Therefore, all affordable general-public educational robots (in the 100\,\$ range) lack long-range sensing capabilities.
-In addition, dead-reckoning on these platforms is bad to non-existent.
-An exception is the BeeBot (90\,\$), which uses proper dead-reckoning as its only sensor, and so has only a narrow set of possible use.
-On platforms that must already provide a variety of programming and sensing modalities to meet general educational needs, proper wheel encoders are still too expensive.
-Hence when dead-reckoning is provided, such as on the Thymio~II, it builds on approximate methods such as measuring the back electromotive force.
+Collective and swarm robotics focus on the scalability of systems when the number of robots increases.
+In that context, global localization is a challenge, whose solution depends on the environment the robots evolve in.
+A common approach is to measure the distance and orientation between robots~\cite{prorok2012low}, but this approach relies on beacons to provide absolute measurements.
+Yet, several state of the art algorithms require global positionning~\cite{breitenmoser2016combining}.
+In experimental work, it is often provided by an external system, bringing a non-scalable single point of failure into the system, and breaking the distributed aspect.
+Therefore, there is the need for a distributed and affordable global localisation system for collective robotics experiments.
 
-% But this robot can only follow pre-programmed trajectories, it is not able to react to external events.
+In the context of education, robots have been shown to be effective in supporting the teaching of knowledge in fields such as mathematics, physics, computer science and engineering; and of skills such as problem solving and introduction to the scientific method~\cite{benitti2012explorin}.
+These fields deal with distances and angles and would profit from localization capabilities.
+Similarly, while robots have the potential to reach minorities currently under-represented in technical fields, they typically do so through art and storytelling~\cite{szecsei2015girls}.
+Such educational activities, for example staging a theater play with robots, would typically benefit from having absolute positioning.
+Yet, all affordable general-public educational robots (in the 100\,\$ range) lack the necessary long-range sensing or precise dead-reckoning capabilities to achieve localization.
+Indeed, on platforms that must already provide a variety of programming and sensing modalities to meet general educational needs, proper wheel encoders are still too expensive.
 
 % \begin{figure}
 % \includegraphics[width=\columnwidth]{process_creation_col_small}
 % \caption{The process of creating a ground drawing serving as the map.}
 % \label{fig:process}
 % \end{figure}
-
-The combined lack of long-range sensors and poor quality dead-reckoning prevents affordable educational robots from using state of the art localization algorithms such as simultaneous localization and mapping.
-This lack of absolute positioning hinders their educational use, especially with constructivist or constructionist approaches (the most commons in robot-based educational material), because spatial reasoning has been recognized as a critical element for learning about the world~\cite{lesh2003beyond}.
-This has negative effects for the study of geometry, physics, and engineering.
-In addition, while robots have the potential to reach minorities currently under-represented in technical fields, they typically do so through art and storytelling~\cite{szecsei2015girls}.
-Such educational activities, for example staging a theater play with robots, would typically benefit from having absolute positioning.
 
 This paper answers the need of affordable absolute positioning by providing a system using only approximate dead-reckoning and inexpensive infrared sensors measuring the grayscale intensity of the ground, without knowing the initial pose of the robot.
 The ground can be an existing image or a drawing created by the child herself (\fig{thymio}, left).
@@ -263,7 +255,7 @@ In order to extract a single pose estimate out of the many particles, we find a 
 It is similar to a 1-point \textsc{ransac} scheme~\cite{Fischler1981ransac}.
 %Both the search for the particle with most neighbors and the search for neighbors are done with 500 trials.
 %The thresholds for a particle to be a neighbor are a distance of 1.5\,cm and an angular difference of 5°.
-We implemented both algorithms in Python with some Cython\footnote{\url{http://www.cython.org}} procedures used for time-critical inner loops.
+We implemented both algorithms in Python with some Cython (\url{http://www.cython.org}) procedures used for time-critical inner loops.
 Thymio~II is programmed through the \textsc{aseba} framework~\cite{aseba2011tmech}, which connects to Python using D-Bus.
 
 \section{Theoretical analysis of convergence}
@@ -665,15 +657,16 @@ localization performance can be improved by placing the sensors far apart on a l
 
 These contributions to the state of the art enable absolute positioning of inexpensive mobile robots costing in the 100\,\$ range.
 In the context of educational robotics, this opens many opportunities in the field of spatial reasoning, but also for art and storytelling.
-For instance, a child could make her own drawing on her computer, print this picture, and use it as ground pattern for the robot to localize.
-Hence, by enabling a new range of educational activities, our solution also strongly increases the value of robots for education.
+%For instance, a child could make her own drawing on her computer, print this picture, and use it as ground pattern for the robot to localize.
+In the context of collective robotics, they provide a crucial piece on which to build on, for instance to implement sensing or navigation algorithms.
+%Hence, by enabling a new range of educational activities, our solution also strongly increases the value of robots for education.
 
 \begin{acknowledgement}
 The authors thank Emmanuel Eckard for insightful comments on the manuscript and Ramiz Morina for his drawings.
 \end{acknowledgement}
 
 \bibliographystyle{IEEEtran}
-\bibliography{thymio-localisation-iros}
+\bibliography{thymio-localisation-dars}
 
 \end{document}
 
