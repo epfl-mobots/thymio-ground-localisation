@@ -529,7 +529,7 @@ In this run, the robot is kidnapped twice, after having traveled 550\,cm and 100
 It takes the robot approximately 100\,cm to re-localize, and does so successfully with both Markov and Monte Carlo Localization approaches.
 This difference of distance with previous runs is mostly due to the speed of the robot, which is about 5 times faster.
 With the Markov Localization approach, all discretization resolutions are approximately equivalent in position performance, but 18 leads to a lower orientation precision, as well as to a lower self confidence, due to the large discretization step.
-Other resolutions have a confidence of about 0.5 when the robot is localized, and this value drops to below 0.1 after kidnapping, clearly showing that the algorithm is able to assess its status of being lost.
+Other resolutions have a confidence of about 0.5 when the robot is localized, and this value drops below 0.1 after kidnapping, clearly showing that the algorithm is able to assess its status of being lost.
 
 With the Monte Carlo Localization approach, the robot localizes most of the time with 100k particle or more, and always with 200k particles or more.
 With 50k particles, the robot eventually localizes, but this might take more than 2 meters of traveled distance.
