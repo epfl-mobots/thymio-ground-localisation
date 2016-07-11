@@ -27,8 +27,8 @@
 \graphicspath{{figures/}{generated-figures/}}
 
 % commands
-\newcommand{\fig}[1]{Figure~\ref{fig:#1}}
-\newcommand{\Fig}[1]{Figure~\ref{fig:#1}}
+\newcommand{\fig}[1]{Fig.~\ref{fig:#1}}
+\newcommand{\Fig}[1]{Fig.~\ref{fig:#1}}
 \newcommand{\tbl}[1]{{Table}~\ref{fig:#1}}
 \newcommand{\Tbl}[1]{{Table}~\ref{fig:#1}}
 \newcommand{\sect}[1]{Section~\ref{sec:#1}}
@@ -98,14 +98,14 @@ The robot reads the intensity of the ground using two infrared sensors (\fig{thy
 For evaluation purposes, a Vicon tracking system (\url{http://www.vicon.com/}) provides the ground-truth pose (\fig{thymio}, right).
 Our first contribution is a predictive model of the necessary distance to travel to localize the robot.
 Our second contribution is a detailed analysis of the performances of the two implementations in comparison with ground-truth data.
-Our last contribution is a validation of real-time localization.
+Our last contribution is an experimental validation of online, real-time localization (\fig{thymio}, left).
 
 \begin{figure}
 \includegraphics{system-bloc-scheme}\hfill
 \includegraphics[height=.24\columnwidth]{thymio2-dimensions}\hfill
 \includegraphics[height=.23\columnwidth]{thymio2-dataset}
 \vspace{-.07cm}
-\caption{The block scheme of the system (left), the Thymio~II robot with the placement of its ground sensors (middle), and markers for tracking its ground-truth pose by a Vicon system (right).}
+\caption{The block scheme of the online system (left), the Thymio~II robot with the placement of its ground sensors (middle), and markers for tracking its ground-truth pose by a Vicon system (right).}
 \label{fig:thymio}
 \end{figure}
 
@@ -300,7 +300,7 @@ The information gathered in a time step is then:
 This formula also ignores the uncertainty in the robot motion.
 With these assumptions, it is an upper bound on the average information gain.
 
-In our example, we have assumed $p_\mathrm{correct}=0.95$, that is $\ent{noise}=0.29$.
+\textbf{Experimental application}. In our example, we have assumed $p_\mathrm{correct}=0.95$, that is $\ent{noise}=0.29$.
 Our robot moves at 3\,cm/s with a time step of 0.3\,s and 3\,cm cells in which the color is known to be similar; this yields $p_\mathrm{diff}=0.35$ and $\ent{loss,d}=0.33$.
 Finally the sensors are 2.2\,cm apart which yields $p_\mathrm{diff}=0.76$ and $\ent{sensors}=0.041$.
 As such the robot gathers on average at most 0.72\,bit per time step, or 0.8\,bit/cm.
@@ -308,7 +308,7 @@ As such the robot gathers on average at most 0.72\,bit per time step, or 0.8\,bi
 With a 150\,cm$\times$150\,cm environment discretized with cells of 1\,cm and 5° angle, the amount of information needed for the localization is $\ent{loc}=20.6$.
 This means that, on average, the robot should not be localized before traveling around 26\,cm.
 
-Faster localization can be achieved by moving at a greater speed to reduce redundancy in the successive measurements.
+\textbf{Outlook}. Faster localization can be achieved by moving at a greater speed to reduce redundancy in the successive measurements.
 If designing a new robot, better sensors would reduce cross-over noise.
 Setting the sensors apart would also reduce the redundancy between their information but, for our specific grid size, they are sufficiently separated in Thymio~II.
 
@@ -327,10 +327,10 @@ To evaluate the performance of our localization algorithms, we remotely controll
 \item \texttt{trajectory 1} and \texttt{2}: The robot alternates forward and backward movements with rotations on spot, at a speed of 3--5\,cm/s. % (see \fig{trajectories}).
 %\item \texttt{linear trajectory}: The robot simply goes straight ahead along the x-axis of the map, at a speed of 3--5\,cm/s.
 \item \texttt{trajectory with kidnapping}: The robot alternates phases of forward movement, at a speed of 15\,cm/s, and turning on spot.
-To test the algorithm's ability of recovering from catastrophic localization failures, we perform ``robot kidnapping'' by lifting the robot and moving it to another part of the map every minute.
+To test the algorithm's ability of recovering from catastrophic localization failures, we perform ``robot kidnapping'' by relocating the robot to another part of the map every minute.
 \end{itemize}
 The robot moves on a 150$\times$150\,cm ground pattern containing 50\,$\times$\,50 cells of 3$\times$3\,cm, each randomly black or white (\fig{thymio}, right).
-The robot is connected to \textsc{ros}\footnote{ROS (Robot Operating System): \url{http://www.ros.org/}} to synchronize its sensor values and odometry information with ground-truth data from Vicon.
+The robot is connected to \textsc{ros} to synchronize its sensor values and odometry information with ground-truth data from Vicon.
 %to provide the ground-truth robot pose, consisting of $x$, $y$ coordinates and the heading $\theta$.
 The data are gathered with a frequency of 100\,Hz (ground-truth) and 10\,Hz (robot) and subsequently down-sampled to a period of 0.3\,s.
 We chose this period so that with basic trajectories, at maximum speed the robot travels approximately half the length of one cell between every sample.
@@ -400,7 +400,7 @@ For Monte Carlo Localization, the solid lines show the average over 10 trials, w
 \textbf{Basic localization}.
 \Fig{whole-runs-random12} shows the error in position and orientation for the first two trajectories.
 In these plots, \emph{distance traveled} represents the cumulative distance traveled by the center point between the two ground sensors of the robot.
-The error is clamped at 50\,cm for position and 90° for orientation.
+%The error is clamped at 50\,cm for position and 90° for orientation.
 
 For the Markov Localization approach, all discretization resolutions allow the robot to localize down to a precision of 3\,cm and 5°.
 However, in \texttt{trajectory~1}, the resolution of 18 discretization steps is not enough to keep tracking the orientation at a distance traveled of 50\,cm and 80\,cm.
