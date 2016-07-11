@@ -177,11 +177,10 @@ The system proposed in this paper meets these requirements.
 %\subsection{Pose estimation filter}
 %\subsection{Variables}
 
-The generic Bayesian filter used to estimate the pose of the robot in the environment uses the following variables:
+The generic Bayesian filter used to estimate the pose of a robot in its environment uses the following variables:
 \begin{itemize}
 \item $X_{1:t}$ 2-D pose at times $1..t$, consisting of $x,y$ coordinates and an angle $\theta$.
-\item $Z_{1:t}$ observations at times $1..t$.
-The observation consists of the output of the sensors located at the bottom of the robot, measuring the grayscale intensity of the ground.
+\item $Z_{1:t}$ observations at times $1..t$, consisting of the output of the sensors measuring the grayscale intensity of the ground.
 \item $U_{1:t}$ odometry at times $1..t$, consisting of the left and right wheel speeds.
 \end{itemize}
 
@@ -204,17 +203,20 @@ p(X_t|Z_{1:t},U_{1:t}) \propto p(Z_t | X_t) \sum_{X_{t-1}} p(X_t|X_{t-1}, U_t) p
 %This is a recursive filter to estimate $X_t$ using the previous estimation $X_{t-1}$, the odometry $U_t$ and the observation $Z_t$.
 
 %\subsection{Distributions}
-This inference involves two distributions to specify the \emph{observation model} $p(Z_t | X_t)$ and the \emph{motion model} $p(X_t|X_{t-1}, U_t)$.
+This inference involves two distributions to specify the \emph{observation model} $p(Z_t | X_t)$ and the \emph{motion model} $p(X_t|X_{t-1}, U_t)$, which are specific to our Thymio~II robot.
+In addition, we define a \emph{self-confidence metrics} and outline the implementation.
 
 %\subsubsection{Observation model}
 
-\textbf{Observation model}. The robot has two infrared ground sensors measuring the grayscale value of the ground.
-Despite the observations being coupled through the known visual ground pattern serving as map, our model assumes them to be independent, so $p(Z_t | X_t) = \prod_{i=0,1} p(Z_t^{i} | X_t)$.
-Moreover, we assume the ground color to be in the range $[0,1]$ with $0$ being black and $1$ being white.
-Hence, if sensor $i$ for robot pose $X_t$ should see a ground intensity $v$ according to the map, $p(Z_t^{i} | X_t) \sim \mathcal{N}(v,\sigma_\mathrm{obs})$.
+\textbf{Observation model}. Thymio~II has two infrared ground sensors measuring the grayscale value of the ground (\fig{thymio}, center).
+%Despite the observations being coupled through the known visual ground pattern serving as map, our model assumes them to be independent, so $p(Z_t | X_t) = \prod_{i=0,1} p(Z_t^{i} | X_t)$.
+%Moreover, we assume the ground color to be in the range $[0,1]$ with $0$ being black and $1$ being white.
+Our observation model $p(Z_t | X_t) = \prod_{i=0,1} p(Z_t^{i} | X_t)$ assumes these two sensors to be independent, and the ground color to be in the range of $[0,1]$ ($0$ being black and $1$ being white).
+%Hence, if sensor $i$ for robot pose $X_t$ should see a ground intensity $v$ according to the map, $p(Z_t^{i} | X_t) \sim \mathcal{N}(v,\sigma_\mathrm{obs})$.
+Hence $p(Z_t^{i} | X_t) \sim \mathcal{N}(v,\sigma_\mathrm{obs})$, for robot pose $X_t$, sensor $i$, and a corresponding ground intensity $v$ according to the map.
 The parameter $\sigma_\mathrm{obs}$ is selected based on the knowledge of the sensor.
-For black and white patterns, we set it to $0.5$, giving a probability of $p_\mathrm{correct} = 0.95$ when the value measured by the sensor corresponds to the one in the map.
-For grayscale images, based on measurement on a real Thymio~II, we set it to $0.15$.
+For black and white patterns, we assume the probability of seeing the correct color when the value measured by the sensor corresponds to the one in the map to be $p_\mathrm{correct} = 0.95$, leading to $\sigma_\mathrm{obs} = 0.5$.
+For grayscale images, based on measurement on a real Thymio~II, we set $\sigma_\mathrm{obs}$ to $0.15$.
 
 %\subsubsection{Motion model}
 
@@ -348,7 +350,7 @@ Setting the sensors apart would also reduce the redundancy between their informa
 To evaluate the performance of our localization algorithms, we remotely controlled the robot and recorded datasets covering all possible robot motions:
 \begin{itemize}
 \item \texttt{trajectory 1} and \texttt{2}: The robot alternates forward and backward movements with rotations on spot, at a speed of 3--5\,cm/s. % (see \fig{trajectories}).
-\item \texttt{linear trajectory}: The robot simply goes straight ahead along the x-axis of the map, at a speed of 3--5\,cm/s.
+%\item \texttt{linear trajectory}: The robot simply goes straight ahead along the x-axis of the map, at a speed of 3--5\,cm/s.
 \item \texttt{trajectory with kidnapping}: The robot alternates phases of forward movement, at a speed of 15\,cm/s, and turning on spot.
 To test the algorithm's ability of recovering from catastrophic localization failures, we perform ``robot kidnapping'' by lifting the robot and moving it to another part of the map every minute.
 \end{itemize}
@@ -435,7 +437,7 @@ All resolutions provide equal position precision.
 
 For the Monte Carlo Localization approach, we see that on \texttt{trajectory~1}, the robot localizes already with 50k particles, but in twice the time it takes with 100k particles.
 Increasing the number of particles beyond this value only marginally decreases localization time.
-While 50k particles are sufficient to localize on this run on average, in some runs, the robot looses orientation when it turns on spot.
+While 50k particles are sufficient to localize on this run on average, in some runs, the robot loses orientation when it turns on spot.
 On \texttt{trajectory~2}, 50k particles is not enough to localize the robot.
 Increasing this number to 100k leads to a good localization, except after the robot has traveled 130\,cm; which corresponds to a long moment during which the robot rotates on spot, leading to less information acquisition, and therefore degraded precision.
 
