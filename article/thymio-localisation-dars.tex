@@ -101,13 +101,13 @@ Our second contribution is a detailed analysis of the performances of the two im
 Our last contribution is a validation of real-time localization.
 
 \begin{figure}
-\includegraphics[height=.27\columnwidth]{thymio2-dimensions}\hfill
-\includegraphics[height=.27\columnwidth]{thymio2-dataset}
+\includegraphics{system-bloc-scheme}\hfill
+\includegraphics[height=.24\columnwidth]{thymio2-dimensions}\hfill
+\includegraphics[height=.23\columnwidth]{thymio2-dataset}
 \vspace{-.07cm}
 \caption{The block scheme of the system (left), the Thymio~II robot with the placement of its ground sensors (middle), and markers for tracking its ground-truth pose by a Vicon system (right).}
 \label{fig:thymio}
 \end{figure}
-%FIXME: the child does not fit DARS
 
 \section{Related work}
 
@@ -142,7 +142,7 @@ However, this line of research focuses on scalability rather than absolute posit
 In addition, both radio and infrared-based range and bearing systems require complex electronics.
 Finally, when the cost of all robots is added, the system is far from cheap.
 
-To the best of our knowledge, there exist no localization system that uses only a low number of inexpensive onboard infrared sensor(s), and able to provide absolute positioning.
+To the best of our knowledge, there exist no localization system that uses only a low number of inexpensive onboard infrared sensors, and able to provide absolute positioning.
 The system proposed in this paper meets these requirements.
 
 \section{Model}
@@ -240,6 +240,7 @@ It is similar to a 1-point \textsc{ransac} scheme~\cite{Fischler1981ransac}.
 %Both the search for the particle with most neighbors and the search for neighbors are done with 500 trials.
 %The thresholds for a particle to be a neighbor are a distance of 1.5\,cm and an angular difference of 5°.
 We implemented both algorithms in Python with some Cython (\url{http://www.cython.org}) procedures used for time-critical inner loops.
+The algorithms run on an embedded computer or laptop (\fig{thymio}, left).
 Thymio~II is programmed through the \textsc{aseba} framework~\cite{aseba2011tmech}, which connects to Python using D-Bus.
 
 \section{Theoretical analysis of convergence}
