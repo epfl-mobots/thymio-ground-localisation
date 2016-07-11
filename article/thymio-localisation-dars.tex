@@ -78,7 +78,7 @@ This enables a new range of educational activities, which strongly increases the
 \section{Introduction}
 
 Driven by consumer products, the technologies of electronics, motor and battery have made tremendous progress in the last decades.
-They are now widely available at prices making affordable mobile robots a reality.
+They are now widely available at prices which make affordable mobile robots a reality.
 This opens many new opportunities, in particular in the contexts of collective robotics.
 
 Collective and swarm robotics focus on the scalability of systems when the number of robots increases.
@@ -116,8 +116,8 @@ The main challenge of solving the localization problem on affordable mobile robo
 Zug et al.~\cite{zug2011design} have developed an algorithm using an array of triangulation-based infrared distance sensors.
 A Kalman filter algorithm is applied to localize the robot within a 2 by 1\,m box.
 No experimental result is provided, but a simulation shows the estimated error to be within 2\,cm.
-Pinto et al.~\cite{pinto2012localization} have developed a localization system using wheel encoders and infrared distance sensors, in the context of education.
-They mount the sensor on a platform built around a LEGO Mindstorms NXT and use an Extended Kalman Filter for localization.
+Pinto et al.~\cite{pinto2012localization} have developed a localization system using wheel encoders and infrared distance sensors.
+They mount the sensor on a platform built around a LEGO Mindstorms NXT and use an Extended Kalman Filter (EKF) for localization.
 However, they do not provide experimental result either.
 
 Focusing on a low cost, Gutmann et al.~\cite{gutmann2013challenges} have developed a system using only 3 or 4 light detectors, able to localize a mobile robot in a room with an accuracy of 10\,cm.
@@ -128,12 +128,12 @@ Park and Hashimoto~\cite{park2009approach} proposed to localize a mobile robot o
 The average localization error of this method is lower than 10\,cm.
 Yet, this approach requires the ground to be equipped, and is only applicable when the starting position of the robot is known.
 
-In the context of education, Singh and Bedi~\cite{singh2013map} have used the ultrasound sensor of the LEGO Mindstorms NXT to localize a robot in a room.
-They use a Monte Carlo Localization approach based on a particle filter.
-However, they do not provide quantitative results.
-Dias and Ventura~\cite{dias2013absolute} use two horizontal lines from a \textsc{vga} camera to read barcodes on the walls of an arena and localize an e-puck robot.
-Their system employs an Extended Kalman Filter algorithm and reaches a precision of 1\,cm and 5°.
-As with the work of Singh and Bedi, it requires an enclosed arena with a specific wall arrangement and no obstacles between the robot and the walls.
+%Singh and Bedi~\cite{singh2013map} have used the ultrasound sensor of the LEGO Mindstorms NXT to localize a robot in a room.
+%They use a Monte Carlo Localization approach based on a particle filter.
+%However, they do not provide quantitative results.
+Dias and Ventura~\cite{dias2013absolute} used two horizontal lines from a \textsc{vga} camera to read barcodes on the walls of an arena and localize an e-puck robot.
+Their system employs an Extended Kalman Filter (EKF) algorithm and reaches a precision of 1\,cm and 5°.
+However, it requires an enclosed arena with a specific wall arrangement and no obstacles between the robot and the walls.
 
 The work of Kurazume and Nagata~\cite{kurazume1994cooperative} first raised the idea of performing inexpensive localization through the cooperative positioning of multiple robots.
 Prorok et al.~\cite{prorok2012low} is a modern work representative of this approach.
