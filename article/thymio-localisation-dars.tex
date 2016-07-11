@@ -22,6 +22,7 @@
 \usepackage{url}
 \usepackage{tabularx}
 \usepackage{booktabs}
+\usepackage{eurosym}
 
 % options
 \graphicspath{{figures/}{generated-figures/}}
@@ -624,6 +625,13 @@ The algorithm localizes the robot globally on all images.
 The images with more contrast lead to a more robust and faster localization, while the ones with lower contrast lead to more imprecise trajectories.
 The parts of trajectories in red are typically less precise than the ones in green.
 This shows that the self confidence measure is effective in assessing the quality of the localization.
+
+\textbf{Embedded use}.
+The runtime cost is dominated by the motion model, as it involves convoluting a small window for every cell of the probability space.
+With the current parameters, this leads to approximately 50 floating-point multiplications per cell.
+For comparison, VideoCore\textsuperscript{\textregistered} IV, the built-in \textsc{gpu} in a Raspberry PI 3 (costing \EUR{33}), has a top performance of 28 \textsc{gflops}.
+Assuming that due to limitations in bandwidth and dependencies between data it can only be used at 10\,\%, it could run a \textsc{gpu} version of our algorithm at 10\,Hz on a map of 4 by 4 meters with a resolution of 1\,cm.
+Therefore, our solution can truely be used for distributed collective experiments.
 
 \section{Conclusion}
 
