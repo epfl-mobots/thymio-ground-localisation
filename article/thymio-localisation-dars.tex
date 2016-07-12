@@ -92,7 +92,7 @@ This paper answers the need of affordable and distributed absolute positioning b
 As sensors are mounted on the robot, the localization is a local operation, which makes the approach scalable.
 %The ground can be an existing image or a drawing created by the child herself (\fig{thymio}, left).
 Our solution is based on the classical Markov~\cite{fox1999markov} and Monte Carlo~\cite{dellaert1999monte} Localization frameworks that can be seen as respectively a dense and a sampling-based implementation of a recursive Bayesian filter.
-While these approaches are commonly used in robots with extensive sensing capabilities such as laser scanners, their implementation on extremely low bandwidth sensors is novel, and rises specific questions, such as which distance the robot must travel for the localization to converge.
+While these approaches are commonly used in robots with extensive sensing capabilities such as laser scanners, their implementation on extremely low bandwidth sensors is novel, and raises specific questions, such as which distance the robot must travel for the localization to converge.
 
 In this paper, we deploy these algorithms on the Thymio~II differential-wheeled mobile robot.
 The robot reads the intensity of the ground using two infrared sensors (\fig{thymio}, middle, circled red) and estimates the speed of its wheels by measuring the back electromotive force, which is less precise than encoder-based methods.
@@ -112,39 +112,36 @@ Our last contribution is an experimental validation of online, real-time localiz
 
 \section{Related work}
 
-The main challenge of solving the localization problem on affordable mobile robots is the limited information content typical inexpensive sensors can provide.
-
-Zug et al.~\cite{zug2011design} have developed an algorithm using an array of triangulation-based infrared distance sensors.
-A Kalman filter algorithm is applied to localize the robot within a 2 by 1\,m box.
-No experimental result is provided, but a simulation shows the estimated error to be within 2\,cm.
-Pinto et al.~\cite{pinto2012localization} have developed a localization system using wheel encoders and infrared distance sensors.
-They mount the sensor on a platform built around a LEGO Mindstorms NXT and use an Extended Kalman Filter (EKF) for localization.
-However, they do not provide experimental result either.
-
-Focusing on a low cost, Gutmann et al.~\cite{gutmann2013challenges} have developed a system using only 3 or 4 light detectors, able to localize a mobile robot in a room with an accuracy of 10\,cm.
-Their system is based on detecting a known pattern projected on the ceiling and fusing this information with odometry.
-However, this method demands the installation of a projector and requires empty space over it.
-
-Park and Hashimoto~\cite{park2009approach} proposed to localize a mobile robot over a ground equipped with randomly distributed passive \textsc{rfid} tags.
-The average localization error of this method is lower than 10\,cm.
-Yet, this approach requires the ground to be equipped, and is only applicable when the starting position of the robot is known.
-
-%Singh and Bedi~\cite{singh2013map} have used the ultrasound sensor of the LEGO Mindstorms NXT to localize a robot in a room.
-%They use a Monte Carlo Localization approach based on a particle filter.
-%However, they do not provide quantitative results.
-Dias and Ventura~\cite{dias2013absolute} used two horizontal lines from a \textsc{vga} camera to read barcodes on the walls of an arena and localize an e-puck robot.
-Their system employs an Extended Kalman Filter (EKF) algorithm and reaches a precision of 1\,cm and 5°.
-However, it requires an enclosed arena with a specific wall arrangement and no obstacles between the robot and the walls.
+The main challenge of solving the localization problem on affordable mobile robots is the limited information content typical inexpensive sensors can provide and the constraints on the environment.
 
 The work of Kurazume and Nagata~\cite{kurazume1994cooperative} first raised the idea of performing inexpensive localization through the cooperative positioning of multiple robots.
 Prorok et al.~\cite{prorok2012low} is a modern work representative of this approach.
 These authors have used an infrared-based range and bearing hardware along with a distributed Monte Carlo Localization approach, allowing a group of robots to localize down to a precision of 20\,cm.
-However, this line of research focuses on scalability rather than absolute positioning, as the later would require fixed robots acting as beacons.
-In addition, both radio and infrared-based range and bearing systems require complex electronics.
+However, this methods would require fixed robots acting as beacons to provide absolute positioning.
+Moreover, both radio and infrared-based range and bearing systems require complex electronics.
 Finally, when the cost of all robots is added, the system is far from cheap.
 
-To the best of our knowledge, there exist no localization system that uses only a low number of inexpensive onboard infrared sensor, and able to provide absolute positioning.
-The system proposed in this paper meets these requirements.
+A cheaper approach is to use walls around an experimental arena to localize.
+For example, Zug et al.~\cite{zug2011design} have developed an algorithm using an array of triangulation-based infrared distance sensors.
+A Kalman filter algorithm is applied to localize the robot within a 2 by 1\,m box.
+No experimental result is provided, but a simulation shows the estimated error to be within 2\,cm.
+Dias and Ventura~\cite{dias2013absolute} used two horizontal lines from a \textsc{vga} camera to read barcodes on the walls of an arena and localize an e-puck robot.
+Their system employs an Extended Kalman Filter (EKF) algorithm and reaches a precision of 1\,cm and 5°.
+However, these systems require no obstacles between the robot and the walls, and thus are not scalable to a large number of robots.
+
+This problem can be alleviated by detecting a known pattern projected on the ceiling and fusing this information with odometry.
+This approach was proven effective for localization using high-quality cameras~\cite{dellaert1999monte}.
+Focusing on a low cost, Gutmann et al.~\cite{gutmann2013challenges} have developed a system using only 3 or 4 light detectors, able to localize a mobile robot in a room with an accuracy of 10\,cm.
+However, this method requires a controlled ceiling arrangment and empty space over the robots.
+
+Another approach is to exploit the ground for localization.
+Park and Hashimoto~\cite{park2009approach} proposed to localize a mobile robot over a ground equipped with randomly distributed passive \textsc{rfid} tags.
+The average localization error of this method is lower than 10\,cm.
+Yet, this approach requires the ground to be equipped with tags which can become expensive and tedious to deploy.
+
+The system proposed in this paper builds on the idea of using information from the ground for absolute localization.
+It is affordable because it only requires a low number of inexpensive infrared sensors onboard the robot, and a simple grayscale pattern on the ground.
+Moreover, its performance is comparable with related work.
 
 \section{Model}
 
@@ -309,7 +306,7 @@ As such the robot gathers on average at most 0.72\,bit per time step, or 0.8\,bi
 With a 150\,cm$\times$150\,cm environment discretized with cells of 1\,cm and 5° angle, the amount of information needed for the localization is $\ent{loc}=20.6$.
 This means that, on average, the robot should not be localized before traveling around 26\,cm.
 
-\textbf{Outlook}. Faster localization can be achieved by moving at a greater speed to reduce redundancy in the successive measurements.
+\textbf{Outlook}. Faster localization can be achieved by moving at a greater speed to reduce redundancy in the successive measurements, with proportional increase in sampling frequency.
 If designing a new robot, better sensors would reduce cross-over noise.
 Setting the sensors apart would also reduce the redundancy between their information but, for our specific grid size, they are sufficiently separated in Thymio~II.
 
@@ -630,7 +627,7 @@ This shows that the self confidence measure is effective in assessing the qualit
 \textbf{Embedded use}.
 The runtime cost is dominated by the motion model, as it involves convoluting a small window for every cell of the probability space.
 With the current parameters, this leads to approximately 250 floating-point multiplications per cell.
-For comparison, VideoCore\textsuperscript{\textregistered} IV, the built-in \textsc{gpu} in the Raspberry PI 3 (costing \EUR{33}), has a peak processing power of 28 \textsc{gflops}.
+For comparison, VideoCore\textsuperscript{\textregistered} IV, the built-in \textsc{gpu} in the Raspberry Pi 3 (costing \EUR{33}), has a peak processing power of 28 \textsc{gflops}.
 Assuming that, due to limitations in bandwidth and dependencies between data, it can only be used at 10\,\% of its peak floating point throughput, it could run a \textsc{gpu} version of our algorithm at 10\,Hz on a map of 1.8 by 1.8 meters with a resolution of 1\,cm.
 Therefore, our approach can truely be used for distributed collective experiments with affordable robots.
 
