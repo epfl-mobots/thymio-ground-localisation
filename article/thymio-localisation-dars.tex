@@ -64,7 +64,7 @@
 
 \abstract*{
 Recent progress in electronics has allowed the construction of affordable mobile robots.
-This opens many new opportunities, in particular in the contexts of collective robotics.
+This opens many new opportunities, in particular in the context of collective robotics.
 However, while several algorithms in this field require global localization, this capability is not yet available in low-cost robots without external electronics.
 In this paper, we propose a solution to this problem, using only approximate dead-reckoning and infrared sensors measuring the grayscale intensity of a known visual pattern on the ground.
 Our approach builds on a recursive Bayesian filter, of which we demonstrate two implementations: a dense Markov Localization and a particle-based Monte Carlo Localization.
@@ -88,7 +88,7 @@ Yet, several state of the art algorithms require global positionning~\cite{breit
 In experimental work, it is often provided by an external system, bringing a non-scalable single point of failure into the system, and breaking the distributed aspect.
 Therefore, there is the need for a distributed and affordable global localisation system for collective robotics experiments.
 
-This paper answers the need of affordable and distributed absolute positioning by providing a system using only approximate dead-reckoning and inexpensive infrared sensors measuring the grayscale intensity of the ground, without knowing the initial pose of the robot.
+This paper answers this need by providing a system using only approximate dead-reckoning and inexpensive infrared sensors measuring the grayscale intensity of the ground, without knowing the initial pose of the robot.
 As sensors are mounted on the robot, the localization is a local operation, which makes the approach scalable.
 %The ground can be an existing image or a drawing created by the child herself (\fig{thymio}, left).
 Our solution is based on the classical Markov~\cite{fox1999markov} and Monte Carlo~\cite{dellaert1999monte} Localization frameworks that can be seen as respectively a dense and a sampling-based implementation of a recursive Bayesian filter.
@@ -112,7 +112,7 @@ Our last contribution is an experimental validation of online, real-time localiz
 
 \section{Related work}
 
-The main challenge of solving the localization problem on affordable mobile robots is the limited information content typical inexpensive sensors can provide and the constraints on the environment.
+The main challenges of solving the localization problem on affordable mobile robots are the constraints on the environment and the limited information content that inexpensive sensors can typically provide.
 
 The work of Kurazume and Nagata~\cite{kurazume1994cooperative} first raised the idea of performing inexpensive localization through the cooperative positioning of multiple robots.
 Prorok et al.~\cite{prorok2012low} is a modern work representative of this approach.
@@ -139,9 +139,9 @@ Park and Hashimoto~\cite{park2009approach} proposed to localize a mobile robot o
 The average localization error of this method is lower than 10\,cm.
 Yet, this approach requires the ground to be equipped with tags which can become expensive and tedious to deploy.
 
-The system proposed in this paper builds on the idea of using information from the ground for absolute localization.
-It is affordable because it only requires a low number of inexpensive infrared sensors onboard the robot, and a simple grayscale pattern on the ground.
-Moreover, its performance is comparable with related work.
+The system proposed in this paper builds on the idea of using information from the ground for absolute localization with performance comparable with related work.
+To the best of our knowledge, existing systems for localization of multi-robot systems either rely on an expensive adaptation of the environment using markers or beacons, or necessitate the embedding of expensive sensing capabilities on every robot.
+In contrast, our system it affordable since it only requires a low number of inexpensive infrared sensors onboard the robot (which are typically used as cliff detectors), and a simple grayscale pattern on the ground that can be achieved using a printed poster.
 
 \section{Model}
 
@@ -185,8 +185,8 @@ In addition, we define a \emph{self-confidence metrics} and outline the implemen
 %\subsubsection{Observation model}
 
 \textbf{Observation model}.
-Our observation model $p(Z_t | X_t) = \prod_{i=0,1}^{N_\mathrm{sensors}} p(Z_t^{i} | X_t)$ assumes all sensors to be independent, and the ground color to be in the range of $[0,1]$ ($0$ being black and $1$ being white).
-Hence $p(Z_t^{i} | X_t) \sim \mathcal{N}(v,\sigma_\mathrm{obs})$, for robot pose $X_t$, sensor $i$, and a corresponding ground intensity $v$ according to the map.
+Our observation model $p(Z_t | X_t) = \prod_{i=0,1}^{N_\mathrm{sensors}} p(Z_t^{i} | X_t)$ assumes all sensor noises to be independent, and the ground color to be in the range of $[0,1]$ ($0$ being black and $1$ being white).
+We take $p(Z_t^{i} | X_t) \sim \mathcal{N}(v,\sigma_\mathrm{obs})$, for robot pose $X_t$, sensor $i$, and a corresponding ground intensity $v$ according to the map.
 The parameter $\sigma_\mathrm{obs}$ is selected based on the knowledge of the sensor.
 Thymio~II has two sensors (\fig{thymio}, center).
 For black and white patterns, we assume the probability of seeing the correct color when the value measured by the sensor corresponds to the one in the map to be $p_\mathrm{correct} = 0.95$, leading to $\sigma_\mathrm{obs} = 0.5$.
@@ -201,13 +201,13 @@ Therefore, if $\Delta x_t$, $\Delta y_t$, $\Delta \theta_t$ are the displacement
 \mu_t =
 \left[ \begin{array}{c} x_t \\ y_t \\ \theta_t \end{array} \right]
 \text{with}
-\begin{array}{c}
-\left[ \begin{array}{c} x_t \\ y_t \end{array} \right] =
+\begin{array}{cl}
+\left[ \begin{array}{c} x_t \\ y_t \end{array} \right] &=
 \left[ \begin{array}{c} x_{t-1} \\ y_{t-1} \end{array} \right] +
 R(\theta_{t-1})
 \left[ \begin{array}{c} \Delta x_{t} \\ \Delta y_{t} \end{array} \right]
 \\
-\theta_t = \theta_{t-1} + \Delta \theta_t
+\theta_t &= \theta_{t-1} + \Delta \theta_t
 \end{array}
 \end{equation}
 where $R(\theta)$ is the 2-D rotation matrix of angle $\theta$.
@@ -219,11 +219,6 @@ with $ \sigma_{\mathrm{xy},t} = \alpha_\mathrm{xy} \sqrt{\Delta x_{t}^2 + \Delta
 
 In addition, to cope with the possibility of the robot being kidnapped and therefore its pose becoming unknown, a uniform distribution with a weight $p_\mathrm{uniform}$ is added to $X_t$.
 The parameters $\alpha_\mathrm{xy}$, $\alpha_\theta$ and $p_\mathrm{uniform}$ are estimated using maximum likelihood (see \sect{mle}).
-
-%\subsubsection{Self confidence}
-
-\textbf{Self confidence}. We define a self-confidence term that corresponds to the ratio of the probability mass of $p(X_t)$ that is within a distance $d_\mathrm{xy}$ and an angle difference $d_\theta$ to the estimated pose.
-In our experiments, we use $d_\mathrm{xy} = 3$\,cm and $d_\theta = 10$°.
 
 %\subsection{Implementations}
 
@@ -240,6 +235,11 @@ It is similar to a 1-point \textsc{ransac} scheme~\cite{Fischler1981ransac}.
 We implemented both algorithms in Python with some Cython (\url{http://www.cython.org}) procedures used for time-critical inner loops.
 The algorithms run on an embedded computer or laptop (\fig{thymio}, left).
 Thymio~II is programmed through the \textsc{aseba} framework~\cite{aseba2011tmech}, which connects to Python using D-Bus.
+
+%\subsubsection{Self confidence}
+
+\textbf{Self confidence}. We define a self-confidence term that corresponds to the ratio of the probability mass of $p(X_t)$ that is within a distance $d_\mathrm{xy}$ and an angle difference $d_\theta$ to the estimated pose.
+In our experiments, we use $d_\mathrm{xy} = 3$\,cm and $d_\theta = 10$°.
 
 \section{Theoretical analysis of convergence}
 \label{sec:theoreticalconv}
