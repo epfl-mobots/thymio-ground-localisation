@@ -52,6 +52,7 @@
 \and Francesco Mondada \at Mobots, LSRO, EPFL, \email{francesco.mondada@epfl.ch}
 \and Stéphane Magnenat \at Mobots, LSRO, EPFL, \email{stephane@magnenat.net}
 }
+\authorrunning{S. Wang, F. Colas, M. Liu, F. Mondada, and S. Magnenat}
 
 \makeindex             % used for the subject index
                        % please use the style svind.ist with
@@ -630,24 +631,24 @@ This shows that the self confidence measure is effective in assessing the qualit
 \textbf{Embedded use}.
 The runtime cost is dominated by the motion model, as it involves convoluting a small window for every cell of the probability space.
 With the current parameters, this leads to approximately 250 floating-point multiplications per cell.
-For comparison, VideoCore\textsuperscript{\textregistered} IV, the built-in \textsc{gpu} in a Raspberry PI 3 (costing \EUR{33}), has a top performance of 28 \textsc{gflops}.
-Assuming that due to limitations in bandwidth and dependencies between data it can only be used at 10\,\%, it could run a \textsc{gpu} version of our algorithm at 10\,Hz on a map of 1.8 by 1.8 meters with a resolution of 1\,cm.
-Therefore, our solution can truely be used for distributed collective experiments.
+For comparison, VideoCore\textsuperscript{\textregistered} IV, the built-in \textsc{gpu} in the Raspberry PI 3 (costing \EUR{33}), has a peak processing power of 28 \textsc{gflops}.
+Assuming that, due to limitations in bandwidth and dependencies between data, it can only be used at 10\,\% of its peak floating point throughput, it could run a \textsc{gpu} version of our algorithm at 10\,Hz on a map of 1.8 by 1.8 meters with a resolution of 1\,cm.
+Therefore, our approach can truely be used for distributed collective experiments with affordable robots.
 
 \section{Conclusion}
 
-In this paper, we have conducted an empirical evaluation of Markov- and Monte Carlo-based approaches for localizing a mobile robot on a known ground visual pattern.
-The robot requires only inexpensive infrared sensors and approximate odometry information.
+In this paper, we have conducted an empirical evaluation of Markov- and Monte Carlo-based approaches for localizing mobile robots on a known ground visual pattern.
+Each robot requires only inexpensive infrared sensors and approximate odometry information.
 We have shown that both approaches allow successful localization without knowing the initial pose of the robot, and that their performances and computational requirements are of a similar order of magnitude.
 Real-time localization was successful with a large variety of A2 grayscale images, using the Markov Localization approach with 36 discretization steps for angle.
 Should larger patterns be desired, the code could be further optimized by using multimedia instructions such as \textsc{sse}, implementing it in the \textsc{gpu}, or parallelizing it.
 %Conditional probability tables are well suited for such optimizations.
 
 In addition, we have outlined, and empirically validated, a method to estimate the localization performance in function of the sensor configuration.
-This method provides a guide for taking decisions about the placement of sensors in a future robot:
+This method provides a guide for taking decisions about the placement of sensors in a future robot design:
 localization performance can be improved by placing the sensors far apart on a line perpendicular to the direction of movement of the robot; in addition, more sensors allow for collecting more information, if they are separated by the size of the smallest visual structure in the map.
 
-These contributions to the state of the art enable absolute positioning of inexpensive mobile robots costing in the 100\,\$ range.
+These contributions to the state of the art enable absolute positioning of inexpensive mobile robots costing in the \EUR{100} range.
 In the context of distributed collective robotics, they provide a crucial piece on which to build on, for instance to implement navigation or behavioural algorithms.
 
 \begin{acknowledgement}
