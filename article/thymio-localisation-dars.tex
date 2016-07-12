@@ -32,8 +32,8 @@
 \newcommand{\Fig}[1]{Fig.~\ref{fig:#1}}
 \newcommand{\tbl}[1]{{Table}~\ref{fig:#1}}
 \newcommand{\Tbl}[1]{{Table}~\ref{fig:#1}}
-\newcommand{\sect}[1]{Section~\ref{sec:#1}}
-\newcommand{\Sect}[1]{Section~\ref{sec:#1}}
+\newcommand{\sect}[1]{Sect.~\ref{sec:#1}}
+\newcommand{\Sect}[1]{Sect.~\ref{sec:#1}}
 \newcommand{\hypo}[1]{Hypothesis~\ref{hyp:#1}}
 \newcommand{\Hypo}[1]{Hypothesis~\ref{hyp:#1}}
 \newcommand{\algo}[1]{Algorithm~\ref{algo:#1}}
@@ -85,10 +85,10 @@ Collective and swarm robotics focus on the scalability of systems when the numbe
 In that context, global localization is a challenge, whose solution depends on the environment the robots evolve in.
 A common approach is to measure the distance and orientation between robots~\cite{prorok2012low}, but this approach relies on beacons to provide absolute measurements.
 Yet, several state of the art algorithms require global positionning~\cite{breitenmoser2016combining}.
-In experimental work, it is often provided by an external system, bringing a non-scalable single point of failure into the system, and breaking the distributed aspect.
+In experimental work, it is often provided by an external aid such as a visual tracker, bringing a non-scalable single point of failure into the system, and breaking the distributed aspect.
 Therefore, there is the need for a distributed and affordable global localisation system for collective robotics experiments.
 
-This paper answers this need by providing a system using only approximate dead-reckoning and inexpensive infrared sensors measuring the grayscale intensity of the ground, without knowing the initial pose of the robot.
+This paper answers this need by providing a distributed system using only approximate dead-reckoning and inexpensive infrared sensors measuring the grayscale intensity of the ground, without knowing the initial pose of the robots.
 As sensors are mounted on the robot, the localization is a local operation, which makes the approach scalable.
 %The ground can be an existing image or a drawing created by the child herself (\fig{thymio}, left).
 Our solution is based on the classical Markov~\cite{fox1999markov} and Monte Carlo~\cite{dellaert1999monte} Localization frameworks that can be seen as respectively a dense and a sampling-based implementation of a recursive Bayesian filter.
@@ -129,7 +129,7 @@ Dias and Ventura~\cite{dias2013absolute} used two horizontal lines from a \texts
 Their system employs an Extended Kalman Filter (EKF) algorithm and reaches a precision of 1\,cm and 5°.
 However, these systems require no obstacles between the robot and the walls, and thus are not scalable to a large number of robots.
 
-This problem can be alleviated by detecting a known pattern projected on the ceiling and fusing this information with odometry.
+This problem can be alleviated by detecting a known pattern visible on the ceiling and fusing this information with odometry.
 This approach was proven effective for localization using high-quality cameras~\cite{dellaert1999monte}.
 Focusing on a low cost, Gutmann et al.~\cite{gutmann2013challenges} have developed a system using only 3 or 4 light detectors, able to localize a mobile robot in a room with an accuracy of 10\,cm.
 However, this method requires a controlled ceiling arrangment and empty space over the robots.
@@ -137,11 +137,11 @@ However, this method requires a controlled ceiling arrangment and empty space ov
 Another approach is to exploit the ground for localization.
 Park and Hashimoto~\cite{park2009approach} proposed to localize a mobile robot over a ground equipped with randomly distributed passive \textsc{rfid} tags.
 The average localization error of this method is lower than 10\,cm.
-Yet, this approach requires the ground to be equipped with tags which can become expensive and tedious to deploy.
+However, this approach requires the ground to be equipped with tags which can become expensive and tedious to deploy when the area grows.
 
-The system proposed in this paper builds on the idea of using information from the ground for absolute localization with performance comparable with related work.
+The system proposed in this paper builds on the idea of using information from the ground for absolute localization, with performance comparable with related work.
 To the best of our knowledge, existing systems for localization of multi-robot systems either rely on an expensive adaptation of the environment using markers or beacons, or necessitate the embedding of expensive sensing capabilities on every robot.
-In contrast, our system it affordable since it only requires a low number of inexpensive infrared sensors onboard the robot (which are typically used as cliff detectors), and a simple grayscale pattern on the ground that can be achieved using a printed poster.
+In contrast, our system is affordable since it only requires a low number of inexpensive infrared sensors onboard the robot (which are typically used as cliff detectors), and a simple grayscale pattern on the ground that can be achieved using a printed poster.
 
 \section{Model}
 
@@ -217,8 +217,8 @@ The $3\times3$ diagonal covariance matrix $\Sigma_t$ is a function of the distan
 \end{equation}
 with $ \sigma_{\mathrm{xy},t} = \alpha_\mathrm{xy} \sqrt{\Delta x_{t}^2 + \Delta y_{t}^2}$.
 
-In addition, to cope with the possibility of the robot being kidnapped and therefore its pose becoming unknown, a uniform distribution with a weight $p_\mathrm{uniform}$ is added to $X_t$.
-The parameters $\alpha_\mathrm{xy}$, $\alpha_\theta$ and $p_\mathrm{uniform}$ are estimated using maximum likelihood (see \sect{mle}).
+To cope with the possibility of the robot being kidnapped and therefore its pose becoming unknown, a uniform distribution with a weight $p_\mathrm{uniform}$ is added to $X_t$.
+The parameters $\alpha_\mathrm{xy}$, $\alpha_\theta$ and $p_\mathrm{uniform}$ are estimated using maximum likelihood (\sect{mle}).
 
 %\subsection{Implementations}
 
@@ -251,7 +251,7 @@ The amount of information needed to unambiguously specify one among them all is 
 We can also estimate the information gain at each time step.
 Let us consider the case of a binary map and a binary sensor.
 This sensor ideally yields 1\,bit of information per measurement.
-However in practice, there is a loss in information due to the sensor noise, characterized by the $p_\mathrm{correct}$ probability of the sensor to be correct:
+In practice, there is a loss in information due to the sensor noise, characterized by the $p_\mathrm{correct}$ probability of the sensor to be correct:
 \begin{equation}
 	\ent{noise} = \ent{b}(1 - p_\mathrm{correct}),
 \end{equation}
@@ -339,7 +339,7 @@ We chose this period so that with basic trajectories, at maximum speed the robot
 \textbf{Parameter estimation}.
 We estimated the noise parameters of the motion model using maximum likelihood, considering the error between the ground truth and the odometry data in the local frame between two time steps.
 Using \texttt{trajectory~1} and \texttt{trajectory~2}, we found the values for $\alpha_\mathrm{xy}$ and $\alpha_\theta$ to be in the order of 0.1.
-Similarly, using \texttt{trajectory with kidnapping}, we found the value for $p_\mathrm{uniform}$ to be in the order of 0.1.
+Similarly, using \texttt{trajectory with kidnapping}, we also found the value for $p_\mathrm{uniform}$ to be in the order of 0.1.
 
 %\subsection{Basic localization}
 
@@ -406,7 +406,7 @@ These both correspond to the robot rotating on spot.
 Finer discretizations do not exhibit this problem, they are more robust and have similar precisions.
 Therefore, we see that an angular discretization of 36 (10° resolution) is sufficient to provide accurate tracking.
 In \texttt{trajectory~2}, we see that an angular discretization of 54 allows for a better angular precision than 36, but 72 does not improve over 54.
-All angular discretizations provide equal position precision.
+All discretizations provide equal position precision.
 
 For the Monte Carlo Localization approach, we see that on \texttt{trajectory~1}, the robot localizes already with 50k particles, but in twice the distance it takes with 100k particles.
 Increasing the number of particles beyond this value only marginally decreases localization time.
@@ -415,7 +415,7 @@ On \texttt{trajectory~2}, using 50k particles is not enough to localize the robo
 Increasing this number to 100k leads to a good localization, except after the robot has traveled 130\,cm.
 This corresponds to a long moment during which the robot rotates on spot, leading to less information acquisition, and therefore degraded performances.
 
-Overall, both approaches have similar localization accuracy.
+Overall, both approaches have similar accuracy.
 When angular precision is critical, the Monte Carlo Localization approach might achieve better performance, as the Markov Localization approach is limited in precision by its angular discretization.
 
 %\subsection{Distance to converge}
@@ -615,13 +615,14 @@ Trajectories are plotted starting from a confidence level of 0.2.}
 
 \end{figure*}
 
-\Fig{a2_drawings} shows the performance of the real-time localization of a Wireless Thymio~II using different grayscale images of 59\,$\times$\,42\,cm, printed on A2 paper sheets with a resolution of 1\,pixel/cm.
+\Fig{a2_drawings} shows the performance of the online, real-time localization of a Wireless Thymio~II (\fig{thymio}, left).
+We tested different grayscale images of 59\,$\times$\,42\,cm, printed on A2 paper sheets with a resolution of 1\,pixel/cm.
 We used Markov Localization with an angular discretization of 36 and a spatial resolution of 1\,cm; the localization is performed every 0.4\,s.
 The localization algorithm runs on a Lenovo laptop X1 3rd generation with an Intel Core i7-5500U processor running at 2.4\,GHz, at a \textsc{cpu} load of approximately 80\,\%.
-The laptop receives the sensor readings from the robot through a wireless connection.
+%The laptop receives the sensor readings from the robot through a wireless connection.
 The algorithm localizes the robot globally on all images.
 The images with more contrast lead to a more robust and faster localization, while the ones with lower contrast lead to more imprecise trajectories.
-We observe that the parts of trajectories in red are less precise than the ones in green.
+In \fig{a2_drawings}, we see that the parts of trajectories in red are less precise than the ones in green.
 This shows that the self confidence measure is effective in assessing the quality of the localization.
 
 \textbf{Embedded use}.
