@@ -140,7 +140,7 @@ The average localization error of this method is lower than 10\,cm.
 However, this approach requires the ground to be equipped with tags which can become expensive and tedious to deploy when the area grows.
 
 The system proposed in this paper builds on the idea of using information from the ground for absolute localization, with performance comparable with related work.
-To the best of our knowledge, existing systems for localization of multi-robot systems either rely on an expensive adaptation of the environment using markers or beacons, or necessitate the embedding of expensive sensing capabilities on every robot.
+To the best of our knowledge, existing solutions for localization of multi-robot systems either rely on an expensive adaptation of the environment using markers or beacons, or necessitate the embedding of expensive sensing capabilities on every robot.
 In contrast, our system is affordable since it only requires a low number of inexpensive infrared sensors onboard the robot (which are typically used as cliff detectors), and a simple grayscale pattern on the ground that can be achieved using a printed poster.
 
 \section{Model}
@@ -244,11 +244,13 @@ In our experiments, we use $d_\mathrm{xy} = 3$\,cm and $d_\theta = 10$°.
 \section{Theoretical analysis of convergence}
 \label{sec:theoreticalconv}
 
-It is possible to estimate the time required for the robot to localize itself in a given known space.
-For the Markov Localization approach, there is a given number of discrete cells.
+One can estimate the time required for the robot to localize itself in a given space, by comparing the information needed and the information gained while traveling.
+
+\textbf{Information need}. For the Markov Localization approach, there is a given number of discrete cells.
 The amount of information needed to unambiguously specify one among them all is $\ent{loc} = \log_2(N_\mathrm{cells})$, with $N_\mathrm{cells}$ the number of cells.
 
-We can also estimate the information gain at each time step.
+\textbf{Information gain}.
+We can estimate the information gain at each time step.
 Let us consider the case of a binary map and a binary sensor.
 This sensor ideally yields 1\,bit of information per measurement.
 In practice, there is a loss in information due to the sensor noise, characterized by the $p_\mathrm{correct}$ probability of the sensor to be correct:
@@ -257,8 +259,8 @@ In practice, there is a loss in information due to the sensor noise, characteriz
 \end{equation}
 where $\ent{b}$ is the binary entropy function: $\ent{b}(p) = -p\log_2(p) - (1-p)\log_2(1-p)$.
 
-In addition, we need to take into account that our sensor measurements are not completely independent.
-For example, when not moving, we always observe the same place and thus cannot really gain additional information besides being sure of the intensity of the current pixel.
+We also need to take into account that the sensor measurements are not completely independent.
+For example, when the robot is not moving, it always observes the same place and thus cannot really gain additional information besides being sure of the intensity of the current pixel.
 In a discretized world, we thus need to estimate the probability of having changed cell in order to observe something new, which depends on the distance traveled and the size of the cells.
 This problem is equivalent to the Buffon-Laplace needle problem of finding the probability for a needle thrown randomly on a grid to actually intersect the grid~\cite{laplace1820prob}.
 In our case, the probability of changing cell is given by:
