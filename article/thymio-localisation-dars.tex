@@ -64,17 +64,15 @@
 
 \abstract*{
 Recent progress in electronics has allowed the construction of affordable mobile robots.
-This opens many new opportunities, in particular in the educational context.
-However, for cost reasons these robots have little long-range sensing abilities and bad dead-reckoning capabilities.
-This limitation has prevented them from performing global localization without external aids.
-This severely limits their use, for example to teach spatial reasoning or develop artistic activities.
+This opens many new opportunities, in particular in the contexts of collective robotics.
+However, while several algorithms in this field require global localization, this capability is not yet available in low-cost robots without extern aids.
 In this paper, we propose a solution to this problem, using only approximate dead-reckoning and infrared sensors measuring the grayscale intensity of a known visual pattern on the ground.
 Our approach builds on a recursive Bayesian filter, of which we demonstrate two implementations: a dense Markov Localization and a particle-based Monte Carlo Localization.
-We show that both implementations allow accurate localization on a large variety of patterns, from pseudo-random black and white matrices to grayscale drawings by children.
+We show that both implementations allow accurate localization on a large variety of patterns, from pseudo-random black and white matrices to grayscale images.
 We provide a theoretical estimate and an empirical validation of the necessary traveled distance for convergence.
 We demonstrate the real-time localization of a Thymio~II robot.
 These results show that our system solves the problem of absolute localization of inexpensive robots.
-This enables a new range of educational activities, which strongly increases the value of robots for education.
+This provides a crucial piece on which to build on, for instance to implement navigation or behavioural algorithms.
 }
 
 \section{Introduction}
@@ -91,6 +89,7 @@ In experimental work, it is often provided by an external system, bringing a non
 Therefore, there is the need for a distributed and affordable global localisation system for collective robotics experiments.
 
 This paper answers the need of affordable and distributed absolute positioning by providing a system using only approximate dead-reckoning and inexpensive infrared sensors measuring the grayscale intensity of the ground, without knowing the initial pose of the robot.
+As sensors are mounted on the robot, the localization is a local operation, which makes the approach scalable.
 %The ground can be an existing image or a drawing created by the child herself (\fig{thymio}, left).
 Our solution is based on the classical Markov~\cite{fox1999markov} and Monte Carlo~\cite{dellaert1999monte} Localization frameworks that can be seen as respectively a dense and a sampling-based implementation of a recursive Bayesian filter.
 While these approaches are commonly used in robots with extensive sensing capabilities such as laser scanners, their implementation on extremely low bandwidth sensors is novel, and rises specific questions, such as which distance the robot must travel for the localization to converge.
@@ -652,7 +651,7 @@ These contributions to the state of the art enable absolute positioning of inexp
 In the context of distributed collective robotics, they provide a crucial piece on which to build on, for instance to implement navigation or behavioural algorithms.
 
 \begin{acknowledgement}
-The authors thank Emmanuel Eckard for insightful comments on the manuscript and Ramiz Morina for his drawings.
+The authors thank Emmanuel Eckard and Mordechai Ben-Ari for insightful comments on the manuscript and Ramiz Morina for his drawings.
 \end{acknowledgement}
 
 \bibliographystyle{IEEEtran}
