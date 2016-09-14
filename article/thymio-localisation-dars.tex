@@ -194,7 +194,7 @@ Our observation model $p(Z_t | X_t) = \prod_{i=0,1}^{N_\mathrm{sensors}} p(Z_t^{
 We take $p(Z_t^{i} | X_t) \sim \mathcal{N}(v,\sigma_\mathrm{obs})$, for robot pose $X_t$, sensor $i$, and a corresponding ground intensity $v$ according to the map.
 The parameter $\sigma_\mathrm{obs}$ is selected based on the knowledge of the sensor.
 Thymio~II has two sensors (\fig{thymio}, center).
-For black and white patterns, we assume the probability of seeing the correct color when the value measured by the sensor corresponds to the one in the map to be $p_\mathrm{correct} = 0.95$, leading to $\sigma_\mathrm{obs} = 0.5$.
+For binary (black and white) patterns, we assume the probability that the value measured by the sensor corresponds to the one in the map to be $p_\mathrm{correct} = 0.95$, leading to $\sigma_\mathrm{obs} = 0.5$ (Gaussian approximation).
 For grayscale images, based on measurement on a real Thymio~II, we set $\sigma_\mathrm{obs}$ to $0.15$.
 
 %\subsubsection{Motion model}
