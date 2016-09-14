@@ -267,7 +267,7 @@ where $\ent{b}$ is the binary entropy function: $\ent{b}(p) = -p\log_2(p) - (1-p
 We also need to take into account that the sensor measurements are not completely independent.
 For example, when the robot is not moving, it always observes the same place and thus cannot really gain additional information besides being sure of the intensity of the current pixel.
 In a discretized world, we thus need to estimate the probability of having changed cell in order to observe something new, which depends on the distance traveled and the size of the cells.
-This problem is equivalent to the Buffon-Laplace needle problem of finding the probability for a needle thrown randomly on a grid to actually intersect the grid~\cite{laplace1820prob}.
+This problem is equivalent to the Buffon-Laplace needle problem of finding the probability for a needle thrown randomly on a grid to actually intersect the grid\footnote{The needle is the segment joining the start and end points of the robot movement and the grid is the borders of the cells.}~\cite{laplace1820prob}.
 In our case, the probability of changing cell is given by:
 \begin{equation}
 	p_\mathrm{diff} = \frac{4d h - d^2}{\pi h^2},
