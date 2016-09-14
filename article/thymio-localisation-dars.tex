@@ -167,6 +167,11 @@ It is classically formulated as a recursive Bayesian filter with the following j
 p(X_{1:t}, Z_{1:t}, U_{1:t}) = p(Z_t|X_t) p(X_t|X_{t-1}, U_{t}) p(U_t) p(X_{1:t-1}, Z_{1:t-1}, U_{1:t-1}).
 \end{split}
 \end{equation}
+This filter is based on a few assumptions.
+First it assumes that the current observation is independent on the past observations, the past states and odometry commands conditionally to the current state.
+It also features the Markov assumption: the next state is independent on former states, commands and observations conditionally to the previous state and the current command.
+Finally, it assumes that the actions are independent from the past.
+All these assumptions are standard and can be found in Kalman filtering, Partially Observable Markov Decision Processes and other classical models.
 
 %\subsection{Question}
 This joint probability distribution allows to formulate the problem as the estimation of the pose $X_t$ at time $t$ given the observations $Z_{1:t}$ and the commands $U_{1:t}$:
