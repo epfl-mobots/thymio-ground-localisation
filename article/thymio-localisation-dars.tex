@@ -23,6 +23,7 @@
 \usepackage{tabularx}
 \usepackage{booktabs}
 \usepackage{eurosym}
+\usepackage[colorlinks=true,urlcolor=black,linkcolor=black,citecolor=black]{hyperref}
 
 % options
 \graphicspath{{figures/}{generated-figures/}}
@@ -72,7 +73,7 @@ We show that both implementations allow accurate localization on a large variety
 We provide a theoretical estimate and an empirical validation of the necessary traveled distance for convergence.
 We demonstrate the real-time localization of a Thymio~II robot.
 These results show that our system solves the problem of absolute localization of inexpensive robots.
-This provides a solid base on which to build navigation or behavioural algorithms.
+This provides a solid base on which to build navigation or behavioral algorithms.
 }
 
 \section{Introduction}
@@ -84,9 +85,9 @@ This opens many new opportunities, in particular in the contexts of collective r
 Collective and swarm robotics focus on the scalability of systems when the number of robots increases.
 In that context, global localization is a challenge, whose solution depends on the environment the robots evolve in.
 A common approach is to measure the distance and orientation between robots~\cite{prorok2012low}, but this approach relies on beacons to provide absolute measurements.
-Yet, several state of the art algorithms require global positionning~\cite{breitenmoser2016combining}.
+Yet, several state of the art algorithms require global positioning~\cite{breitenmoser2016combining}.
 In experimental work, it is often provided by an external aid such as a visual tracker, bringing a non-scalable single point of failure into the system, and breaking the distributed aspect.
-Therefore, there is the need for a distributed and affordable global localisation system for collective robotics experiments.
+Therefore, there is the need for a distributed and affordable global localization system for collective robotics experiments.
 
 This paper answers this need by providing a distributed system using only approximate dead-reckoning and inexpensive infrared sensors measuring the grayscale intensity of the ground, without knowing the initial pose of the robots.
 As sensors are mounted on the robot, the localization is a local operation, which makes the approach scalable.
@@ -100,6 +101,7 @@ For evaluation purposes, a Vicon tracking system (\url{http://www.vicon.com/}) p
 Our first contribution is a predictive model of the necessary distance to travel to localize the robot.
 Our second contribution is a detailed analysis of the performances of the two implementations in comparison with ground-truth data.
 Our last contribution is an experimental validation of online, real-time localization (\fig{thymio}, left).
+The source code and all experimental data are available online\footnote{\url{https://github.com/epfl-mobots/thymio-ground-localisation}} and the system can be seen running in a video\footnote{\url{https://www.youtube.com/watch?v=70euPzixzus}}.
 
 \begin{figure}
 \includegraphics{system-bloc-scheme}\hfill
@@ -132,7 +134,7 @@ However, these systems require no obstacles between the robot and the walls, and
 This problem can be alleviated by detecting a known pattern visible on the ceiling and fusing this information with odometry.
 This approach was proven effective for localization using high-quality cameras~\cite{dellaert1999monte}.
 Focusing on a low cost, Gutmann et al.~\cite{gutmann2013challenges} have developed a system using only 3 or 4 light detectors, able to localize a mobile robot in a room with an accuracy of 10\,cm.
-However, this method requires a controlled ceiling arrangment and empty space over the robots.
+However, this method requires a controlled ceiling arrangement and empty space over the robots.
 
 Another approach is to exploit the ground for localization.
 Park and Hashimoto~\cite{park2009approach} proposed to localize a mobile robot over a ground equipped with randomly distributed passive \textsc{rfid} tags.
@@ -410,7 +412,7 @@ In these plots, \emph{distance traveled} represents the cumulative distance trav
 For the Markov Localization approach, all discretization resolutions allow the robot to localize down to a precision of 3\,cm and 5°.
 However, in \texttt{trajectory~1}, the resolution of 18 discretization steps is not enough to keep tracking the orientation at a distance traveled of 50\,cm and 80\,cm.
 These both correspond to the robot rotating on spot.
-Finer discretizations do not exhibit this problem, they are more robust and have similar precisions.
+Finer discretizations do not exhibit this problem, they are more robust and have similar precision.
 Therefore, we see that an angular discretization of 36 (10° resolution) is sufficient to provide accurate tracking.
 In \texttt{trajectory~2}, we see that an angular discretization of 54 allows for a better angular precision than 36, but 72 does not improve over 54.
 All discretizations provide equal position precision.
@@ -639,6 +641,21 @@ For comparison, VideoCore\textsuperscript{\textregistered} IV, the built-in \tex
 Assuming that, due to limitations in bandwidth and dependencies between data, it can only be used at 10\,\% of its peak floating point throughput, it could run a \textsc{gpu} version of our algorithm at 10\,Hz on a map of 1.8 by 1.8 meters with a resolution of 1\,cm.
 Therefore, our approach can truely be used for distributed collective experiments with affordable robots.
 
+\textbf{Scalability}.
+The computational speed of the system and the necessary distance to converge scale linearly with the size of the localized area.
+Also, a prolonged use of the robot might wear off the ground, slightly shifting the grayscale intensities and jeopardizing the localization.
+Nevertheless, modern printing options allow to use strong supports that only degrade slowly with time.
+Therefore, our system can be helpful for conducting collective experiments in a laboratory environment.
+
+\textbf{Optimality}.
+An interesting question is what is an optimal pattern.
+However, this question has two sides.
+On the one hand, a pattern could be optimal in term of quantity of information, allowing the robot to localize as fast as possible.
+In that case, a white-noise pattern would be ideal.
+On the other hand, if the robot has to interact with humans, or only be monitored by humans, such a pattern would be highly disturbing.
+Our experimental results with paintings and drawings show that, even with a pattern having a lot of regularities and symmetries, our system is still able to localize.
+Therefore, we believe it is usable with natural patterns such as photographies, drawings and grayscale schematics.
+
 \section{Conclusion}
 
 In this paper, we have implemented and empirically evaluated Markov- and Monte Carlo-based approaches for localizing mobile robots on a known ground visual pattern.
@@ -653,7 +670,7 @@ This method provides a guide for taking decisions about the placement of sensors
 localization performance can be improved by placing the sensors far apart on a line perpendicular to the direction of movement of the robot; moreover, more sensors allow for collecting more information, if they are separated by the size of the smallest visual structure in the map.
 
 These contributions to the state of the art enable absolute positioning of inexpensive mobile robots costing in the \EUR{100} range.
-In the context of distributed collective robotics, they provide a solid base on which to build navigation or behavioural algorithms.
+In the context of distributed collective robotics, they provide a solid base on which to build navigation or behavioral algorithms.
 
 \begin{acknowledgement}
 The authors thank Emmanuel Eckard and Mordechai Ben-Ari for insightful comments on the manuscript and Ramiz Morina for his drawings.
