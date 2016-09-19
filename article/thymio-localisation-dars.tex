@@ -167,6 +167,11 @@ It is classically formulated as a recursive Bayesian filter with the following j
 p(X_{1:t}, Z_{1:t}, U_{1:t}) = p(Z_t|X_t) p(X_t|X_{t-1}, U_{t}) p(U_t) p(X_{1:t-1}, Z_{1:t-1}, U_{1:t-1}).
 \end{split}
 \end{equation}
+This filter is based on a few assumptions.
+First it assumes that the current observation is independent on the past observations, the past states and odometry commands conditionally to the current state.
+It also features the Markov assumption: the next state is independent on former states, commands and observations conditionally to the previous state and the current command.
+Finally, it assumes that the actions are independent from the past.
+All these assumptions are standard and can be found in Kalman filtering, Partially Observable Markov Decision Processes and other classical models.
 
 %\subsection{Question}
 This joint probability distribution allows to formulate the problem as the estimation of the pose $X_t$ at time $t$ given the observations $Z_{1:t}$ and the commands $U_{1:t}$:
@@ -189,7 +194,7 @@ Our observation model $p(Z_t | X_t) = \prod_{i=0,1}^{N_\mathrm{sensors}} p(Z_t^{
 We take $p(Z_t^{i} | X_t) \sim \mathcal{N}(v,\sigma_\mathrm{obs})$, for robot pose $X_t$, sensor $i$, and a corresponding ground intensity $v$ according to the map.
 The parameter $\sigma_\mathrm{obs}$ is selected based on the knowledge of the sensor.
 Thymio~II has two sensors (\fig{thymio}, center).
-For black and white patterns, we assume the probability of seeing the correct color when the value measured by the sensor corresponds to the one in the map to be $p_\mathrm{correct} = 0.95$, leading to $\sigma_\mathrm{obs} = 0.5$.
+For binary (black and white) patterns, we assume the probability that the value measured by the sensor corresponds to the one in the map to be $p_\mathrm{correct} = 0.95$, leading to $\sigma_\mathrm{obs} = 0.5$ (Gaussian approximation).
 For grayscale images, based on measurement on a real Thymio~II, we set $\sigma_\mathrm{obs}$ to $0.15$.
 
 %\subsubsection{Motion model}
@@ -262,7 +267,7 @@ where $\ent{b}$ is the binary entropy function: $\ent{b}(p) = -p\log_2(p) - (1-p
 We also need to take into account that the sensor measurements are not completely independent.
 For example, when the robot is not moving, it always observes the same place and thus cannot really gain additional information besides being sure of the intensity of the current pixel.
 In a discretized world, we thus need to estimate the probability of having changed cell in order to observe something new, which depends on the distance traveled and the size of the cells.
-This problem is equivalent to the Buffon-Laplace needle problem of finding the probability for a needle thrown randomly on a grid to actually intersect the grid~\cite{laplace1820prob}.
+This problem is equivalent to the Buffon-Laplace needle problem of finding the probability for a needle thrown randomly on a grid to actually intersect the grid\footnote{The needle is the segment joining the start and end points of the robot movement and the grid is the borders of the cells.}~\cite{laplace1820prob}.
 In our case, the probability of changing cell is given by:
 \begin{equation}
 	p_\mathrm{diff} = \frac{4d h - d^2}{\pi h^2},
