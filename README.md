@@ -1,7 +1,7 @@
 Bayesian global localisation for Thymio using ground sensors
 ============================================================
 
-This repository holds the source code, recorded VICON data, and submitted ICRA2016 paper.
+This repository holds the source code, recorded VICON data, and the DARS 2016 paper.
 
 Shiling Wang, Francis Colas, Ming Liu, Francesco Mondada, Stéphane Magnenat
 
