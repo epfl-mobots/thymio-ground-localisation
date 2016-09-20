@@ -196,7 +196,9 @@ Our observation model $p(Z_t | X_t) = \prod_{i=0,1}^{N_\mathrm{sensors}} p(Z_t^{
 We take $p(Z_t^{i} | X_t) \sim \mathcal{N}(v,\sigma_\mathrm{obs})$, for robot pose $X_t$, sensor $i$, and a corresponding ground intensity $v$ according to the map.
 The parameter $\sigma_\mathrm{obs}$ is selected based on the knowledge of the sensor.
 Thymio~II has two sensors (\fig{thymio}, center).
-For binary (black and white) patterns, we assume the probability that the value measured by the sensor corresponds to the one in the map to be $p_\mathrm{correct} = 0.95$, leading to $\sigma_\mathrm{obs} = 0.5$ (Gaussian approximation).
+For binary (black and white) patterns, we chose $\sigma_\mathrm{obs} = 0.5$.
+From this value, we can compute $p_\mathrm{correct}$, the probability that the value measured by the sensor corresponds to the one in the map.
+Considering a sensor reading black on a black ground, we have $p_\mathrm{correct} = p(Z=0|X<0.5) = \int_{-\infty}^{0.5} \mathcal{N}(0,0.5) = 0.84$.
 For grayscale images, based on measurement on a real Thymio~II, we set $\sigma_\mathrm{obs}$ to $0.15$.
 
 %\subsubsection{Motion model}
@@ -307,13 +309,19 @@ The information gathered in a time step is then:
 This formula also ignores the uncertainty in the robot motion.
 With these assumptions, it is an upper bound on the average information gain.
 
-\textbf{Experimental application}. In our example, we have assumed $p_\mathrm{correct}=0.95$, that is $\ent{noise}=0.29$.
+\textbf{Experimental application}. In our example, we have assumed $p_\mathrm{correct}=0.84$, that is $\ent{noise}=0.63$.
 Our robot moves at 3\,cm/s with a time step of 0.3\,s and 3\,cm cells in which the color is known to be similar; this yields $p_\mathrm{diff}=0.35$ and $\ent{loss,d}=0.33$.
 Finally the sensors are 2.2\,cm apart which yields $p_\mathrm{diff}=0.76$ and $\ent{sensors}=0.041$.
-As such the robot gathers on average at most 0.72\,bit per time step, or 0.8\,bit/cm.
+As such the robot gathers on average at most 0.030\,bit per time step, or 0.034\,bit/cm.
 
 With a 150\,cm$\times$150\,cm environment discretized with cells of 1\,cm and 5° angle, the amount of information needed for the localization is $\ent{loc}=20.6$.
-This means that, on average, the robot should not be localized before traveling around 26\,cm.
+This means that, on average, the robot should not be localized before traveling around 610\,cm.
+This distance is far larger than the observed one.
+The reason is that, in our setup, $p_\mathrm{correct}$ is higher than 0.84.
+If instead of 0.84, we take $p_\mathrm{correct} = 0.97$ (corresponding to $\sigma_\mathrm{obs} = 0.26$), then $\ent{noise}=0.19$.
+With this value, the robot gathers on average at most 0.9\,bit per time step, or 1.0\,bit/cm, and should not be localized before traveling around 20\,cm.
+The short localization distance despite an overestimated $\sigma_\mathrm{obs}$ shows that our algorithm is robust to imprecision in its parameters.
+This is important in practice, as users might not be able to provide extremely precise parameters.
 
 \textbf{Outlook}. Faster localization can be achieved by moving at a greater speed to reduce redundancy in the successive measurements, with proportional increase in sampling frequency.
 If designing a new robot, better sensors would reduce cross-over noise.
