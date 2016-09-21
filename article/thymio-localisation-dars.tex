@@ -39,8 +39,8 @@
 \newcommand{\Hypo}[1]{Hypothesis~\ref{hyp:#1}}
 \newcommand{\algo}[1]{Algorithm~\ref{algo:#1}}
 \newcommand{\Algo}[1]{Algorithm~\ref{algo:#1}}
-\newcommand{\eq}[1]{Equation~\ref{eq:#1}}
-\newcommand{\Eq}[1]{Equation~\ref{eq:#1}}
+\newcommand{\eq}[1]{Eq.~\ref{eq:#1}}
+\newcommand{\Eq}[1]{Eq.~\ref{eq:#1}}
 \newcommand{\ent}[1]{\mathrm{H}_\mathrm{#1}} % entropy (\H already exists :/)
 
 
@@ -173,7 +173,7 @@ This filter is based on a few assumptions.
 First it assumes that the current observation is independent on the past observations, the past states and odometry commands conditionally to the current state.
 It also features the Markov assumption: the next state is independent on former states, commands and observations conditionally to the previous state and the current command.
 Finally, it assumes that the actions are independent from the past.
-All these assumptions are standard and can be found in Kalman filtering, Partially Observable Markov Decision Processes and other classical models.
+All these assumptions are standard and can be found in Kalman filtering and other classical models.
 
 %\subsection{Question}
 This joint probability distribution allows to formulate the problem as the estimation of the pose $X_t$ at time $t$ given the observations $Z_{1:t}$ and the commands $U_{1:t}$:
@@ -197,9 +197,7 @@ We take $p(Z_t^{i} | X_t) \sim \mathcal{N}(v,\sigma_\mathrm{obs})$, for robot po
 The parameter $\sigma_\mathrm{obs}$ is selected based on the knowledge of the sensor.
 Thymio~II has two sensors (\fig{thymio}, center).
 For binary (black and white) patterns, we chose $\sigma_\mathrm{obs} = 0.5$.
-From this value, we can compute $p_\mathrm{correct}$, the probability that the value measured by the sensor corresponds to the one in the map.
-Considering a sensor reading black on a black ground, we have $p_\mathrm{correct} = p(Z=0|X<0.5) = \int_{-\infty}^{0.5} \mathcal{N}(0,0.5) = 0.84$.
-For grayscale images, based on measurement on a real Thymio~II, we set $\sigma_\mathrm{obs}$ to $0.15$.
+For grayscale images, based on measurement on a Thymio~II, we set $\sigma_\mathrm{obs}$ to $0.15$.
 
 %\subsubsection{Motion model}
 
@@ -263,7 +261,7 @@ We can estimate the information gain at each time step.
 Let us consider the case of a binary map and a binary sensor.
 This sensor ideally yields 1\,bit of information per measurement.
 In practice, there is a loss in information due to the sensor noise, characterized by the $p_\mathrm{correct}$ probability of the sensor to be correct:
-\begin{equation}
+\begin{equation} \label{eq:H_noise}
 	\ent{noise} = \ent{b}(1 - p_\mathrm{correct}),
 \end{equation}
 where $\ent{b}$ is the binary entropy function: $\ent{b}(p) = -p\log_2(p) - (1-p)\log_2(1-p)$.
@@ -273,7 +271,7 @@ For example, when the robot is not moving, it always observes the same place and
 In a discretized world, we thus need to estimate the probability of having changed cell in order to observe something new, which depends on the distance traveled and the size of the cells.
 This problem is equivalent to the Buffon-Laplace needle problem of finding the probability for a needle thrown randomly on a grid to actually intersect the grid\footnote{The needle is the segment joining the start and end points of the robot movement and the grid is the borders of the cells.}~\cite{laplace1820prob}.
 In our case, the probability of changing cell is given by:
-\begin{equation}
+\begin{equation} \label{eq:p_diff}
 	p_\mathrm{diff} = \frac{4d h - d^2}{\pi h^2},
 \end{equation}
 with $d$ the distance traveled and $h$ the size of the cells.
@@ -281,7 +279,7 @@ with $d$ the distance traveled and $h$ the size of the cells.
 We can then compute the conditional entropy for two successive ideal binary measurements $O_{t-1}$ and $O_t$ separated by $d$ based on the conditional probability.
 There are two cases: either the robot has not moved enough to change cell (with probability $1 - p_\mathrm{diff}$) and the new observation is the same as the old, or the robot has changed cell (with probability $p_\mathrm{diff}$) and the new observation has the same probability to be the same or the opposite of the old.
 This can be summarized by the following conditional probability distribution ({b/w} = {black/white}):
-\begin{equation}
+\begin{equation} \label{eq:p_O_ttm1}
 	p(O_t=\{\mathrm{b}/\mathrm{w}\} \mid O_{t-1}=\{\mathrm{b}/\mathrm{w}\})\\
 	= \begin{pmatrix}
 		(1 - p_\mathrm{diff}) + p_\mathrm{diff}/2 & p_\mathrm{diff}/2\\
@@ -289,17 +287,17 @@ This can be summarized by the following conditional probability distribution ({b
 	\end{pmatrix}
 \end{equation}
 After rearranging the terms of the conditional entropy, the loss of information due to redundancy in the traveled distance is:
-\begin{equation}
+\begin{equation} \label{eq:H_loss}
 	\ent{loss,d} = 1 - \ent{b}(p_\mathrm{diff}/2).
 \end{equation}
 
 There is also redundancy between several sensors placed on the same robot.
 The probability that they see the same cell based on the distance between them is exactly the same as the probability of a sensor to see the same cell after a displacement of the same distance.
-The information loss due to the redundancy from the sensor placement is noted $\ent{sensors}$ and follows the same formula as $\ent{loss,d}$ for the distance between the two sensors.
+The information loss due to the redundancy from the sensor placement is noted $\ent{sensors}$ and follows the same formula as $\ent{loss,d}$, but with $d$ being the distance between the two sensors in \eq{p_diff}.
 
 Finally, we can approximate the information that our robot gathers at each time step by assuming that the trajectory of the robot does not loop (no redundancy between distant time steps) and that the trajectories of the sensors are independent. 
 The information gathered in a time step is then:
-\begin{equation}
+\begin{equation} \label{eq:H_O}
 \begin{split}
 	\ent{}(O^1_t, O^2_t \mid O^1_{1:t-1}, O^2_{1:t-1}) &= \ent{}(O^1_t, O^2_t \mid O^1_{t-1}, O^2_{t-1}) \\
 	&= \ent{}(O^1_t \mid O^1_{t-1}) + \ent{}(O^2_t \mid O^2_{t-1}) - \ent{}(O^2_t \mid O^1_t) \\
@@ -309,25 +307,12 @@ The information gathered in a time step is then:
 This formula also ignores the uncertainty in the robot motion.
 With these assumptions, it is an upper bound on the average information gain.
 
-\textbf{Experimental application}. In our example, we have assumed $p_\mathrm{correct}=0.84$, that is $\ent{noise}=0.63$.
-Our robot moves at 3\,cm/s with a time step of 0.3\,s and 3\,cm cells in which the color is known to be similar; this yields $p_\mathrm{diff}=0.35$ and $\ent{loss,d}=0.33$.
-Finally the sensors are 2.2\,cm apart which yields $p_\mathrm{diff}=0.76$ and $\ent{sensors}=0.041$.
-As such the robot gathers on average at most 0.030\,bit per time step, or 0.034\,bit/cm.
-
-With a 150\,cm$\times$150\,cm environment discretized with cells of 1\,cm and 5° angle, the amount of information needed for the localization is $\ent{loc}=20.6$.
-This means that, on average, the robot should not be localized before traveling around 610\,cm.
-This distance is far larger than the observed one.
-The reason is that, in our setup, $p_\mathrm{correct}$ is higher than 0.84.
-If instead of 0.84, we take $p_\mathrm{correct} = 0.97$ (corresponding to $\sigma_\mathrm{obs} = 0.26$), then $\ent{noise}=0.19$.
-With this value, the robot gathers on average at most 0.9\,bit per time step, or 1.0\,bit/cm, and should not be localized before traveling around 20\,cm.
-The short localization distance despite an overestimated $\sigma_\mathrm{obs}$ shows that our algorithm is robust to imprecision in its parameters.
-This is important in practice, as users might not be able to provide extremely precise parameters.
-
 \textbf{Outlook}. Faster localization can be achieved by moving at a greater speed to reduce redundancy in the successive measurements, with proportional increase in sampling frequency.
 If designing a new robot, better sensors would reduce cross-over noise.
 Setting the sensors apart would also reduce the redundancy between their information but, for our specific grid size, they are sufficiently separated in Thymio~II.
 
 \section{Empirical analysis of performance}
+\label{sec:results}
 
 % \begin{figure}
 % \includegraphics{trajectories}
@@ -463,16 +448,34 @@ The solid lines show the median while the light dots show the individual trials.
 \textbf{Distance to converge}.
 \Fig{small-runs} shows the error in position for 5 different starting points in each of the first two trajectories, in which the robot moves at a speed of 3--5\,cm/s.
 We see that, with the Markov Localization approach, the correct pose is found after about 20\,cm.
-% TODO check that
-%This corresponds well to the ideal theoretical distance of 18\,cm computed in \sect{theoreticalconv}.
-This is shorter than the 26\,cm distance computed in \sect{theoreticalconv}.
-This is probably due to the overestimation of the cross-over noise of the sensor.
-A distance of 20\,cm would correspond to noise lower than 3\% instead of 5\% as assumed.
-% end TODO
 There are also outliers: this happens when the robot is turning on spot, in which case there is not enough information to localize the robot.
 With 400k particles, the Monte Carlo Localization approach also converges after about 20\,cm.
 Decreasing the number of particles quickly increases the distance needed for convergence, reaching 60\,cm for 100k particles.
 Using only 50k particles, some trajectory segments fail to converge within 80\,cm length.
+
+It is interesting to compare these distances with theoretical estimates (see \sect{theoreticalconv}).
+One difficulty is that the theoretical model specifies the probability $p_\mathrm{correct}$ of the sensor to be correct.
+In our observation model, instead, we specify $\sigma_\mathrm{obs}$ the noise of the sensor.
+Therefore, we propose to compute $p_\mathrm{correct}$ from $\sigma_\mathrm{obs}$ by considering a sensor reading black on a black ground:
+\begin{equation} \label{eq:p_correct}
+p_\mathrm{correct} = p(Z<0.5|X=0) = \int_{-\infty}^{0.5} \mathcal{N}(0, \sigma_\mathrm{obs})
+\end{equation}
+In these runs, we have assumed $\sigma_\mathrm{obs} = 0.5$, leading to $p_\mathrm{correct}=0.84$ (\eq{p_correct}) and $\ent{noise}=0.63$ (\eq{H_noise}).
+Our robot moves at 3\,cm/s with a time step of 0.3\,s and 3\,cm cells in which the color is known to be similar; this yields $\ent{loss,d}=0.33$ (\eq{H_loss}).
+Moreover, the sensors are 2.2\,cm apart which yields $\ent{sensors}=0.041$.
+As such the robot gathers on average at most 0.036\,bit per time step, or 0.040\,bit/cm (\eq{H_O}).
+With a 150\,cm$\times$150\,cm environment discretized with cells of 1\,cm and 5° angle, the amount of information needed for the localization is $\ent{loc}=20.6$.
+This means that, on average, the robot should not be localized before traveling around 520\,cm\footnote{see \url{https://github.com/epfl-mobots/thymio-ground-localisation/blob/master/theory/d_conv_from_pcorrect.py}}.
+This distance is far larger than the observed one of about 20\,cm.
+The reason is that using $\sigma_\mathrm{obs} = 0.5$ for the binary case was an arbitrary choice.
+
+If instead, we use $\sigma_\mathrm{obs} = 0.15$ as measured on grayscale images, we have $p_\mathrm{correct} = 0.99957$.
+This leads to a minimum localization distance of about 14.3\,cm.
+This value is slightly lower than our experimental results, which makes sense as it is a lower bound.
+Moreover, it would be attained with a perfect filter observing a perfect pattern.
+Our filter is not perfect, because we have overestimated $\sigma_\mathrm{obs}$.
+Nevertheless, the filter works well, showing that it degrades gracefully with respect to imprecision in its parameters.
+This is important in practice, as users might not be able to provide extremely precise parameters.
 
 % \Fig{small-maps} shows the effect on convergence distance when the map size is reduced.
 % The robot runs linearly on one quarter of the map, while the Markov Localization is provided with the whole map, half of it, and a quarter of it.
