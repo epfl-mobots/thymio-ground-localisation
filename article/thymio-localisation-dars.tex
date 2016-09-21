@@ -456,7 +456,7 @@ Using only 50k particles, some trajectory segments fail to converge within 80\,c
 It is interesting to compare these distances with theoretical estimates (see \sect{theoreticalconv}).
 One difficulty is that the theoretical model specifies the probability $p_\mathrm{correct}$ of the sensor to be correct.
 In our observation model, instead, we specify $\sigma_\mathrm{obs}$ the noise of the sensor.
-Therefore, we propose to compute $p_\mathrm{correct}$ from $\sigma_\mathrm{obs}$ by considering a sensor reading black on a black ground:
+Therefore, we propose to compute $p_\mathrm{correct}$ from $\sigma_\mathrm{obs}$ by considering a sensor positioned over a black ground, and by assuming that all values below a threshold of 0.5 (0 being black and 1 being white) are correctly read:
 \begin{equation} \label{eq:p_correct}
 p_\mathrm{correct} = p(Z<0.5|X=0) = \int_{-\infty}^{0.5} \mathcal{N}(0, \sigma_\mathrm{obs})
 \end{equation}
