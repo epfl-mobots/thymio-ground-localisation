@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# This script takes as input a value for p_correct and computes the minimal necessary distance for the filter to converge with the 150x150 cm, b/w, 3cm grid size pattern
+# It is useful to compare with measured results and estimate the true p_correct and sigma_obs
+
 import sys
 import math
 
