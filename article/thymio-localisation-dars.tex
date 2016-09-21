@@ -325,7 +325,7 @@ Setting the sensors apart would also reduce the redundancy between their informa
 To evaluate the performance of our localization algorithms, we remotely controlled the robot and recorded datasets covering all possible robot motions:
 \begin{itemize}
 \item \texttt{trajectory 1} and \texttt{2}: The robot alternates forward and backward movements with rotations on spot, at a speed of 3--5\,cm/s. % (see \fig{trajectories}).
-%\item \texttt{linear trajectory}: The robot simply goes straight ahead along the x-axis of the map, at a speed of 3--5\,cm/s.
+\item \texttt{linear trajectory}: The robot simply goes straight ahead along the x-axis of the map, at a speed of 3--5\,cm/s.
 \item \texttt{trajectory with kidnapping}: The robot alternates phases of forward movement, at a speed of 15\,cm/s, and turning on spot.
 To test the algorithm's ability of recovering from catastrophic localization failures, we perform ``robot kidnapping'' by relocating the robot to another part of the map every minute.
 \end{itemize}
@@ -479,19 +479,23 @@ Our filter is not perfect, because we have run it with an overestimated $\sigma_
 Nevertheless, the filter works well, showing that it degrades gracefully with respect to imprecision in its parameters.
 This is important in practice, as users might not be able to provide extremely precise parameters.
 
-% \Fig{small-maps} shows the effect on convergence distance when the map size is reduced.
-% The robot runs linearly on one quarter of the map, while the Markov Localization is provided with the whole map, half of it, and a quarter of it.
-% We see that reducing the map size does reduce the distance traveled necessary to converge, in accordance to the theory.
-% 
-% \begin{figure}
-% \sidecaption[t]
-% \includegraphics[scale=.9]{ml-small_maps-xy}
-% %\vspace{.5em}
-% %\includegraphics{ml-small_maps-theta}
-% \caption{The error between the estimation by the localization algorithm and the ground truth, using Markov Localization, for different map sizes on \texttt{linear trajectory}.
-% The solid lines show the median over 3 different trajectory parts, while the light dots show the individual parts.}
-% \label{fig:small-maps}
-% \end{figure}
+\textbf{Effect of map size}.
+\Fig{small-maps} shows the effect on the distance of convergence when the map size is reduced.
+The robot runs linearly on one quarter of the map, while the Markov Localization is performed on the whole map, half of it, and a quarter of it.
+We see that reducing the map size does reduce the distance traveled necessary to converge, in accordance to the theory, because less information have to be acquired to reduce the uncertainty of the pose.
+ 
+\begin{figure}
+%\sidecaption[t]
+%\includegraphics[scale=.9]{ml-small_maps-xy}
+%\vspace{.5em}
+%\includegraphics{ml-small_maps-theta}
+\includegraphics[width=.5\columnwidth]{ml-small_maps-xy}
+\hfill
+\includegraphics[width=.5\columnwidth]{ml-small_maps-theta}
+\caption{The error between the estimation by the localization algorithm and the ground truth, using Markov Localization, for different map sizes on \texttt{linear trajectory}.
+The solid lines show the median over 3 different trajectory parts, while the light dots show the individual parts.}
+\label{fig:small-maps}
+\end{figure}
 
 %\subsection{Robot kidnapping}
 
