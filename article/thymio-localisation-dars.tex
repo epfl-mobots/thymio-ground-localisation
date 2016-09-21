@@ -467,9 +467,13 @@ As such the robot gathers on average at most 0.036\,bit per time step, or 0.040\
 With a 150\,cm$\times$150\,cm environment discretized with cells of 1\,cm and 5° angle, the amount of information needed for the localization is $\ent{loc}=20.6$.
 This means that, on average, the robot should not be localized before traveling around 520\,cm\footnote{see \url{https://github.com/epfl-mobots/thymio-ground-localisation/blob/master/theory/d_conv_from_pcorrect.py}}.
 This distance is far larger than the observed one of about 20\,cm.
-The reason is that using $\sigma_\mathrm{obs} = 0.5$ for the binary case was an arbitrary choice.
+The reason is that using $\sigma_\mathrm{obs} = 0.5$ for the binary case was an arbitrary choice and therefore the value of  $p_\mathrm{correct}$ does not correspond to the reality.
 
-If instead, we use $\sigma_\mathrm{obs} = 0.15$ as measured on grayscale images, we have $p_\mathrm{correct} = 0.99957$.
+Computing the value of $p_\mathrm{correct}$ to match the observed convergence distance by inverting the computation, we find 0.97.
+This means that the actual value of $p_\mathrm{correct}$ in our setup would be at least 0.97 but most probably higher such that the theoretical convergence distance is smaller than 20\,cm.
+
+To be consistent in the observation model, it would yield a value of $\sigma_\mathrm{obs}$ smaller than 0.26.
+If we use $\sigma_\mathrm{obs} = 0.15$ as measured on grayscale images, we have $p_\mathrm{correct} = 0.99957$.
 This leads to a minimum localization distance of about 14.3\,cm.
 This value is slightly lower than our experimental results, which makes sense as it is a lower bound.
 Moreover, it would be attained with a perfect filter observing a perfect pattern.
