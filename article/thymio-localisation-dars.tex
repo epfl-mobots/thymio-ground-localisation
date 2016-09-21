@@ -461,23 +461,21 @@ Therefore, we propose to compute $p_\mathrm{correct}$ from $\sigma_\mathrm{obs}$
 p_\mathrm{correct} = p(Z<0.5|X=0) = \int_{-\infty}^{0.5} \mathcal{N}(0, \sigma_\mathrm{obs})
 \end{equation}
 In these runs, we have assumed $\sigma_\mathrm{obs} = 0.5$, leading to $p_\mathrm{correct}=0.84$ (\eq{p_correct}) and $\ent{noise}=0.63$ (\eq{H_noise}).
-Our robot moves at 3\,cm/s with a time step of 0.3\,s and 3\,cm cells in which the color is known to be similar; this yields $\ent{loss,d}=0.33$ (\eq{H_loss}).
-Moreover, the sensors are 2.2\,cm apart which yields $\ent{sensors}=0.041$.
+Our robot moves at 3\,cm/s with a time step of 0.3\,s on a grid of 3\,cm$\times$3\,cm cells in which the color is known to be similar; this yields $\ent{loss,d}=0.33$ (\eq{H_loss}).
+Moreover, the sensors are 2.2\,cm apart, which yields $\ent{sensors}=0.041$.
 As such the robot gathers on average at most 0.036\,bit per time step, or 0.040\,bit/cm (\eq{H_O}).
 With a 150\,cm$\times$150\,cm environment discretized with cells of 1\,cm and 5° angle, the amount of information needed for the localization is $\ent{loc}=20.6$.
 This means that, on average, the robot should not be localized before traveling around 520\,cm\footnote{see \url{https://github.com/epfl-mobots/thymio-ground-localisation/blob/master/theory/d_conv_from_pcorrect.py}}.
 This distance is far larger than the observed one of about 20\,cm.
 The reason is that using $\sigma_\mathrm{obs} = 0.5$ for the binary case was an arbitrary choice and therefore the value of  $p_\mathrm{correct}$ does not correspond to the reality.
 
-Computing the value of $p_\mathrm{correct}$ to match the observed convergence distance by inverting the computation, we find 0.97.
-This means that the actual value of $p_\mathrm{correct}$ in our setup would be at least 0.97 but most probably higher such that the theoretical convergence distance is smaller than 20\,cm.
-
-To be consistent in the observation model, it would yield a value of $\sigma_\mathrm{obs}$ smaller than 0.26.
+Computing the value of $p_\mathrm{correct}$ to match the observed convergence distance by inverting the computation, we find 0.97, corresponding to $\sigma_\mathrm{obs} = 0.26$.
+%This means that the actual value of $p_\mathrm{correct}$ in our setup would be at least 0.97, but is most probably higher, leading to a theoretical convergence distance smaller than 20\,cm.
 If we use $\sigma_\mathrm{obs} = 0.15$ as measured on grayscale images, we have $p_\mathrm{correct} = 0.99957$.
-This leads to a minimum localization distance of about 14.3\,cm.
+This leads to a minimum theoretical localization distance of about 14.3\,cm.
 This value is slightly lower than our experimental results, which makes sense as it is a lower bound.
-Moreover, it would be attained with a perfect filter observing a perfect pattern.
-Our filter is not perfect, because we have overestimated $\sigma_\mathrm{obs}$.
+Moreover, this low bound would be attained with a perfect filter observing a perfect pattern.
+Our filter is not perfect, because we have run it with an overestimated $\sigma_\mathrm{obs}$ of 0.5.
 Nevertheless, the filter works well, showing that it degrades gracefully with respect to imprecision in its parameters.
 This is important in practice, as users might not be able to provide extremely precise parameters.
 
