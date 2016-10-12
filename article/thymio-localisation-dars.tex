@@ -63,7 +63,7 @@
 
 \maketitle
 
-\abstract*{
+\abstract{
 Recent progress in electronics has allowed the construction of affordable mobile robots.
 This opens many new opportunities, in particular in the context of collective robotics.
 However, while several algorithms in this field require global localization, this capability is not yet available in low-cost robots without external electronics.
@@ -480,7 +480,7 @@ Nevertheless, the filter works well, showing that it degrades gracefully with re
 This is important in practice, as users might not be able to provide extremely precise parameters.
 
 \textbf{Effect of map size}.
-\Fig{small-maps} shows the effect on the distance of convergence when the map size is reduced.
+\Fig{small-maps} shows the effect of reducing the map size. %on the distance of convergence when the map size is reduced.
 The robot runs linearly on one quarter of the map, while the Markov Localization is performed on the whole map, half of it, and a quarter of it.
 We see that reducing the map size does reduce the distance traveled necessary to converge, in accordance to the theory, because less information have to be acquired to reduce the uncertainty of the pose.
  
@@ -687,7 +687,7 @@ This method provides a guide for taking decisions about the placement of sensors
 localization performance can be improved by placing the sensors far apart on a line perpendicular to the direction of movement of the robot; moreover, more sensors allow for collecting more information, if they are separated by the size of the smallest visual structure in the map.
 
 These contributions to the state of the art enable absolute positioning of inexpensive mobile robots costing in the \EUR{100} range.
-In the context of distributed collective robotics, they provide a solid base on which to build navigation or behavioral algorithms.
+In the context of distributed collective robotics, they provide a solid base to build navigation or behavioral algorithms.
 
 \begin{acknowledgement}
 The authors thank Emmanuel Eckard and Mordechai Ben-Ari for insightful comments on the manuscript and Ramiz Morina for his drawings.
