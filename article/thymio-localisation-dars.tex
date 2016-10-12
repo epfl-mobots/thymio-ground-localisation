@@ -471,10 +471,10 @@ The reason is that using $\sigma_\mathrm{obs} = 0.5$ for the binary case was an 
 
 Computing the value of $p_\mathrm{correct}$ to match the observed convergence distance by inverting the computation, we find 0.97, corresponding to $\sigma_\mathrm{obs} = 0.26$.
 %This means that the actual value of $p_\mathrm{correct}$ in our setup would be at least 0.97, but is most probably higher, leading to a theoretical convergence distance smaller than 20\,cm.
-If we use $\sigma_\mathrm{obs} = 0.15$ as measured on grayscale images, we have $p_\mathrm{correct} = 0.99957$.
+If we consider $\sigma_\mathrm{obs} = 0.15$ as measured on grayscale images, then $p_\mathrm{correct} = 0.99957$.
 This leads to a minimum theoretical localization distance of about 14.3\,cm.
 This value is slightly lower than our experimental results, which makes sense as it is a lower bound.
-Moreover, this low bound would be attained with a perfect filter observing a perfect pattern.
+Moreover, this lower bound would be attained with a perfect filter observing a perfect pattern.
 Our filter is not perfect, because we have run it with an overestimated $\sigma_\mathrm{obs}$ of 0.5.
 Nevertheless, the filter works well, showing that it degrades gracefully with respect to imprecision in its parameters.
 This is important in practice, as users might not be able to provide extremely precise parameters.
