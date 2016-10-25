@@ -5,10 +5,42 @@ This repository holds the source code, recorded VICON data, and the DARS 2016 pa
 
 Shiling Wang, Francis Colas, Ming Liu, Francesco Mondada, Stéphane Magnenat
 
-How to use
-----------
+
+Prerequisites
+-------------
 
 This code needs Python 2.x, Cython, numpy, scipy, and termcolor.
+
+
+Real-time localization of Thymio
+================================
+
+Setup
+-----
+
+You need a [Thymio](http://thymio.org), preferably a Wireless version, and [Aseba](https://www.thymio.org/en:start) installed.
+As this real-time localization code uses DBus to communicate with Aseba, you need to have a D-Bus enabled build.
+It is the case by default on Linux, for OS X, you might have to recompile Aseba, on Windows, it is not supported.
+
+First launch asebamedulla to connect to the Thymio:
+
+    asebamedulla "ser:name=Thymio" -v
+    
+You should see a message indicating an incomming connection to the Thymio.
+
+Calibration
+-----------
+
+The first thing to do is to calibrate the sensors of your Thymio.
+To do so, launch the `calibrate_thymio.py` in the `code/` directory, using the calibration pattern from `data/thymio-ground-localisation-maps.pdf`:
+
+    ./calibrate_thymio.py
+    
+This program writes the calibration tables in the file `config.json`.
+
+
+Evaluation of parameters
+========================
 
 Once these are installed, you can play with existing datasets (in `data/`) using the `test.py` tool. If you launch it with the `-h` argument from the `data/` directory, it will list its available options.
 
