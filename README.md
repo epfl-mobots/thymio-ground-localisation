@@ -36,6 +36,7 @@ Calibration
 The first thing to do is to calibrate the sensors of your Thymio.
 To do so, print and cut the calibration pattern from [data/thymio-ground-localisation-maps.pdf](data/thymio-ground-localisation-maps.pdf), at size 1:1 (one gray line is 1.5 cm).
 Position the robot in front of the pattern:
+
 ![Image of Thymio calibration](thymio-calib.jpg)
 
 Then launch the `calibrate_thymio.py` in the `code/` directory:
