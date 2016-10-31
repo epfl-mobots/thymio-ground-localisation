@@ -56,17 +56,17 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 	cdef double[:,:] particles # 2D array of particles_count x (x,y,theta)
 	cdef double[:] estimated_particle # last best estimate
 
-	def __init__(self, np.ndarray[double, ndim=2] ground_map, int particles_count, double sigma_obs, double prob_uniform, double alpha_xy, double alpha_theta):
+	def __init__(self, np.ndarray[double, ndim=2] ground_map_left, np.ndarray[double, ndim=2] ground_map_right, int particles_count, double sigma_obs, double prob_uniform, double alpha_xy, double alpha_theta):
 		""" Create the localizer with the ground map and some parameters """
 
-		super(MCLocalizer, self).__init__(ground_map, alpha_xy, alpha_theta, sigma_obs)
+		super(MCLocalizer, self).__init__(ground_map_left, ground_map_right, alpha_xy, alpha_theta, sigma_obs)
 
 		# setup parameters
 		self.N_uniform = int(prob_uniform*particles_count)
 
 		# create initial particles filled the whole space
 		cdef np.ndarray[double, ndim=2] particles = np.random.uniform(0,1,[particles_count, 3])
-		particles *= [ground_map.shape[0], ground_map.shape[1], _pi*2]
+		particles *= [ground_map_left.shape[0], ground_map_left.shape[1], _pi*2]
 		self.particles = particles
 		self.estimated_particle = np.empty([3], dtype=float)
 
@@ -88,7 +88,8 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 		cdef int uniform_count = self.N_uniform
 		cdef np.ndarray[double, ndim=2] particles_view = np.asarray(self.particles)
 		cdef np.ndarray[double, ndim=1] weights = np.empty([particles_count])
-		cdef np.ndarray[double, ndim=2] ground_map_view = np.asarray(self.ground_map)
+		cdef np.ndarray[double, ndim=2] ground_map_left_view = np.asarray(self.ground_map_left)
+		cdef np.ndarray[double, ndim=2] ground_map_right_view = np.asarray(self.ground_map_right)
 
 		# matching particles
 		nb_ok = 0
@@ -108,11 +109,11 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 				# otherwise, compute weight in function of ground color
 
 				# left sensor
-				ground_val = ground_map_view[self.xyW2C(left_sensor_pos[0]), self.xyW2C(left_sensor_pos[1])]
+				ground_val = ground_map_left_view[self.xyW2C(left_sensor_pos[0]), self.xyW2C(left_sensor_pos[1])]
 				left_weight = _norm(left_color, ground_val, sigma)
 
 				# right sensor
-				ground_val = ground_map_view[self.xyW2C(right_sensor_pos[0]), self.xyW2C(right_sensor_pos[1])]
+				ground_val = ground_map_right_view[self.xyW2C(right_sensor_pos[0]), self.xyW2C(right_sensor_pos[1])]
 				right_weight = _norm(right_color, ground_val, sigma)
 
 				# compute weight
@@ -129,7 +130,7 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 		assert weights.sum() > 0.
 		weights /= weights.sum()
 		cdef np.ndarray[double, ndim=2] resampled = particles_view[np.random.choice(particles_count, resample_count, p=weights)]
-		cdef np.ndarray[double, ndim=2] new_particles = np.random.uniform(0,1,[uniform_count, 3]) * [self.ground_map.shape[0], self.ground_map.shape[1], _pi*2]
+		cdef np.ndarray[double, ndim=2] new_particles = np.random.uniform(0,1,[uniform_count, 3]) * [self.ground_map_left.shape[0], self.ground_map_left.shape[1], _pi*2]
 		particles_view[:resample_count] = resampled
 		particles_view[resample_count:] = new_particles
 		# FIXME I don't know why that doesn't work so I copy manually -_-
@@ -143,8 +144,8 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 
 		# add adaptive noise to fight particle depletion
 		cdef double one_N3 = 1. / pow(particles_count, 1./3.)
-		cdef double range_x = self.ground_map.shape[0] * one_N3
-		cdef double range_y = self.ground_map.shape[1] * one_N3
+		cdef double range_x = self.ground_map_left.shape[0] * one_N3
+		cdef double range_y = self.ground_map_left.shape[1] * one_N3
 		cdef double range_theta = 2. * _pi * one_N3
 		for i in range(particles_count):
 			particles_view[i, 0] += np.random.uniform(-range_x / 2., range_x / 2.)
@@ -273,8 +274,8 @@ cdef class MCLocalizer(localize_common.AbstractLocalizer):
 		fig = Figure((3,3), tight_layout=True)
 		canvas = FigureCanvas(fig)
 		ax = fig.gca()
-		ax.set_xlim([0, self.ground_map.shape[0]])
-		ax.set_ylim([0, self.ground_map.shape[1]])
+		ax.set_xlim([0, self.ground_map_left.shape[0]])
+		ax.set_ylim([0, self.ground_map_left.shape[1]])
 
 		for (x, y, theta) in self.particles:
 			ax.arrow(x, y, math.cos(theta), math.sin(theta), head_width=0.8, head_length=1, fc='k', ec='k', alpha=0.3)

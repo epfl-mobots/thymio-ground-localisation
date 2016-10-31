@@ -16,7 +16,8 @@ cpdef np.ndarray[double, ndim=2] rot_mat2(double angle)
 cdef class AbstractLocalizer:
 
 	# map
-	cdef double[:,:] ground_map
+	cdef double[:,:] ground_map_left
+	cdef double[:,:] ground_map_right
 
 	# motion model
 	cdef double alpha_xy

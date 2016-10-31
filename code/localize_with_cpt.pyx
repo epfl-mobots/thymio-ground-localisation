@@ -70,20 +70,20 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 
 	# constructor
 
-	def __init__(self, np.ndarray[double, ndim=2] ground_map, int angle_N, double sigma_obs, double max_prob_error, double prob_uniform, double alpha_xy, double alpha_theta):
+	def __init__(self, np.ndarray[double, ndim=2] ground_map_left, np.ndarray[double, ndim=2] ground_map_right, int angle_N, double sigma_obs, double max_prob_error, double prob_uniform, double alpha_xy, double alpha_theta):
 		""" Fill the tables obs_left/right_black/white of the same resolution as the ground_map and an angle discretization angle_N """
 
-		super(CPTLocalizer, self).__init__(ground_map, alpha_xy, alpha_theta, sigma_obs)
+		super(CPTLocalizer, self).__init__(ground_map_left, ground_map_right, alpha_xy, alpha_theta, sigma_obs)
 
 		# copy parameters
 		assert angle_N != 0
 		self.angle_N = angle_N
 		self.max_prob_error = max_prob_error
 		self.prob_uniform = prob_uniform
-		self.N = angle_N * ground_map.shape[0] * ground_map.shape[1]
+		self.N = angle_N * ground_map_left.shape[0] * ground_map_left.shape[1]
 
 		# initialize PX
-		cdef shape = [angle_N, ground_map.shape[0], ground_map.shape[1]]
+		cdef shape = [angle_N, ground_map_left.shape[0], ground_map_left.shape[1]]
 		self.PX = np.ones(shape, np.double) / float(np.prod(shape))
 		self.estimated = np.zeros([3], dtype=int)
 
@@ -99,8 +99,8 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 		cdef np.ndarray[double, ndim=3] PX_view = np.asarray(self.PX)
 
 		# parameters copy
-		cdef int w = self.ground_map.shape[0]
-		cdef int h = self.ground_map.shape[1]
+		cdef int w = self.ground_map_left.shape[0]
+		cdef int h = self.ground_map_left.shape[1]
 		cdef int i, j, k
 		cdef np.ndarray[double, ndim=2] R
 		cdef np.ndarray[double, ndim=1] shift_left, shift_right
@@ -109,7 +109,8 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 		cdef double d_obs
 		cdef double sigma = self.sigma_obs
 		cdef double ground_val
-		cdef double lowest_prob_upate = _norm(np.max(self.ground_map), np.min(self.ground_map), sigma)
+		cdef double lowest_prob_upate_left = _norm(np.max(self.ground_map_left), np.min(self.ground_map_left), sigma)
+		cdef double lowest_prob_upate_right = _norm(np.max(self.ground_map_right), np.min(self.ground_map_right), sigma)
 
 		# iterate on all angles
 		for i in range(self.angle_N):
@@ -128,18 +129,18 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 					if self.is_in_bound_cell(x_i, y_i):
 						# update PX
 						PX_view[i, j, k] *= \
-							_norm(left_color, self.ground_map[x_i, y_i], sigma)
+							_norm(left_color, self.ground_map_left[x_i, y_i], sigma)
 					else:
-						PX_view[i, j, k] *= lowest_prob_upate
+						PX_view[i, j, k] *= lowest_prob_upate_left
 					# right sensor
 					x_i = self.xyW2C(c_x + shift_right[0])
 					y_i = self.xyW2C(c_y + shift_right[1])
 					if self.is_in_bound_cell(x_i, y_i):
 						# update PX
 						PX_view[i, j, k] *= \
-							_norm(right_color, self.ground_map[x_i, y_i], sigma)
+							_norm(right_color, self.ground_map_right[x_i, y_i], sigma)
 					else:
-						PX_view[i, j, k] *= lowest_prob_upate
+						PX_view[i, j, k] *= lowest_prob_upate_right
 
 		# adding a bit of uniform and renormalize
 		PX_view *= (1-self.prob_uniform) / PX_view.sum()
@@ -165,12 +166,15 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 		cdef np.ndarray[double, ndim=2] T, sigma # cov. motion model
 
 		# assertion and copy some values for optimisation
-		assert self.ground_map is not None
+		assert self.ground_map_left is not None
+		assert self.ground_map_right is not None
 		assert self.PX is not None
-		assert self.ground_map.shape[0] == self.PX.shape[1]
-		assert self.ground_map.shape[1] == self.PX.shape[2]
-		cdef int w = self.ground_map.shape[0]
-		cdef int h = self.ground_map.shape[1]
+		assert self.ground_map_left.shape[0] == self.PX.shape[1]
+		assert self.ground_map_left.shape[1] == self.PX.shape[2]
+		assert self.ground_map_right.shape[0] == self.PX.shape[1]
+		assert self.ground_map_right.shape[1] == self.PX.shape[2]
+		cdef int w = self.ground_map_left.shape[0]
+		cdef int h = self.ground_map_right.shape[1]
 		cdef int angle_N = self.angle_N
 
 		# error model for motion, inspired from
@@ -204,7 +208,7 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 		# for x,y
 		cdef object e_xy_dist = norm(0, e_xy)
 		cdef double e_xy_max = e_xy_dist.pdf(0)
-		for i in range(1, self.ground_map.shape[0]/2):
+		for i in range(1, self.ground_map_left.shape[0]/2):
 			e_i = e_xy_dist.pdf(self.dxyC2W(i))
 			if e_i < self.max_prob_error * e_xy_max:
 				break
@@ -301,8 +305,8 @@ cdef class CPTLocalizer(localize_common.AbstractLocalizer):
 			best_range_xy = self.dxyW2C(self.conf_xy - xy_half_CinW)
 		# then sum around it
 		cdef int i, j, k
-		cdef int w = self.ground_map.shape[0]
-		cdef int h = self.ground_map.shape[1]
+		cdef int w = self.ground_map_left.shape[0]
+		cdef int h = self.ground_map_left.shape[1]
 		cdef double sum_p = 0.
 		for i in range(theta_i - best_range_theta, theta_i + best_range_theta + 1):
 			i = (i + self.angle_N) % self.angle_N

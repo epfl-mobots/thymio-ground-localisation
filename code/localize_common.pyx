@@ -22,12 +22,16 @@ cpdef np.ndarray[double, ndim=2] rot_mat2(double angle):
 cdef class AbstractLocalizer:
 
 	# constructor
-	def __init__(self, np.ndarray[double, ndim=2] ground_map, double alpha_xy, double alpha_theta, double sigma_obs):
+	def __init__(self, np.ndarray[double, ndim=2] ground_map_left, np.ndarray[double, ndim=2] ground_map_right, double alpha_xy, double alpha_theta, double sigma_obs):
 
-		assert ground_map.dtype == np.double
+		# sanity check on parameters
+		assert ground_map_left.dtype == np.double
+		assert ground_map_right.dtype == np.double
+		assert ground_map_left.shape == ground_map_right.shape
 
 		# copy parameters
-		self.ground_map = ground_map
+		self.ground_map_left = ground_map_left
+		self.ground_map_right = ground_map_right
 		self.alpha_xy = alpha_xy
 		self.alpha_theta = alpha_theta
 		self.sigma_obs = sigma_obs
@@ -40,7 +44,7 @@ cdef class AbstractLocalizer:
 
 	cpdef bint is_in_bound_cell(self, int x, int y):
 		""" Return whether a given position x,y (as int) is within the bounds of a 2D array """
-		if x >= 0 and y >= 0 and x < self.ground_map.shape[0] and y < self.ground_map.shape[1]:
+		if x >= 0 and y >= 0 and x < self.ground_map_left.shape[0] and y < self.ground_map_left.shape[1]:
 			return True
 		else:
 			return False

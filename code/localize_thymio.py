@@ -4,9 +4,11 @@
 # kate: replace-tabs off; indent-width 4; indent-mode normal; remove-trailing-spaces all;
 # vim: ts=4:sw=4:noexpandtab
 
+import os
 import dbus
 import time
 import math
+import json
 
 import matplotlib
 #matplotlib.use('GTK')
@@ -91,11 +93,17 @@ def unitToSensor(value):
 
 if __name__ == '__main__':
 
+	# load config file
+	config_filename = 'config.json'
+	with open(config_filename) as infile:
+		config = json.load(infile)
+
 	# load stuff
 	vUnitToSensor = numpy.vectorize(unitToSensor)
 	ground_map = numpy.flipud(scipy.misc.imread(sys.argv[1]).astype(float))
 	#scipy.misc.imsave('/tmp/dump.png', numpy.transpose(ground_map))
-	localizer = localize_with_cpt.CPTLocalizer(vUnitToSensor(numpy.transpose(ground_map) / 255.), 36, 150., 0.01, 0, 0.1, 0.1)
+	# TODO: use config to create ground_maps
+	localizer = localize_with_cpt.CPTLocalizer(vUnitToSensor(numpy.transpose(ground_map) / 255.), vUnitToSensor(numpy.transpose(ground_map) / 255.), 36, 150., 0.01, 0, 0.1, 0.1)
 
 	# log
 	if len(sys.argv) > 2:
@@ -115,6 +123,11 @@ if __name__ == '__main__':
 		bus.get_object('ch.epfl.mobots.Aseba', '/'),  dbus_interface='ch.epfl.mobots.AsebaNetwork')
 	except dbus.exceptions.DBusException:
 		raise AsebaException('Can not connect to Aseba DBus services! Is asebamedulla running?')
+
+	# load AESL
+	dir_path = os.path.dirname(os.path.realpath(__file__))
+	aesl_file = os.path.join(dir_path, 'thymio-localisation.aesl')
+	network.LoadScripts(aesl_file)
 
 	# create filter for our event
 	eventfilter = network.CreateEventFilter()
