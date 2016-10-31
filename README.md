@@ -28,14 +28,14 @@ First launch asebamedulla to connect to the Thymio:
 
     asebamedulla "ser:name=Thymio" -v
     
-You should see a message indicating an incomming connection to the Thymio.
+You should see a message indicating an incoming connection to the Thymio.
 
 Calibration
 -----------
 
 The first thing to do is to calibrate the sensors of your Thymio.
 To do so, print and cut the calibration pattern from [data/thymio-ground-localisation-maps.pdf](data/thymio-ground-localisation-maps.pdf), at size 1:1 (one gray line is 1.5 cm).
-Position the robot in front of the pattern:
+Position the robot in front of the pattern, perpendicularly to the stripes:
 
 ![Image of Thymio calibration](thymio-calib.jpg)
 
