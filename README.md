@@ -5,6 +5,8 @@ This repository holds the source code, recorded VICON data, and the DARS 2016 pa
 
 Shiling Wang, Francis Colas, Ming Liu, Francesco Mondada, Stéphane Magnenat
 
+[![Video of the work](http://img.youtube.com/vi/70euPzixzus/0.jpg)](https://www.youtube.com/watch?v=70euPzixzus "Video of the work")
+
 
 Prerequisites
 -------------
@@ -32,11 +34,32 @@ Calibration
 -----------
 
 The first thing to do is to calibrate the sensors of your Thymio.
-To do so, launch the `calibrate_thymio.py` in the `code/` directory, using the calibration pattern from `data/thymio-ground-localisation-maps.pdf`:
+To do so, print and cut the calibration pattern from [data/thymio-ground-localisation-maps.pdf](data/thymio-ground-localisation-maps.pdf), at size 1:1 (one gray line is 1.5 cm).
+Position the robot in front of the pattern:
+![Image of Thymio calibration](thymio-calib.jpg)
+
+Then launch the `calibrate_thymio.py` in the `code/` directory:
 
     ./calibrate_thymio.py
     
 This program writes the calibration tables in the file `config.json`.
+
+Running
+-------
+
+Print one of the six images from [data/thymio-ground-localisation-maps.pdf](data/thymio-ground-localisation-maps.pdf), *without scaling* (1 pixel = 1 cm).
+Make sure `asebamedulla` is running.
+Launch the localization program, `localize_thymio.py` in the `code/` directory, passing the filename of the image corresponding to the printed one, for instance:
+
+    ./localize_thymio.py ../data/kandinsky_comp-8_A2.png
+    
+The program is running, but to localize, you need to have the Thymio move.
+To do so, plug a joypad and launch the `asebajoy` program:
+
+    asebajoy
+
+It will connect to `asebamedulla` and allow to control the Thymio with the two first axes.
+This has been tested with a _Logitech Wireless Gamepad F710_ (D-mode, Ubuntu 16.04.1), but should work with most joypads.
 
 
 Evaluation of parameters

@@ -85,11 +85,13 @@ def ground_values_received(id, name, values):
 			))
 
 
-def unitToSensor(value):
-	if value < 0.6:
-		return value * 950. / 0.6
-	else:
-		return 950. + (value - 0.6) * 50. / 0.4
+def unitToSensor(value, table):
+	assert len(table) == 17
+	tableBin = int(value*16)
+	r = value - (1./16.)*tableBin
+	if tableBin == 16:
+		return table[16]
+	return float(table[tableBin]) * (1.-r) + float(table[tableBin+1]) * r
 
 if __name__ == '__main__':
 
@@ -99,11 +101,12 @@ if __name__ == '__main__':
 		config = json.load(infile)
 
 	# load stuff
-	vUnitToSensor = numpy.vectorize(unitToSensor)
+	vUnitToSensor = numpy.vectorize(unitToSensor, excluded=[1])
 	ground_map = numpy.flipud(scipy.misc.imread(sys.argv[1]).astype(float))
-	#scipy.misc.imsave('/tmp/dump.png', numpy.transpose(ground_map))
-	# TODO: use config to create ground_maps
-	localizer = localize_with_cpt.CPTLocalizer(vUnitToSensor(numpy.transpose(ground_map) / 255.), vUnitToSensor(numpy.transpose(ground_map) / 255.), 36, 150., 0.01, 0, 0.1, 0.1)
+	localizer = localize_with_cpt.CPTLocalizer(
+		vUnitToSensor(numpy.transpose(ground_map) / 255., config['left']),
+		vUnitToSensor(numpy.transpose(ground_map) / 255., config['right']),
+		36, 150., 0.01, 0, 0.1, 0.1)
 
 	# log
 	if len(sys.argv) > 2:
@@ -141,7 +144,7 @@ if __name__ == '__main__':
 	plt.subplots_adjust(left=0.05, right=0.95, top=0.95, bottom=0.05, wspace=0.1, hspace=0)
 	# maps
 	plt.subplot(1, 2, 1)
-	plt.imshow(vUnitToSensor(ground_map / 255.), origin='lower', interpolation="nearest", cmap='gray')
+	plt.imshow(vUnitToSensor(ground_map / 255., config['left']), origin='lower', interpolation="nearest", cmap='gray')
 	plt.subplot(1, 2, 2)
 	prob_img = plt.imshow(ground_map, origin='lower', interpolation="nearest", cmap='gray')
 	orient_plot = plt.scatter([0,2],[0,0], c=['#66ff66', '#ff4040'], s=40)

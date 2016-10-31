@@ -27,7 +27,8 @@ cdef class AbstractLocalizer:
 		# sanity check on parameters
 		assert ground_map_left.dtype == np.double
 		assert ground_map_right.dtype == np.double
-		assert ground_map_left.shape == ground_map_right.shape
+		assert ground_map_left.shape[0] == ground_map_right.shape[0]
+		assert ground_map_left.shape[1] == ground_map_right.shape[1]
 
 		# copy parameters
 		self.ground_map_left = ground_map_left
