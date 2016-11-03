@@ -61,6 +61,7 @@ To do so, plug a joypad and launch the `asebajoy` program:
     asebajoy
 
 It will connect to `asebamedulla` and allow to control the Thymio with the two first axes.
+For a typical modern gamepad, these axes correspond to the left analog stick.
 This has been tested with a _Logitech Wireless Gamepad F710_ (D-mode, Ubuntu 16.04.1), but should work with most joypads.
 
 
