@@ -30,6 +30,7 @@ First launch asebamedulla to connect to the Thymio:
     asebamedulla "ser:name=Thymio" -v
     
 You should see a message indicating an incoming connection to the Thymio.
+Keep `asebamedulla` running for next steps.
 
 Calibration
 -----------
