@@ -23,6 +23,7 @@ Setup
 You need a [Thymio](http://thymio.org), preferably a Wireless version, and [Aseba](https://www.thymio.org/en:start) installed.
 As this real-time localization code uses DBus to communicate with Aseba, you need to have a D-Bus enabled build.
 It is the case by default on Linux, for OS X, you might have to recompile Aseba, on Windows, it is not supported.
+Assuming your are on Linux, first install the latest stable version of Aseba, as described on https://www.thymio.org/en:start.
 
 First launch asebamedulla to connect to the Thymio:
 
