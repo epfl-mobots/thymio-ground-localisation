@@ -64,6 +64,13 @@ It will connect to `asebamedulla` and allow to control the Thymio with the two f
 For a typical modern gamepad, these axes correspond to the left analog stick.
 This has been tested with a _Logitech Wireless Gamepad F710_ (D-mode, Ubuntu 16.04.1), but should work with most joypads.
 
+Troubleshooting
+---------------
+
+The script `localize_thymio.py` opens a window, but it is empty.
+We observed a similar problem with some versions of matplotlib on some setups.
+You can try to uncomment the statement `matplotlib.use('GTK')` at line 14 of `localize_thymio.py`.
+
 
 Evaluation of parameters
 ========================
