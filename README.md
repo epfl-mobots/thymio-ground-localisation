@@ -76,7 +76,7 @@ You can try to uncomment the statement `matplotlib.use('GTK')` at line 14 of `lo
 Evaluation of parameters
 ========================
 
-Once these are installed, you can play with existing datasets (in `data/`) using the `test.py` tool. If you launch it with the `-h` argument from the `data/` directory, it will list its available options.
+Once the prerequisites are installed, you can play with existing datasets (in `data/`) using the `test.py` tool (in `codde/`), even if you do not own a robot. If you launch `test.py` with the `-h` argument, it will list its available options.
 
 For example:
 
