@@ -7,6 +7,8 @@ Shiling Wang, Francis Colas, Ming Liu, Francesco Mondada, Stéphane Magnenat
 
 [![Video of the work](http://img.youtube.com/vi/70euPzixzus/0.jpg)](https://www.youtube.com/watch?v=70euPzixzus "Video of the work")
 
+[download](video/thymio-ground-localisation-video.mp4)
+
 
 Prerequisites
 -------------
