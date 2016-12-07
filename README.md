@@ -17,8 +17,28 @@ This code needs Python 2.x, Cython, numpy, scipy, and termcolor.
 Real-time localization of Thymio
 ================================
 
-Setup
------
+This can be performed both in simulation or with a physical robot.
+
+Simulation setup
+----------------
+
+You need the master branch of Aseba or, when released (sometimes in 2017), version 1.6 or later.
+You can download Aseba from [github](https://github.com/aseba-community/aseba).
+Once Aseba is downloaded, compile it according to the instructions on github.
+Then, first launch playground, open one of the 6 scenarios in the `simulation/` directory or pass it to the command line.
+For instance:
+
+    asebaplayground simulation/kandinsky.playground
+
+Then, launch asebamedulla to connect to the virtual Thymio:
+
+    asebamedulla "tcp:localhost;33334" -v
+
+You should see a message indicating an incoming connection to the virtual Thymio, both on medulla and in the bottom part of playground's window.
+Keep `asebamedulla` running for next steps.
+
+Real-robot setup
+----------------
 
 You need a [Thymio](http://thymio.org), preferably a Wireless version, and the latest stable version of [Aseba](https://www.thymio.org/en:start) installed.
 As this real-time localization code uses DBus to communicate with Aseba, you need to have a D-Bus enabled build.
@@ -35,7 +55,8 @@ Keep `asebamedulla` running for next steps.
 Calibration
 -----------
 
-The first thing to do is to calibrate the sensors of your Thymio.
+In simulation, this step is step required.
+If you have a real robot, the first thing to do is to calibrate the sensors of your Thymio.
 To do so, print and cut the calibration pattern from [data/thymio-ground-localisation-maps.pdf](data/thymio-ground-localisation-maps.pdf), at size 1:1 (one gray line is 1.5 cm).
 Position the robot in front of the pattern, perpendicularly to the stripes:
 
@@ -50,8 +71,13 @@ This program writes the calibration tables in the file `config.json`.
 Running
 -------
 
-Print one of the six images from [data/thymio-ground-localisation-maps.pdf](data/thymio-ground-localisation-maps.pdf), *without scaling* (1 pixel = 1 cm).
 Make sure `asebamedulla` is running.
+
+In simulation, launch the localization program, `localize_thymio.py` in the `code/` directory, passing the filename of the image corresponding to the scenario loaded in playground and the `--simulation` flag, for instance:
+
+    ./localize_thymio.py ../data/kandinsky_comp-8_A2.png --simulation
+
+With a real robot, print one of the six images from [data/thymio-ground-localisation-maps.pdf](data/thymio-ground-localisation-maps.pdf), *without scaling* (1 pixel = 1 cm).
 Launch the localization program, `localize_thymio.py` in the `code/` directory, passing the filename of the image corresponding to the printed one, for instance:
 
     ./localize_thymio.py ../data/kandinsky_comp-8_A2.png
@@ -64,6 +90,10 @@ To do so, plug a joypad and launch the `asebajoy` program:
 It will connect to `asebamedulla` and allow to control the Thymio with the two first axes.
 For a typical modern gamepad, these axes correspond to the left analog stick.
 This has been tested with a _Logitech Wireless Gamepad F710_ (D-mode, Ubuntu 16.04.1), but should work with most joypads.
+
+In simulation, you should see something like that:
+
+![Image of localization with simulated Thymio](simulation.png)
 
 Troubleshooting
 ---------------

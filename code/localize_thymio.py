@@ -95,10 +95,19 @@ def unitToSensor(value, table):
 
 if __name__ == '__main__':
 
-	# load config file
-	config_filename = 'config.json'
-	with open(config_filename) as infile:
-		config = json.load(infile)
+	# if simulation
+	if '--simulation' in sys.argv:
+		# ... generate configuration on the fly
+		m_factor = 806.93 # taken from Enki::Thymio2
+		a_factor = 45.0   # taken from Enki::Thymio2
+		left_calib_table = numpy.linspace(a_factor, a_factor + m_factor, 17)
+		right_calib_table = numpy.linspace(a_factor, a_factor + m_factor, 17)
+		config = { 'left': left_calib_table, 'right': right_calib_table }
+	else:
+		# ... otherwise load config file
+		config_filename = 'config.json'
+		with open(config_filename) as infile:
+			config = json.load(infile)
 
 	# load stuff
 	vUnitToSensor = numpy.vectorize(unitToSensor, excluded=[1])
