@@ -1,7 +1,7 @@
 Bayesian global localisation for Thymio using ground sensors
 ============================================================
 
-This repository holds the source code, recorded VICON data, and the DARS 2016 paper.
+This repository holds the source code, recorded VICON data, and the [DARS 2016 paper](http://stephane.magnenat.net/publications/Localization%20of%20inexpensive%20robots%20with%20low-bandwidth%20sensors%20-%20Wang%20et%20al.%20-%20DARS%20-%202016.pdf).
 
 Shiling Wang, Francis Colas, Ming Liu, Francesco Mondada, Stéphane Magnenat
 
