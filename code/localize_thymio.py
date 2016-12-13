@@ -98,11 +98,17 @@ if __name__ == '__main__':
 	# if simulation
 	if '--simulation' in sys.argv:
 		# ... generate configuration on the fly
-		m_factor = 806.93 # taken from Enki::Thymio2
-		a_factor = 45.0   # taken from Enki::Thymio2
-		left_calib_table = numpy.linspace(a_factor, a_factor + m_factor, 17)
-		right_calib_table = numpy.linspace(a_factor, a_factor + m_factor, 17)
-		config = { 'left': left_calib_table, 'right': right_calib_table }
+		c_factor = 0.44 # taken from Enki::Thymio2
+		s_factor = 9.   # taken from Enki::Thymio2
+		m_factor = 884. # taken from Enki::Thymio2
+		a_factor = 60.  # taken from Enki::Thymio2
+		# support functions
+		def sigm(x, s): return 1. / (1. + numpy.exp(-x * s))
+		def response_function(v): return sigm(v - c_factor, s_factor) * m_factor + a_factor
+		# fill the table
+		calib_table = map(response_function, numpy.linspace(0,1,17))
+		config = { 'left': calib_table, 'right': calib_table }
+		print config
 	else:
 		# ... otherwise load config file
 		config_filename = 'config.json'
