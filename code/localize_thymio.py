@@ -108,7 +108,6 @@ if __name__ == '__main__':
 		# fill the table
 		calib_table = map(response_function, numpy.linspace(0,1,17))
 		config = { 'left': calib_table, 'right': calib_table }
-		print config
 	else:
 		# ... otherwise load config file
 		config_filename = 'config.json'
