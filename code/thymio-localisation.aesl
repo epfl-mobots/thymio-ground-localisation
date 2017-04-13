@@ -44,6 +44,10 @@ var x = 0
 var y = 0
 var th = 0
 
+# init
+
+# disable ground leds
+call leds.prox.v(0,0)
 
 # joystick support
 
